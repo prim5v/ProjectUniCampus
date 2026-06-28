@@ -184,7 +184,7 @@ The project was designed before implementation.
 
 Wireframing allowed the complete user journey, authentication flow and administrator interactions to be planned before writing code.
 
-*(Insert Design Image #1 here.)*
+<!-- *(Insert Design Image #1 here.)* -->
 <img src="assets/3.png" alt="Image" >
 
 ---
@@ -193,14 +193,14 @@ Wireframing allowed the complete user journey, authentication flow and administr
 
 ### System Overview
 
-*(Insert Image #2 here.)*
+<!-- *(Insert Image #2 here.)* -->
 <img src="assets/2.png" alt="Image" >
 
 ---
 
 ### End-to-End Workflow
 
-*(Insert Image #3 here.)*
+<!-- *(Insert Image #3 here.)* -->
 <img src="assets/1.png" alt="Image" >
 
 ---
@@ -271,7 +271,7 @@ Development instructions for ESP32 firmware will be added during implementation.
 
 | Component            | Status         |
 | -------------------- | -------------- |
-| Research             | ✅ Completed    |
+| Research             | 🚧 In Progress  |
 | System Design        | ✅ Completed    |
 | UI Wireframes        | ✅ Completed    |
 | Hardware Acquisition | ✅ Completed    |
