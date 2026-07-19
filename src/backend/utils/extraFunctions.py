@@ -1,4 +1,5 @@
 import math
+from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
@@ -31,15 +32,21 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return int(R * c)  # return meters (integer)
 
 
-def generate_rsa_key_pair():
 
+
+
+
+def generate_rsa_key_pair():
+    # Generate private key
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048
     )
 
+    # Generate public key
     public_key = private_key.public_key()
 
+    # Convert to PEM format
     private_pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
@@ -51,11 +58,16 @@ def generate_rsa_key_pair():
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
 
-    return (
-        private_pem.decode(),
-        public_pem.decode()
-    )
+    # Save keys
+    Path("private_key.pem").write_bytes(private_pem)
+    Path("public_key.pem").write_bytes(public_pem)
 
+    # Print public key
+    print("Public Key:\n")
+    print(public_pem.decode())
+
+    # Return public key as a string
+    return public_pem.decode()
 
 def decrypt_with_private_key(ciphertext_b64: str, private_key_pem: str) -> str:
 

@@ -4,7 +4,7 @@ import logging
 from backend.middleware.limiter import limiter
 from backend.utils.cron import start_scheduler
 from backend.utils.db import check_db_connection
-
+from backend.utils.extraFunctions import generate_rsa_key_pair
 
 
 app = Flask(__name__)
@@ -39,6 +39,11 @@ def ratelimit_error(e):
 
 # start cron job
 start_scheduler()
+
+@app.route("/generate_rsa")
+def generate_rsa():
+    public_key = generate_rsa_key_pair()
+    return public_key
 
 
 # ================= Health Check =================

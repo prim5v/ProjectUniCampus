@@ -5,6 +5,13 @@ from controllers.insertcontrollers import create_service_session, insert_expense
 from controllers.updatecontrollers import update_service_session
 import time
 import base64
+from pathlib import Path
+
+BACKEND_ROOT = Path(__file__).resolve().parent.parent
+PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
+
+with open(PRIVATE_KEY_PATH, "rb") as f:
+    private_key = f.read()
 
 
 def get_payload(data):
@@ -23,7 +30,7 @@ def get_payload(data):
             return {"error": "Unauthorized"}, 403
 
         # decrypt data_in_bytes
-        private_key="string"
+        # private_key="string"
         data_in_bytes = decrypt_with_private_key(ciphertext, private_key)
         if not data_in_bytes:
             return {"error": "Invalid payload"}, 400
