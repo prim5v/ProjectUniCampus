@@ -1,4 +1,4 @@
-from backend.utils.db import get_db_cursor
+from utils.db import get_db_cursor
 
 
 def check_reader(reader_id):

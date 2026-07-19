@@ -1,5 +1,5 @@
 import uuid
-from backend.utils.db import get_db_cursor
+from utils.db import get_db_cursor
 
 def create_service_session(service_id, student_id, nonce, timestamp):
     conn, cursor = get_db_cursor()

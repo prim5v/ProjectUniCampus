@@ -3,7 +3,7 @@ from flask import request, jsonify, g
 from jose import jwt
 import requests
 
-from backend.utils.db import get_db_cursor
+from utils.db import get_db_cursor
 
 import logging
 
