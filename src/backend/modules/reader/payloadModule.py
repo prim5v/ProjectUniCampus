@@ -7,7 +7,7 @@ import time
 import base64
 from pathlib import Path
 
-BACKEND_ROOT = Path(__file__).resolve().parent.parent
+BACKEND_ROOT = Path(__file__).resolve().parent[6]
 PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
 
 with open(PRIVATE_KEY_PATH, "rb") as f:

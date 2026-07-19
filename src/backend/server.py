@@ -38,13 +38,13 @@ def ratelimit_error(e):
 
 # start cron job
 # 
-import os
+# import os
 
-# Only start the scheduler if NOT running under PythonAnywhere's uWSGI web server
-if "UWSGI_ORIGINAL_PROC_NAME" not in os.environ:
-    start_scheduler()
-else:
-    print("Skipping background scheduler initialization in uWSGI worker process.")
+# # # Only start the scheduler if NOT running under PythonAnywhere's uWSGI web server
+# # if "UWSGI_ORIGINAL_PROC_NAME" not in os.environ:
+# #     start_scheduler()
+# # else:
+# #     print("Skipping background scheduler initialization in uWSGI worker process.")
 
 
 @app.route("/generate_rsa")
