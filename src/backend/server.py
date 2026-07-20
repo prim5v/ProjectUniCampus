@@ -5,6 +5,7 @@ from middleware.limiter import limiter
 from utils.cron import start_scheduler
 from utils.db import check_db_connection
 from utils.extraFunctions import generate_rsa_key_pair
+from routes.reader import reader_bp
 
 app = Flask(__name__)
 CORS(app,
@@ -76,6 +77,7 @@ def db_health():
     
 # ================= BLUEPRINTS =================
 # app.register_blueprint(auth_bp)
+app.register_blueprint(reader_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)
