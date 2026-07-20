@@ -21,19 +21,29 @@ def get_payload(data):
         amount = data.get("amount") # we use amount if serviceType is Payment
 
         if not ciphertext or not reader_id:
+            logging.error("Missing required fields")
             return {"error": "Missing required fields"}, 400
+            
+        
+        logging.info(f"Payload received from reader {reader_id}")
 
 
         # check if reader is authorized and get readtype = serviceType
         serviceType= check_reader(reader_id) #ie Payment, Auth, RollCall
         if not serviceType:
+            logging.error("Unauthorized")
             return {"error": "Unauthorized"}, 403
+            
+        
+        logging.info(f"Reader {reader_id} authorized for {serviceType}")
 
         # decrypt data_in_bytes
         # private_key="string"
         data_in_bytes = decrypt_with_private_key(ciphertext, private_key)
         if not data_in_bytes:
+            logging.error("Invalid payload")
             return {"error": "Invalid payload"}, 400
+            
         
         # create data info
         separator = data_in_bytes.index(b'|')
@@ -57,11 +67,17 @@ def get_payload(data):
         current_timestamp = int(time.time())
 
         if abs(current_timestamp - timestamp) > MAX_TIME_DIFF:
+            logging.warning(
+                f"Expired payload. student={student_id}"
+            )
             return {"error": "Expired request"}, 401
         
         # nonce = base64.b64encode(nonce)
         nonce = base64.b64encode(nonce).decode("utf-8")
         if check_nonce(nonce):
+            logging.warning(
+                f"Replay attack detected. reader={reader_id}, student={student_id}"
+            )
             return {"error": "Payload used"}, 403
         
         # create session, student_id, nonce, timestamp ie status, reason and get session_id
@@ -70,6 +86,7 @@ def get_payload(data):
         service_id = get_service_id(reader_id)
 
         if not service_id:
+            logging.error("No service for this reader")
             return {"error": "No Service For this reader"}, 400
             
         # create service session service_id, student_id, timestamp, nonce, status=pending
@@ -79,6 +96,9 @@ def get_payload(data):
         if not student_check["authorized"]:
             reason = student_check["reason"]
             update_service_session(session_id, reason)
+            logging.warning(
+                f"Student auth failed: {student_check['reason']}"
+            )
             return {"error": "Student Unauthorized"}, 403
         # update service session if success in student is authorized we place status success + reason or fail + reason
         reason=student_check["reason"]
@@ -96,8 +116,19 @@ def get_payload(data):
             if amount <= 0:
                 return {"error": "Invalid amount"}, 400
             insert_expense_transaction(student_id, amount, session_id)
+            logging.info(
+                f"Payment of {amount} recorded for {student_id}"
+            )
         # all records in transaction with service_id != null are considered student expenses(the campuses legal money), ==null this are students active money
+        logging.info(
+            f"Session {session_id} completed successfully."
+        )
 
+        return {
+            "success": True,
+            "session_id": session_id
+        }, 200
+    
     except Exception as e:
         logging.exception(e)
         return {"error": "Server error"}, 500

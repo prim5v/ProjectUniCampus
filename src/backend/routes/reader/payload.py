@@ -7,3 +7,5 @@ from flask import request
 def payload():
     data = request.get_json()
     return get_payload(data)
+
+# https://prim5v.pythonanywhere.com/reader/payload
