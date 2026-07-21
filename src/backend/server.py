@@ -55,6 +55,7 @@ def ratelimit_error(e):
     }), 429
 
 # start cron job
+start_scheduler()
 # 
 # import os
 
