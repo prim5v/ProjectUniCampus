@@ -59,14 +59,26 @@ def generate_rsa_key_pair():
     )
 
     # Save keys
-    Path("private_key.pem").write_bytes(private_pem)
-    Path("public_key.pem").write_bytes(public_pem)
+    # Path("private_key.pem").write_bytes(private_pem)
+    # Path("public_key.pem").write_bytes(public_pem)
 
-    # Print public key
-    print("Public Key:\n")
-    print(public_pem.decode())
+    # # Print public key
+    # print("Public Key:\n")
+    # print(public_pem.decode())
 
-    # Return public key as a string
+    # # Return public key as a string
+    # return public_pem.decode()
+    
+    volume_path = Path("/etc/keys")
+    storage_dir = volume_path if volume_path.exists() else Path(".")
+
+    private_path = storage_dir / "private_key.pem"
+    public_path = storage_dir / "public_key.pem"
+
+    # Save keys securely
+    private_path.write_bytes(private_pem)
+    public_path.write_bytes(public_pem)
+
     return public_pem.decode()
 
 def decrypt_with_private_key(ciphertext_b64: str, private_key_pem: str) -> str:

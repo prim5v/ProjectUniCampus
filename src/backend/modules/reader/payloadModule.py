@@ -1,13 +1,13 @@
 import logging
-from utils.extraFunctions import decrypt_with_private_key
-from controllers.selectcontrollers import check_reader, get_service_id, check_student, check_nonce
-from controllers.insertcontrollers import create_service_session, insert_expense_transaction
-from controllers.updatecontrollers import update_service_session
+from backend.utils.extraFunctions import decrypt_with_private_key
+from backend.controllers.selectcontrollers import check_reader, get_service_id, check_student, check_nonce
+from backend.controllers.insertcontrollers import create_service_session, insert_expense_transaction
+from backend.controllers.updatecontrollers import update_service_session
 import time
 import base64
 from pathlib import Path
 
-BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent.parent.parent
+BACKEND_ROOT = Path(__file__).resolve().parent.parent
 PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
 
 with open(PRIVATE_KEY_PATH, "rb") as f:

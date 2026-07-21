@@ -1,11 +1,11 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 import logging
-from middleware.limiter import limiter
-from utils.cron import start_scheduler
-from utils.db import check_db_connection
-from utils.extraFunctions import generate_rsa_key_pair
-from routes.reader import reader_bp
+from backend.middleware.limiter import limiter
+from backend.utils.cron import start_scheduler
+from backend.utils.db import check_db_connection
+from backend.utils.extraFunctions import generate_rsa_key_pair
+from backend.routes.reader import reader_bp
 
 app = Flask(__name__)
 CORS(app,

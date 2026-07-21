@@ -1,5 +1,5 @@
-from routes.reader import reader_bp
-from modules.reader.payloadModule import get_payload
+from backend.routes.reader import reader_bp
+from backend.modules.reader.payloadModule import get_payload
 from flask import request
 
 

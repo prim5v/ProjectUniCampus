@@ -1,4 +1,4 @@
-from utils.db import get_db_cursor
+from backend.utils.db import get_db_cursor
 
 
 def update_service_session(session_id, reason):
