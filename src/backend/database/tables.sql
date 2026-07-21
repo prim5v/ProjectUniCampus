@@ -11,8 +11,10 @@ CREATE TABLE reader_data(
     id INTEGER PRIMARY KEY,
     reader_id VARCHAR(100) UNIQUE NOT NULL,
     campus_id VARCHAR(100) NOT NULL,
-    service_type ENUM('Payment', 'Auth', 'RollCall') NOT NULL,
-    designation ENUM('entrances', 'LE'),
+    reader_name VARCHAR(100) NOT NULL,
+    reader_type ENUM('QR', 'NFC', 'QR+NFC')
+    service_type ENUM('Payment', 'Access', 'EventRollCall', 'Attendance') NOT NULL,
+    designation VARCHAR(100) NOT NULL,
     createdAt TIMESTAMP,
     FOREIGN KEY (campus_id) REFERENCES campus_data(campus_id)
 );
