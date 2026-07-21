@@ -6,6 +6,8 @@ from backend.utils.cron import start_scheduler
 from backend.utils.db import check_db_connection
 from backend.utils.extraFunctions import generate_rsa_key_pair
 from backend.routes.reader import reader_bp
+from flask_socketio import SocketIO
+
 
 app = Flask(__name__)
 CORS(app,
@@ -15,6 +17,11 @@ CORS(app,
             "http://localhost:5173"
         ]
     }})
+
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
+
+# expose it
+app.extensions["socketio"] = socketio
 
 
 # ================= LOGGING =================
@@ -27,6 +34,16 @@ logging.info("Flask application started successfully.")
 
 # ================= EXTENSIONS =================
 limiter.init_app(app)
+
+# ================= SOCKET EVENTS =================
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print("Client disconnected")
+
 
 
 # ================= ERROR HANDLERS =================
@@ -80,5 +97,5 @@ def db_health():
 app.register_blueprint(reader_bp)
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    # socketio.run(app, debug=True)
+    # app.run(debug=True)
+    socketio.run(app, debug=True)

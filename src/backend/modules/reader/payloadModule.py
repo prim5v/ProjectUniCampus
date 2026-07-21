@@ -7,11 +7,26 @@ import time
 import base64
 from pathlib import Path
 
-BACKEND_ROOT = Path(__file__).resolve().parent.parent
-PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
+# BACKEND_ROOT = Path(__file__).resolve().parent.parent
+# PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
+
+# with open(PRIVATE_KEY_PATH, "rb") as f:
+#     private_key = f.read()
+
+# from pathlib import Path
+import os
+
+# Render mounts secret files at /etc/secrets/
+PRIVATE_KEY_PATH = Path("/etc/secrets/private_key.pem")
+
+# Fallback to a local workspace path for your local development 
+if not PRIVATE_KEY_PATH.exists():
+    BACKEND_ROOT = Path(__file__).resolve().parent.parent
+    PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
 
 with open(PRIVATE_KEY_PATH, "rb") as f:
     private_key = f.read()
+    # Your implementation here
 
 
 def get_payload(data):
