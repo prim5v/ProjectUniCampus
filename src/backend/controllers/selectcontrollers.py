@@ -1,6 +1,7 @@
 from backend.utils.db import get_db_cursor
 from flask import jsonify
 import bcrypt, uuid
+import logging
 
 def check_reader(reader_id):
     conn, cursor = get_db_cursor()
@@ -184,13 +185,16 @@ def login_check(username, pwd):
         user = cursor.fetchone()
 
         if not user:
+            logging.warning(f"❌ User {user['username']} not found")
             return None
 
         # if not bcrypt.checkpw(pwd.encode(), user["pwd_hash"].encode()):
         if pwd != user["pwd_hash"]:
+            logging.warning(f"❌ Invalid password for user {user['username']}")
             return None
 
         return user
+        logging.info(f"✅ User {user['username']} authenticated successfully")
 
     finally:
         cursor.close()
