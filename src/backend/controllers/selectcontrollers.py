@@ -185,16 +185,17 @@ def login_check(username, pwd):
         user = cursor.fetchone()
 
         if not user:
-            logging.warning(f"❌ User {user['username']} not found")
+            logging.warning(f"❌ User {username} not found")
             return None
 
         # if not bcrypt.checkpw(pwd.encode(), user["pwd_hash"].encode()):
         if pwd != user["pwd_hash"]:
-            logging.warning(f"❌ Invalid password for user {user['username']}")
+            logging.warning(f"❌ Invalid password for user {username}")
             return None
 
+        logging.info(f"✅ User {username} authenticated successfully")
         return user
-        logging.info(f"✅ User {user['username']} authenticated successfully")
+        
 
     finally:
         cursor.close()
