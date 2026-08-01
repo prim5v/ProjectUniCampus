@@ -358,31 +358,21 @@ def get_device_info() -> dict:
     # --------------------------------------------------
     # Return
     # --------------------------------------------------
-
     return {
-        "device_id": device_id,
-        "device_name": device_name,
+        "device_id": device_id or "UNKNOWN-DEVICE",
+        "device_name": device_name or "Android Device",
+        "platform": platform or "android",
+        "app_version": app_version or "1.0.0",
 
-        "platform": platform,
+        "browser": browser_family or "Unknown",
+        "os": os_family or "Android",
+        "device": device_family or "Mobile",
+        "device_brand": brand or "Unknown",
+        "device_model": model or "Unknown",
 
-        "app_version": app_version,
-
-        "browser": browser_family,
-
-        "os": os_family,
-
-        "device": device_family,
-
-        "device_brand": brand,
-
-        "device_model": model,
-
-        "ip": ip,
-
-        "location": location,
-
-        "user_agent": ua_string
+        "ip": ip or "0.0.0.0",
+        "location": location or "Unknown",
+        "user_agent": ua_string or "Unknown"
     }
-
 
 
