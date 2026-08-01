@@ -95,6 +95,8 @@ def insert_into_student_devices(student_id, device_id, device_name, platform, ap
             """,
             (student_id, device_id, device_name, platform, app_version, ip_address, user_agent, False)
             )
+        conn.commit()
+        return cursor.lastrowid
     finally:
         cursor.close()
         conn.close()
