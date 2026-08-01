@@ -40,7 +40,7 @@ def student_login(data):
 
         
         # check 1st if device_id exists for that student,
-        record = check_device_id()
+        record = check_device_id(device_info["device_id"])
         if not record:
             # insert into student devices
             insert_into_student_devices(student_id, device_info["device_id"], device_info["device_name"], device_info["platform"], device_info["app_version"], device_info["ip"], device_info["user_agent"])
