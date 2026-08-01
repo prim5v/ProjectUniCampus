@@ -36,8 +36,7 @@ def student_login(data):
 
         refresh_token, token_hash, token_expiry = generate_refresh_token(student_id, device_info["device_id"], session_id)
 
-        # insert into login sessions
-        insert_into_student_login_sessions(session_id, student_id, device_info["device_id"], token_hash, token_expiry)
+        
 
         
         # check 1st if device_id exists for that student,
@@ -47,6 +46,9 @@ def student_login(data):
             insert_into_student_devices(student_id, device_info["device_id"], device_info["device_name"], device_info["platform"], device_info["app_version"], device_info["ip"], device_info["user_agent"])
         # one student_id can have as many device_ids,
         # only one device_id record for the whole table
+
+        # insert into login sessions
+        insert_into_student_login_sessions(session_id, student_id, device_info["device_id"], token_hash, token_expiry)
 
 
         # device info:
