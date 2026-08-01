@@ -186,7 +186,8 @@ def login_check(username, pwd):
         if not user:
             return None
 
-        if not bcrypt.checkpw(pwd.encode(), user["pwd_hash"].encode()):
+        # if not bcrypt.checkpw(pwd.encode(), user["pwd_hash"].encode()):
+        if pwd != user["pwd_hash"]:
             return None
 
         return user
