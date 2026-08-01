@@ -10,6 +10,7 @@ from backend.routes.auth import auth_bp
 from backend.routes.student import student_bp
 from flask_socketio import SocketIO
 
+import os
 
 app = Flask(__name__)
 CORS(app,
@@ -24,6 +25,14 @@ socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
 
 # expose it
 app.extensions["socketio"] = socketio
+
+
+secret_key = os.getenv("SECRET_KEY")
+
+if not secret_key:
+    raise RuntimeError("SECRET_KEY environment variable is missing")
+
+app.config["SECRET_KEY"] = secret_key
 
 
 # ================= LOGGING =================
