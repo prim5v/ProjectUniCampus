@@ -6,6 +6,8 @@ from backend.utils.cron import start_scheduler
 from backend.utils.db import check_db_connection
 from backend.utils.extraFunctions import generate_rsa_key_pair
 from backend.routes.reader import reader_bp
+from backend.routes.auth import auth_bp
+from backend.routes.student import student_bp
 from flask_socketio import SocketIO
 
 
@@ -96,7 +98,12 @@ def db_health():
 # ================= BLUEPRINTS =================
 # app.register_blueprint(auth_bp)
 app.register_blueprint(reader_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(student_bp)
 
 if __name__ == "__main__":
     # app.run(debug=True)
     socketio.run(app, debug=True)
+
+
+    # https://projectunicampus.onrender.com

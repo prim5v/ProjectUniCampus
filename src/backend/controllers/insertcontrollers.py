@@ -57,3 +57,44 @@ def insert_expense_transaction(student_id, amount, session_id):
     finally:
         cursor.close()
         conn.close()
+
+
+
+def insert_into_student_login_sessions(session_id, student_id, device_id, token_hash, expires_at):
+    conn, cursor = get_db_cursor()
+    
+    if conn is None:
+        return False
+    
+    try:
+        cursor.execute(
+            """
+            INSERT INTO student_login_sessions
+            (session_id, student_id, device_id, token_hash, expires_at)
+            VALUES(%s, %s, %s, %s, %s)
+            """, 
+            (session_id, student_id, device_id, token_hash, expires_at))
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        cursor.close()
+        conn.close()
+
+def insert_into_student_devices(student_id, device_id, device_name, platform, app_version, ip_address, user_agent):
+    conn, cursor = get_db_cursor()
+    
+    if conn is None:
+        return False
+
+    try:
+        cursor.execute(
+            """
+            INSERT INTO student_devices
+            (student_id, device_id, device_name, platform, app_version, ip_address, user_agent, is_revoked)
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (student_id, device_id, device_name, platform, app_version, ip_address, user_agent, False)
+            )
+    finally:
+        cursor.close()
+        conn.close()

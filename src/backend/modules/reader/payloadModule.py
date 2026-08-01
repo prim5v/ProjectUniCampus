@@ -6,6 +6,7 @@ from backend.controllers.updatecontrollers import update_service_session
 import time
 import base64
 from pathlib import Path
+from backend.controllers.selectcontrollers import check_device_id
 
 # BACKEND_ROOT = Path(__file__).resolve().parent.parent
 # PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
@@ -77,7 +78,7 @@ def get_payload(data):
             byteorder="big"
         )
 
-        MAX_TIME_DIFF = 30  # seconds
+        MAX_TIME_DIFF = 20  # suggested by Lynne
 
         current_timestamp = int(time.time())
 
@@ -115,6 +116,14 @@ def get_payload(data):
                 f"Student auth failed: {student_check['reason']}"
             )
             return {"error": "Student Unauthorized"}, 403
+
+        # add device_id check this is mobile deviceid check added it today date 31/7/2026
+        student = student_check["student"]
+        
+        check_device = check_device_id(student["device_id"])
+        if not check_device:
+            return {"error": "Unauthorized"}, 403
+        
         # update service session if success in student is authorized we place status success + reason or fail + reason
         reason=student_check["reason"]
         update_service_session(session_id, reason)

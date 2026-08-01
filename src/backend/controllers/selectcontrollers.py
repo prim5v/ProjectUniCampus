@@ -1,5 +1,6 @@
 from backend.utils.db import get_db_cursor
-
+from flask import jsonify
+import bcrypt, uuid
 
 def check_reader(reader_id):
     conn, cursor = get_db_cursor()
@@ -157,8 +158,131 @@ def check_student(student_id, serviceType):
 
         return {
             "authorized": True,
-            "reason": "Student authorized"
+            "reason": "Student authorized",
+            "student": student
         }
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# def check_device(student_id):
+    
+
+
+def login_check(username, pwd):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return None
+
+    try:
+        cursor.execute(
+            "SELECT * FROM students_data WHERE username=%s",
+            (username,)
+        )
+        user = cursor.fetchone()
+
+        if not user:
+            return None
+
+        if not bcrypt.checkpw(pwd.encode(), user["pwd_hash"].encode()):
+            return None
+
+        return user
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_session_by_id(session_id):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return None
+
+    try:
+        cursor.execute(
+            """
+            SELECT 
+                id,
+                session_id,
+                user_id,
+                device_id,
+                token_hash,
+                expires_at,
+                created_at,
+                revoked_at,
+                ip_address,
+                user_agent
+            FROM login_sessions
+            WHERE session_id = %s
+            LIMIT 1
+            """,
+            (session_id,)
+        )
+
+        session = cursor.fetchone()
+
+        return session
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def check_device_id(device_id):
+    conn, cursor = get_db_cursor()
+    
+    if conn is None:
+        return None
+
+    try:
+        cursor.execute("SELECT * FROM students_devices WHERE device_id = %s", (device_id,))
+        record = cursor.fetchone()
+        if not record:
+            return None
+
+        return record
+
+    finally:
+        cursor.close()
+        conn.close()
+
+        
+
+def get_student_data(student_id):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return None
+
+    try:
+        query = """
+            SELECT
+                sc.student_name AS name,
+                sc.admission_number AS admission_number,
+                sc.student_course AS course,
+                sc.Year_of_study AS year,
+                c.campus_name AS university_name
+            FROM students_data sd
+            LEFT JOIN students_credentials sc
+                ON sd.student_id = sc.student_id
+            LEFT JOIN campus_data c
+                ON sd.campus_id = c.campus_id
+            WHERE sd.student_id = %s
+            LIMIT 1
+        """
+
+        cursor.execute(query, (student_id,))
+        student = cursor.fetchone()
+
+        return student
+
+    except Exception as e:
+        print(f"Error fetching student data: {e}")
+        return None
 
     finally:
         cursor.close()

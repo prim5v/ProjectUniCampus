@@ -10,6 +10,11 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 
+from flask import request
+import user_agents
+
+import requests
+import uuid
 
 def haversine_distance(lat1, lon1, lat2, lon2):
     """
@@ -105,3 +110,279 @@ def decrypt_with_private_key(ciphertext_b64: str, private_key_pem: str) -> str:
     )
 
     return plaintext.decode("utf-8")
+
+
+
+
+def get_location(ip: str) -> str:
+    """Resolve IP to city, region, country using ipinfo.io"""
+    try:
+        res = requests.get(f"https://ipinfo.io/{ip}/json", timeout=2)
+        if res.status_code == 200:
+            data = res.json()
+            city = data.get("city")
+            region = data.get("region")
+            country = data.get("country")
+            return ", ".join(filter(None, [city, region, country]))
+    except Exception:
+        pass
+    return "Unknown"
+
+
+def get_device_brand(ua_string: str) -> dict:
+    ua = ua_string.lower()
+
+    # --- Mobile brands ---
+    if "iphone" in ua:
+        return {"brand": "Apple", "model": "iPhone"}
+    if "ipad" in ua:
+        return {"brand": "Apple", "model": "iPad"}
+    if "samsung" in ua:
+        return {"brand": "Samsung", "model": "Android"}
+    if "tecno" in ua:
+        return {"brand": "Tecno", "model": "Android"}
+    if "infinix" in ua:
+        return {"brand": "Infinix", "model": "Android"}
+    if "itel" in ua:
+        return {"brand": "Itel", "model": "Android"}
+    if "redmi" in ua or "xiaomi" in ua:
+        return {"brand": "Xiaomi", "model": "Android"}
+    if "huawei" in ua:
+        return {"brand": "Huawei", "model": "Android"}
+    if "oppo" in ua:
+        return {"brand": "Oppo", "model": "Android"}
+    if "vivo" in ua:
+        return {"brand": "Vivo", "model": "Android"}
+
+    # --- Laptops / PCs ---
+    if "dell" in ua:
+        return {"brand": "Dell", "model": "PC"}
+    if "asus" in ua:
+        return {"brand": "ASUS", "model": "PC"}
+    if "hp" in ua or "hewlett-packard" in ua:
+        return {"brand": "HP", "model": "PC"}
+    if "lenovo" in ua:
+        return {"brand": "Lenovo", "model": "PC"}
+    if "acer" in ua:
+        return {"brand": "Acer", "model": "PC"}
+    if "macintosh" in ua or "mac os" in ua:
+        return {"brand": "Apple", "model": "Mac"}
+
+    # --- API Clients ---
+    if "postman" in ua:
+        return {"brand": "Postman", "model": "API Client"}
+    if "insomnia" in ua:
+        return {"brand": "Insomnia", "model": "API Client"}
+
+    return {"brand": "Unknown", "model": "Unknown"}
+
+
+
+
+def get_device_info() -> dict:
+    """
+    Extract device information from both web browsers
+    and React Native mobile applications.
+    """
+
+    # --------------------------------------------------
+    # Basic request information
+    # --------------------------------------------------
+
+    ua_string = request.headers.get("User-Agent", "Unknown")
+
+    ip = (
+        request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+        or request.remote_addr
+        or "Unknown"
+    )
+
+    ua_lower = ua_string.lower()
+
+    parsed_ua = user_agents.parse(ua_string)
+
+    # --------------------------------------------------
+    # Mobile app headers
+    # --------------------------------------------------
+
+    # device_id = request.headers.get("X-Device-ID")
+    device_id = request.headers.get("X-Device-ID") or f"DEV-{uuid.uuid4().hex[:10].upper()}"
+    device_name = request.headers.get("X-Device-Name")
+    platform = request.headers.get("X-Platform")
+    app_version = request.headers.get("X-App-Version")
+
+    # Normalize platform
+    if platform:
+        platform = platform.lower().strip()
+
+    allowed_platforms = {
+        "android",
+        "ios",
+        "windows",
+        "macos",
+        "linux",
+        "web"
+    }
+
+    if platform not in allowed_platforms:
+        platform = None
+
+    # --------------------------------------------------
+    # Browser detection
+    # --------------------------------------------------
+
+    browser_family = parsed_ua.browser.family
+
+    if browser_family in ("Other", "Unknown"):
+        if "edg/" in ua_lower or "edge" in ua_lower:
+            browser_family = "Edge"
+
+        elif "chrome" in ua_lower:
+            browser_family = "Chrome"
+
+        elif "firefox" in ua_lower:
+            browser_family = "Firefox"
+
+        elif "safari" in ua_lower:
+            browser_family = "Safari"
+
+        elif "insomnia" in ua_lower:
+            browser_family = "Insomnia"
+
+        elif "postman" in ua_lower:
+            browser_family = "Postman"
+
+        else:
+            browser_family = "Unknown"
+
+    # --------------------------------------------------
+    # OS detection
+    # --------------------------------------------------
+
+    os_family = parsed_ua.os.family
+
+    if os_family in ("Other", "Unknown"):
+
+        if "android" in ua_lower:
+            os_family = "Android"
+
+        elif "iphone" in ua_lower or "ipad" in ua_lower:
+            os_family = "iOS"
+
+        elif "windows" in ua_lower:
+            os_family = "Windows"
+
+        elif "macintosh" in ua_lower or "mac os" in ua_lower:
+            os_family = "MacOS"
+
+        elif "linux" in ua_lower:
+            os_family = "Linux"
+
+        else:
+            os_family = "Unknown"
+
+    # --------------------------------------------------
+    # Device detection
+    # --------------------------------------------------
+
+    device_family = parsed_ua.device.family
+
+    if device_family in ("Other", "Unknown"):
+
+        if "ipad" in ua_lower or "tablet" in ua_lower:
+            device_family = "Tablet"
+
+        elif "mobile" in ua_lower or "android" in ua_lower:
+            device_family = "Mobile"
+
+        elif "iphone" in ua_lower:
+            device_family = "iPhone"
+
+        elif "insomnia" in ua_lower or "postman" in ua_lower:
+            device_family = "PC (API Client)"
+
+        else:
+            device_family = "PC"
+
+    # --------------------------------------------------
+    # Mobile app overrides
+    # --------------------------------------------------
+
+    if platform == "android":
+
+        os_family = "Android"
+
+        if device_name:
+            device_family = device_name
+        else:
+            device_family = "Android Device"
+
+        browser_family = "UniCampus App"
+
+    elif platform == "ios":
+
+        os_family = "iOS"
+
+        if device_name:
+            device_family = device_name
+        else:
+            device_family = "iOS Device"
+
+        browser_family = "UniCampus App"
+
+    # --------------------------------------------------
+    # Device brand/model
+    # --------------------------------------------------
+
+    device_brand_info = get_device_brand(ua_string)
+
+    brand = device_brand_info.get("brand")
+    model = device_brand_info.get("model")
+
+    # Mobile apps can explicitly provide the device name,
+    # so use it when the User-Agent cannot identify the model.
+
+    if platform in ("android", "ios") and device_name:
+
+        model = device_name
+
+        if not brand:
+            brand = "Unknown"
+
+    # --------------------------------------------------
+    # Location
+    # --------------------------------------------------
+
+    location = get_location(ip)
+
+    # --------------------------------------------------
+    # Return
+    # --------------------------------------------------
+
+    return {
+        "device_id": device_id,
+        "device_name": device_name,
+
+        "platform": platform,
+
+        "app_version": app_version,
+
+        "browser": browser_family,
+
+        "os": os_family,
+
+        "device": device_family,
+
+        "device_brand": brand,
+
+        "device_model": model,
+
+        "ip": ip,
+
+        "location": location,
+
+        "user_agent": ua_string
+    }
+
+
+
