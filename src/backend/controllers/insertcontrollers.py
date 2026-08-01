@@ -89,7 +89,7 @@ def insert_into_student_devices(student_id, device_id, device_name, platform, ap
     try:
         cursor.execute(
             """
-            INSERT INTO student_devices
+            INSERT INTO students_devices
             (student_id, device_id, device_name, platform, app_version, ip_address, user_agent, is_revoked)
             VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
             """,
