@@ -19,7 +19,7 @@ def get_profile_module(student_id):
             "error": "Student not found"
         }), 404
 
-    logger.info(f"Profile retrieved for student_id: {student_id}")
+    logger.info(f"Profile retrieved for student_id: {student_id}, user: {user}")
     return jsonify({
         "success": True,
         "user": user
