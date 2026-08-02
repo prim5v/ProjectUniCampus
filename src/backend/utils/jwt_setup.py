@@ -132,9 +132,11 @@ def access_token_required(f):
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:
+            logger.warning("Authorization header missing in access token request")
             return jsonify({"error": "Authorization header missing"}), 401
 
         if not auth_header.startswith("Bearer "):
+            logger.warning("Invalid authorization format in access token request")
             return jsonify({"error": "Invalid authorization format"}), 401
 
         token = auth_header.split(" ", 1)[1]
@@ -148,6 +150,7 @@ def access_token_required(f):
 
             # Ensure this is an access token
             if payload.get("type") != "access":
+                logger.warning("Invalid token type in access token request")
                 return jsonify({"error": "Invalid token type"}), 401
 
             # Store user information for the route
@@ -158,9 +161,11 @@ def access_token_required(f):
             g.jwt_payload = payload
 
         except jwt.ExpiredSignatureError:
+            logger.warning("Access token expired")
             return jsonify({"error": "Access token expired"}), 401
 
         except jwt.InvalidTokenError:
+            logger.warning("Invalid access token")
             return jsonify({"error": "Invalid access token"}), 401
 
         return f(*args, **kwargs)
