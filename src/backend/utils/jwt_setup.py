@@ -191,9 +191,11 @@ def refresh_token_required(f):
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:
+            logger.warning("Authorization header missing in refresh token request")
             return jsonify({"error": "Authorization header missing"}), 401
 
         if not auth_header.startswith("Bearer "):
+            logger.warning("Invalid authorization format in refresh token request")
             return jsonify({"error": "Invalid authorization format"}), 401
 
         refresh_token = auth_header.split(" ", 1)[1]
@@ -206,29 +208,36 @@ def refresh_token_required(f):
             )
 
         except jwt.ExpiredSignatureError:
+            logger.warning("Refresh token expired")
             return jsonify({"error": "Refresh token expired"}), 401
 
         except jwt.InvalidTokenError:
+            logger.warning("Invalid refresh token")
             return jsonify({"error": "Invalid refresh token"}), 401
 
         # Ensure this is actually a refresh token
         if payload.get("type") != "refresh":
+            logger.warning("Invalid token type")
             return jsonify({"error": "Invalid token type"}), 401
 
         session = get_session_by_id(payload["sid"])
 
         if session is None:
+            logger.warning("Session not found")
             return jsonify({"error": "Session not found"}), 401
 
         if session["revoked_at"] is not None:
+            logger.warning("Session revoked")
             return jsonify({"error": "Session revoked"}), 401
 
         if session["expires_at"] < datetime.utcnow():
+            logger.warning("Session expired")
             return jsonify({"error": "Session expired"}), 401
 
         token_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
 
         if token_hash != session["token_hash"]:
+            logger.warning("Refresh token mismatch")
             return jsonify({"error": "Refresh token mismatch"}), 401
 
         # Make available to the endpoint
