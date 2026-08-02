@@ -222,7 +222,7 @@ def get_session_by_id(session_id):
                 revoked_at,
                 ip_address,
                 user_agent
-            FROM login_sessions
+            FROM student_login_sessions
             WHERE session_id = %s
             LIMIT 1
             """,
