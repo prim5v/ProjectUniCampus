@@ -214,7 +214,7 @@ def get_session_by_id(session_id):
             SELECT 
                 id,
                 session_id,
-                user_id,
+                student_id,
                 device_id,
                 token_hash,
                 expires_at,
