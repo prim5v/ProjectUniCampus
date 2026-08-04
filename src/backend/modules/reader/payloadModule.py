@@ -48,17 +48,19 @@ def get_payload(data):
 
 
         # check if reader is authorized and get readtype = serviceType
-        serviceType= check_reader(reader_id) #ie Payment, Auth, RollCall
-        if not serviceType:
-            logging.error("Unauthorized")
-            return {"error": "Unauthorized"}, 403
+        # serviceType= check_reader(reader_id) #ie Payment, Auth, RollCall
+        # if not serviceType:
+        #     logging.error("Unauthorized")
+        #     return {"error": "Unauthorized"}, 403
             
         
-        logging.info(f"Reader {reader_id} authorized for {serviceType}")
+        # logging.info(f"Reader {reader_id} authorized for {serviceType}")
+        serviceType="Payment"  # hardcoded for now, we can use check_reader to get the serviceType
 
         # decrypt data_in_bytes
         # private_key="string"
         data_in_bytes = decrypt_with_private_key(ciphertext, private_key)
+        logging.info(f"Decrypted payload data: {data_in_bytes}")
         if not data_in_bytes:
             logging.error("Invalid payload")
             return {"error": "Invalid payload"}, 400
@@ -68,18 +70,22 @@ def get_payload(data):
         separator = data_in_bytes.index(b'|')
 
         student_id = data_in_bytes[:separator].decode("utf-8")
+        logging.info(f"Extracted student_id: {student_id}")
 
         remaining = data_in_bytes[separator + 1:]
 
         if len(remaining) != 24:
+            logging.error("Malformed payload")
             return {"error": "Malformed payload"}, 400
 
         nonce = remaining[:16]
+        logging.info(f"Extracted nonce: {nonce}")
 
         timestamp = int.from_bytes(
             remaining[16:24],
             byteorder="big"
         )
+        logging.info(f"Extracted timestamp: {timestamp}")
 
         MAX_TIME_DIFF = 20  # suggested by Lynne
 
