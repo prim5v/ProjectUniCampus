@@ -74,15 +74,17 @@ def get_payload(data):
 
         remaining = data_in_bytes[separator + 1:]
 
-        if len(remaining) != 24:
-            logging.error("Malformed payload")
+        if len(remaining) != 29:
+            logging.error(
+                f"Malformed payload: expected 29 bytes, got {len(remaining)}"
+            )
             return {"error": "Malformed payload"}, 400
 
         nonce = remaining[:16]
         logging.info(f"Extracted nonce: {nonce}")
 
         timestamp = int.from_bytes(
-            remaining[16:24],
+            remaining[16:29],
             byteorder="big"
         )
         logging.info(f"Extracted timestamp: {timestamp}")
