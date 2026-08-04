@@ -17,6 +17,7 @@ from backend.controllers.selectcontrollers import check_device_id
 # from pathlib import Path
 import os
 
+
 # Render mounts secret files at /etc/secrets/
 PRIVATE_KEY_PATH = Path("/etc/secrets/private_key.pem")
 
@@ -35,6 +36,8 @@ def get_payload(data):
         ciphertext =data.get("data")
         reader_id = data.get("reader_id")
         amount = data.get("amount") # we use amount if serviceType is Payment
+
+        logging.info(f"Received payload data: {data}")
 
         if not ciphertext or not reader_id:
             logging.error("Missing required fields")
