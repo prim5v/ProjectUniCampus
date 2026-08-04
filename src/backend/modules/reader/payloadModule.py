@@ -83,10 +83,17 @@ def get_payload(data):
         nonce = remaining[:16]
         logging.info(f"Extracted nonce: {nonce}")
 
-        timestamp = int.from_bytes(
-            remaining[16:29],
-            byteorder="big"
+        # timestamp = int.from_bytes(
+        #     remaining[16:29],
+        #     byteorder="big"
+        # )
+
+        timestamp_ms = int(
+            remaining[16:].decode("utf-8")
         )
+
+        timestamp = timestamp_ms // 1000
+
         logging.info(f"Extracted timestamp: {timestamp}")
 
         MAX_TIME_DIFF = 20  # suggested by Lynne
