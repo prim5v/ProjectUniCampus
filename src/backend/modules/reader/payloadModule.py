@@ -33,7 +33,7 @@ with open(PRIVATE_KEY_PATH, "rb") as f:
 
 def get_payload(data):
     try:
-        ciphertext =data.get("data")
+        ciphertext =data.get("dataInBytes")
         reader_id = data.get("reader_id")
         amount = data.get("amount") # we use amount if serviceType is Payment
 
