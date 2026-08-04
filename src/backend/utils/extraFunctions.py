@@ -86,11 +86,14 @@ def generate_rsa_key_pair():
 
     return public_pem.decode()
 
-def decrypt_with_private_key(ciphertext_b64: str, private_key_pem: str) -> str:
+def decrypt_with_private_key(ciphertext_b64: str, private_key_pem) -> bytes:
 
     # Load private key
+    if isinstance(private_key_pem, str):
+        private_key_pem = private_key_pem.encode("utf-8")
+
     private_key = serialization.load_pem_private_key(
-        private_key_pem.encode(),
+        private_key_pem,
         password=None
     )
 
@@ -109,7 +112,7 @@ def decrypt_with_private_key(ciphertext_b64: str, private_key_pem: str) -> str:
         )
     )
 
-    return plaintext.decode("utf-8")
+    return plaintext
 
 
 
