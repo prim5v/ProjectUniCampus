@@ -67,6 +67,7 @@ def student_login(data):
             "status": "success",
             "device_id": device_info["device_id"],
             "refresh_token": refresh_token
+            # "student_id": student_id,
         }), 200
 
     except Exception as e:
