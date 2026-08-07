@@ -1,0 +1,537 @@
+The main library is:
+
+1. expo-local-authentication (recommended)
+
+Official Expo package.
+
+It supports:
+
+Fingerprint
+Face ID (iOS)
+Touch ID (iOS)
+Android Biometric Prompt
+Device PIN/passcode fallback (depending on OS configuration)
+
+Install:
+
+///////////////////////////////////////////////////////////////////////////////npx expo install expo-local-authentication
+Check if device supports biometrics
+import * as LocalAuthentication from 'expo-local-authentication';
+
+
+const checkBiometricSupport = async () => {
+    const compatible = await LocalAuthentication.hasHardwareAsync();
+
+    const enrolled = await LocalAuthentication.isEnrolledAsync();
+
+    console.log("Has biometric hardware:", compatible);
+    console.log("Has enrolled biometric:", enrolled);
+};
+
+Example:
+
+Has biometric hardware: true
+Has enrolled biometric: true
+Trigger fingerprint / Face ID
+const authenticate = async () => {
+
+    const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Unlock UniCampus ID",
+        fallbackLabel: "Use Passcode",
+        disableDeviceFallback: false,
+    });
+
+
+    if (result.success) {
+        console.log("Authenticated");
+    } else {
+        console.log("Failed");
+    }
+};
+
+If the user has:
+
+Face ID → Face ID opens
+Fingerprint → fingerprint prompt opens
+No biometric → device PIN/passcode fallback (if allowed)
+
+
+
+
+
+
+with:
+
+expo-secure-store
+
+for:
+
+"Where is the refresh token stored?"
+
+Install:
+
+/////////////////////////////////////////////////////////////////////npx expo install expo-secure-store
+
+Example:
+
+import * as SecureStore from "expo-secure-store";
+
+
+await SecureStore.setItemAsync(
+    "refresh_token",
+    token
+);
+
+Retrieve:
+
+const token =
+await SecureStore.getItemAsync("refresh_token");
+
+On Android this uses:
+
+Android Keystore
+
+On iOS:
+
+Keychain
+For UniCampus specifically
+
+Your authentication stack would look like:
+
+                Server
+                  |
+        ---------------------
+        |                   |
+ Access Token        Refresh Token Hash
+ (15 min)            (database)
+        |
+        |
+ React Native App
+        |
+ ------------------
+ |                |
+SecureStore    Biometrics
+ |                |
+Refresh Token   Face/Fingerprint
+
+This is close to how banking apps handle "login once, unlock forever".
+
+One thing I'd avoid: creating your own PIN system inside the app unless you have a strong reason. 
+Device PIN/biometrics are already backed by secure hardware. A custom PIN means you now have to handle hashing, brute-force protection,
+ lockouts, recovery, and secure storage yourself. For a student ID platform, using the device security model is the better choice.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Step 1 — Create the React Native library
+
+Install the library generator:
+
+npm install -g create-react-native-library
+
+Create your module:
+
+npx create-react-native-library react-native-unicampus-security
+
+Choose:
+
+TypeScript
+Android + iOS
+Turbo Module: No (for easier start)
+
+Your structure:
+
+react-native-unicampus-security
+│
+├── android
+│   └── src/main/java/com/unicampus/security/
+│       └── SecurityModule.kt
+│
+├── ios
+│   └── SecurityModule.swift
+│
+├── src
+│   └── index.ts
+│
+├── package.json
+└── README.md
+Step 2 — Add Android native code
+
+Example:
+
+android/src/main/java/com/unicampus/security/SecurityModule.kt
+package com.unicampus.security
+
+import android.content.Context
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
+import com.facebook.react.bridge.*
+
+class SecurityModule(
+    reactContext: ReactApplicationContext
+): ReactContextBaseJavaModule(reactContext) {
+
+
+    override fun getName(): String {
+        return "UniCampusSecurity"
+    }
+
+
+    @ReactMethod
+    fun saveRefreshToken(
+        token: String,
+        promise: Promise
+    ) {
+
+        try {
+
+            val prefs = EncryptedSharedPreferences.create(
+                "unicampus_secure",
+                MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+                reactApplicationContext,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+
+            prefs.edit()
+                .putString("refresh_token", token)
+                .apply()
+
+
+            promise.resolve(true)
+
+
+        } catch(e: Exception){
+
+            promise.reject(
+                "SAVE_FAILED",
+                e.message
+            )
+        }
+    }
+
+
+
+    @ReactMethod
+    fun getRefreshToken(
+        promise: Promise
+    ){
+
+        try {
+
+            val prefs = EncryptedSharedPreferences.create(
+                "unicampus_secure",
+                MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+                reactApplicationContext,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+
+            val token =
+                prefs.getString("refresh_token", null)
+
+
+            promise.resolve(token)
+
+
+        } catch(e: Exception){
+
+            promise.reject(
+                "READ_FAILED",
+                e.message
+            )
+        }
+    }
+}
+
+Now your JS can call:
+
+await UniCampusSecurity.saveRefreshToken(token);
+Step 3 — Add the JS interface
+
+src/index.ts
+
+import {
+    NativeModules
+} from "react-native";
+
+
+const {
+    UniCampusSecurity
+} = NativeModules;
+
+
+export default UniCampusSecurity;
+
+Now your app sees:
+
+import Security from "@unicampus/security";
+
+
+await Security.saveRefreshToken(
+    refreshToken
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Step 6 — Test locally before publishing
+
+Inside your app:
+
+npm install ../react-native-unicampus-security
+
+Then:
+
+npx expo prebuild
+
+Build:
+
+npx expo run:android
+
+Test the native code.
+
+Step 7 — Prepare npm package
+
+Login:
+
+npm login
+
+Change package name:
+
+package.json
+
+Example:
+
+{
+"name": "@unicampus/security",
+"version": "1.0.0"
+}
+
+Build:
+
+npm run build
+
+Publish:
+
+npm publish --access public
+
+Now anyone can install:
+
+npm install @unicampus/security
+Your final UniCampus security package could expose:
+import Security from "@unicampus/security";
+
+
+await Security.storeRefreshToken(token);
+
+
+await Security.authenticate();
+
+
+const token =
+await Security.getRefreshToken();
+
+
+await Security.deleteSession();
+
+And internally:
+
+JavaScript
+    |
+React Native Bridge
+    |
+Kotlin
+    |
+Android Keystore
+    |
+Hardware backed encryption
+
+For UniCampus specifically, I would actually create three packages:
+
+@unicampus/security
+    |
+    ├── Secure token storage
+    ├── Biometrics
+    ├── Device keys
+
+
+@unicampus/hce
+    |
+    ├── NFC Host Card Emulation
+    ├── APDU handling
+    ├── Digital ID broadcasting
+
+
+@unicampus/crypto
+    |
+    ├── RSA signing
+    ├── Payload encryption
+    ├── Signature verification
+
+That separation mirrors how large identity/security platforms are structured. It also means your HCE work can mature independently without touching your authentication system.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Step 7 — Prepare npm package
+
+Login:
+
+npm login
+
+Change package name:
+
+package.json
+
+Example:
+
+{
+"name": "@unicampus/security",
+"version": "1.0.0"
+}
+
+Build:
+
+npm run build
+
+Publish:
+
+npm publish --access public
+
+Now anyone can install:
+
+npm install @unicampus/security
