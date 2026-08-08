@@ -128,7 +128,7 @@ def create_campus(data):
             "CAMPUS_ONBOARDING_COMPLETED",
             extra={
                 "clerk_id": clerk_id,
-                "campus_id": data["campus_id"],
+                # "campus_id": data["campus_id"],
             },
         )
 
@@ -142,7 +142,7 @@ def create_campus(data):
             "CAMPUS_ONBOARDING_FAILED",
             extra={
                 "clerk_id": clerk_id,
-                "campus_id": data.get("campus_id"),
+                # "campus_id": data.get("campus_id"),
             },
         )
 
