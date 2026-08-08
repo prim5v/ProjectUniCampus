@@ -132,7 +132,7 @@ def create_campus_account(data, email, campus_id, security_token, role):
                 phone_number,
                 estimated_population,
                 institution_type,
-                createdAt
+                "createdAt"
             )
             VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s,
