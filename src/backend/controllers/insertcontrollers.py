@@ -120,6 +120,28 @@ def create_campus_account(data, email, campus_id, security_token, role):
         phone_number = data["phone_number"]
         service_ids = data["service_ids"]
 
+
+        # Create campus data
+        cursor.execute(
+            """
+            INSERT INTO campus_data (
+                campus_id,
+                campus_name,
+                isActive,
+                joinedWhen
+            )
+            VALUES (
+                %s, %s, %s, CURRENT_TIMESTAMP
+            )
+            """,
+            (
+                campus_id,
+                campus_name,
+                True,
+            ),
+        )
+
+
         # Create campus credentials
         cursor.execute(
             """
@@ -151,25 +173,7 @@ def create_campus_account(data, email, campus_id, security_token, role):
             ),
         )
 
-        # Create campus data
-        cursor.execute(
-            """
-            INSERT INTO campus_data (
-                campus_id,
-                campus_name,
-                isActive,
-                joinedWhen
-            )
-            VALUES (
-                %s, %s, %s, CURRENT_TIMESTAMP
-            )
-            """,
-            (
-                campus_id,
-                campus_name,
-                True,
-            ),
-        )
+        
 
         # Create campus service selections
         for service_id in service_ids:
