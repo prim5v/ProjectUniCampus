@@ -25,7 +25,7 @@ export function ApiProvider({ children }: ApiProviderProps) {
   const api = useMemo(
     () =>
       axios.create({
-        baseURL: "https://backend.onrender.com",
+        baseURL: "https://projectunicampus.onrender.com",
       }),
     []
   );
