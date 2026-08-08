@@ -3,6 +3,12 @@ from flask import jsonify
 import bcrypt, uuid
 import logging
 
+
+
+
+logger = logging.getLogger(__name__)
+
+
 def check_reader(reader_id):
     conn, cursor = get_db_cursor()
 
@@ -289,6 +295,50 @@ def get_student_data(student_id):
     except Exception as e:
         print(f"Error fetching student data: {e}")
         return None
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+
+
+def check_campus_exists(clerk_id):
+    conn, cursor = get_db_cursor()
+
+    if not conn:
+        logger.error(
+            "DB_CONNECTION_FAILED",
+            extra={
+                "clerk_id": clerk_id
+            },
+        )
+
+        raise RuntimeError("Database connection failed")
+
+    try:
+        cursor.execute(
+            """
+            SELECT 1
+            FROM campus_data
+            WHERE campus_id = %s
+            LIMIT 1
+            """,
+            (clerk_id,),
+        )
+
+        return cursor.fetchone() is not None
+
+    except Exception:
+        logger.exception(
+            "DB_CHECK_USER_FAILED",
+            extra={
+                "clerk_id": clerk_id
+            },
+        )
+
+        raise
 
     finally:
         cursor.close()
