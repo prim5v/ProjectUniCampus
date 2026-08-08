@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 def create_campus(data):
     clerk_id = getattr(g, "user_id", None)
-    email = getattr(g, "email", None)
+    # email = getattr(g, "email", None)
+    email = data.get('email')
 
     if not clerk_id:
         return jsonify({
