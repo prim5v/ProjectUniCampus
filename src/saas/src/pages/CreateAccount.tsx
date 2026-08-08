@@ -12,36 +12,47 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { useApi } from "../contexts/ApiContext";
 
-const modules = [
+const services = [
   {
-    id: "access",
+    id: 1,
+    slug: "access",
     name: "Access",
-    description: "Manage secure campus entry and digital access.",
+    description:
+      "Manage secure campus entry and digital access.",
     icon: ShieldCheckIcon,
   },
   {
-    id: "attendance",
+    id: 2,
+    slug: "attendance",
     name: "Attendance",
-    description: "Track and manage student attendance.",
+    description:
+      "Track and manage student attendance.",
     icon: ClipboardCheckIcon,
   },
   {
-    id: "library",
+    id: 3,
+    slug: "library",
     name: "Library Management",
-    description: "Manage library activity, resources and access.",
+    description:
+      "Manage library activity, resources and access.",
     icon: LibraryBigIcon,
   },
   {
-    id: "events",
+    id: 4,
+    slug: "events",
     name: "Events",
-    description: "Organize and manage campus events.",
+    description:
+      "Organize and manage campus events.",
     icon: CalendarDaysIcon,
   },
   {
-    id: "payments",
+    id: 5,
+    slug: "payments",
     name: "Payments",
-    description: "Manage campus payments and transactions.",
+    description:
+      "Manage campus payments and transactions.",
     icon: CreditCardIcon,
   },
 ];
@@ -63,6 +74,7 @@ const populationRanges = [
 
 export function CreateAccount() {
   const navigate = useNavigate();
+  const { api } = useApi();
 
   const [form, setForm] = useState({
     campusName: "",
@@ -70,31 +82,53 @@ export function CreateAccount() {
     estimatedPopulation: "",
     primaryPhone: "",
     secondaryPhone: "",
-    campusId: "",
   });
 
-  const [selectedModules, setSelectedModules] = useState([]);
-  const [submitting, setSubmitting] = useState(false);
+  const [selectedServices, setSelectedServices] =
+    useState<number[]>([]);
 
-  const updateField = (field, value) => {
+  const [submitting, setSubmitting] =
+    useState(false);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const updateField = (
+    field: keyof typeof form,
+    value: string
+  ) => {
     setForm((current) => ({
       ...current,
       [field]: value,
     }));
   };
 
-  const toggleModule = (moduleId) => {
-    setSelectedModules((current) =>
-      current.includes(moduleId)
-        ? current.filter((id) => id !== moduleId)
-        : [...current, moduleId]
+  const toggleService = (serviceId: number) => {
+    setSelectedServices((current) =>
+      current.includes(serviceId)
+        ? current.filter((id) => id !== serviceId)
+        : [...current, serviceId]
     );
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (
+    event: React.FormEvent
+  ) => {
     event.preventDefault();
 
-    if (selectedModules.length === 0) {
+    setError(null);
+
+    if (selectedServices.length === 0) {
+      setError(
+        "Please select at least one service."
+      );
+      return;
+    }
+
+    if (!form.primaryPhone.trim()) {
+      setError(
+        "Primary phone number is required."
+      );
       return;
     }
 
@@ -102,31 +136,47 @@ export function CreateAccount() {
 
     try {
       const payload = {
-        ...form,
-        modules: selectedModules,
+        campus_name: form.campusName.trim(),
+        institution_type: form.institutionType,
+        estimated_population:
+          form.estimatedPopulation,
+        primary_phone:
+          form.primaryPhone.trim(),
+        secondary_phone:
+          form.secondaryPhone.trim() || null,
+        service_ids: selectedServices,
       };
 
-      console.log("Create campus payload:", payload);
+      const response = await api.post(
+        "/auth/create/campus/account",
+        payload
+      );
 
-      /*
-       * Connect this to your backend here.
-       *
-       * Example:
-       *
-       * await api.post("/campus/create", payload);
-       */
+      console.log(
+        "Campus created:",
+        response.data
+      );
 
       navigate("/");
-    } catch (error) {
-      console.error("Failed to create campus:", error);
+    } catch (err: any) {
+      console.error(
+        "Failed to create campus:",
+        err
+      );
+
+      const message =
+        err?.response?.data?.error ??
+        "Failed to create campus account.";
+
+      setError(message);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-surface px-6 py-10">
-      <div className="mx-auto w-full max-w-4xl">
+    <div className="min-h-screen bg-surface px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-3xl">
 
         {/* Header */}
         <div className="mb-8 text-center">
@@ -139,12 +189,16 @@ export function CreateAccount() {
           </h1>
 
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-ink-muted">
-            Tell us about your institution and choose the UniCampus services
-            you want to use.
+            Tell us about your institution and
+            choose the UniCampus services you want
+            to use.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
 
           {/* Campus information */}
           <Card className="p-6">
@@ -154,7 +208,8 @@ export function CreateAccount() {
               </h2>
 
               <p className="mt-1 text-xs text-ink-muted">
-                Basic information about your institution.
+                Basic information about your
+                institution.
               </p>
             </div>
 
@@ -170,7 +225,10 @@ export function CreateAccount() {
                   type="text"
                   value={form.campusName}
                   onChange={(e) =>
-                    updateField("campusName", e.target.value)
+                    updateField(
+                      "campusName",
+                      e.target.value
+                    )
                   }
                   placeholder="e.g. Zetech University"
                   required
@@ -187,18 +245,28 @@ export function CreateAccount() {
                 <select
                   value={form.institutionType}
                   onChange={(e) =>
-                    updateField("institutionType", e.target.value)
+                    updateField(
+                      "institutionType",
+                      e.target.value
+                    )
                   }
                   required
                   className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 >
-                  <option value="">Select type</option>
+                  <option value="">
+                    Select type
+                  </option>
 
-                  {institutionTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
+                  {institutionTypes.map(
+                    (type) => (
+                      <option
+                        key={type}
+                        value={type}
+                      >
+                        {type}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
 
@@ -209,7 +277,9 @@ export function CreateAccount() {
                 </label>
 
                 <select
-                  value={form.estimatedPopulation}
+                  value={
+                    form.estimatedPopulation
+                  }
                   onChange={(e) =>
                     updateField(
                       "estimatedPopulation",
@@ -219,13 +289,20 @@ export function CreateAccount() {
                   required
                   className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 >
-                  <option value="">Select population</option>
+                  <option value="">
+                    Select population
+                  </option>
 
-                  {populationRanges.map((range) => (
-                    <option key={range} value={range}>
-                      {range}
-                    </option>
-                  ))}
+                  {populationRanges.map(
+                    (range) => (
+                      <option
+                        key={range}
+                        value={range}
+                      >
+                        {range}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
 
@@ -239,7 +316,10 @@ export function CreateAccount() {
                   type="tel"
                   value={form.primaryPhone}
                   onChange={(e) =>
-                    updateField("primaryPhone", e.target.value)
+                    updateField(
+                      "primaryPhone",
+                      e.target.value
+                    )
                   }
                   placeholder="+254 7XX XXX XXX"
                   required
@@ -260,36 +340,14 @@ export function CreateAccount() {
                   type="tel"
                   value={form.secondaryPhone}
                   onChange={(e) =>
-                    updateField("secondaryPhone", e.target.value)
+                    updateField(
+                      "secondaryPhone",
+                      e.target.value
+                    )
                   }
                   placeholder="+254 7XX XXX XXX"
                   className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
-              </div>
-
-              {/* Campus ID */}
-              <div className="sm:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-ink">
-                  Campus ID
-                  <span className="ml-1 text-xs font-normal text-ink-muted">
-                    (optional)
-                  </span>
-                </label>
-
-                <input
-                  type="text"
-                  value={form.campusId}
-                  onChange={(e) =>
-                    updateField("campusId", e.target.value)
-                  }
-                  placeholder="e.g. ZETECH-RUIRU"
-                  className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                />
-
-                <p className="mt-2 text-xs text-ink-muted">
-                  If your institution already has a campus identifier, you
-                  can provide it here.
-                </p>
               </div>
             </div>
           </Card>
@@ -302,20 +360,29 @@ export function CreateAccount() {
               </h2>
 
               <p className="mt-1 text-xs text-ink-muted">
-                Select the services you want to use on your campus.
+                Select the UniCampus services
+                your institution wants to use.
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {modules.map((module) => {
-                const selected = selectedModules.includes(module.id);
-                const Icon = module.icon;
+              {services.map((service) => {
+                const selected =
+                  selectedServices.includes(
+                    service.id
+                  );
+
+                const Icon = service.icon;
 
                 return (
                   <button
-                    key={module.id}
+                    key={service.id}
                     type="button"
-                    onClick={() => toggleModule(module.id)}
+                    onClick={() =>
+                      toggleService(
+                        service.id
+                      )
+                    }
                     className={[
                       "group relative flex items-start gap-4 rounded-xl border p-4 text-left transition-colors",
                       selected
@@ -337,7 +404,7 @@ export function CreateAccount() {
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center justify-between gap-3">
                         <span className="text-sm font-semibold text-ink">
-                          {module.name}
+                          {service.name}
                         </span>
 
                         <span
@@ -355,7 +422,7 @@ export function CreateAccount() {
                       </span>
 
                       <span className="mt-1 block text-xs leading-5 text-ink-muted">
-                        {module.description}
+                        {service.description}
                       </span>
                     </span>
                   </button>
@@ -363,9 +430,10 @@ export function CreateAccount() {
               })}
             </div>
 
-            {selectedModules.length === 0 && (
+            {selectedServices.length === 0 && (
               <p className="mt-4 text-xs text-ink-muted">
-                Select at least one service to continue.
+                Select at least one service to
+                continue.
               </p>
             )}
           </Card>
@@ -383,22 +451,34 @@ export function CreateAccount() {
                 </h2>
 
                 <p className="mt-1 text-sm leading-6 text-ink-muted">
-                  Try the services you select for 30 days. Your subscription
-                  can be configured after your trial period.
+                  Try the services you select for
+                  30 days. You can configure your
+                  subscription after your trial
+                  period.
                 </p>
 
                 <p className="mt-3 text-xs font-medium text-brand-600">
-                  No payment is required to start your trial.
+                  No payment is required to start
+                  your trial.
                 </p>
               </div>
             </div>
           </Card>
 
+          {/* Error */}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           {/* Submit */}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
-              onClick={() => navigate("/")}
+              onClick={() =>
+                navigate("/")
+              }
               className="text-sm font-medium text-ink-muted transition-colors hover:text-ink"
             >
               Cancel
@@ -408,7 +488,7 @@ export function CreateAccount() {
               type="submit"
               disabled={
                 submitting ||
-                selectedModules.length === 0
+                selectedServices.length === 0
               }
               rightIcon={
                 <ArrowRightIcon className="h-4 w-4" />
@@ -422,7 +502,8 @@ export function CreateAccount() {
         </form>
 
         <p className="mt-8 text-center text-xs text-ink-muted">
-          Your campus workspace will be created with the services you selected.
+          Your campus workspace will be created
+          with the services you selected.
         </p>
       </div>
     </div>
