@@ -195,6 +195,7 @@ export function AuthProvider({
       setStatus,
 
       dbUser,
+      user,
 
       loading,
       error,

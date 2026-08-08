@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { useApi } from "../contexts/ApiContext";
+import { useAuthContext } from "../contexts/AuthContext";
 
 const services = [
   {
@@ -75,6 +76,7 @@ const populationRanges = [
 export function CreateAccount() {
   const navigate = useNavigate();
   const { api } = useApi();
+  const { user } = useAuthContext();
 
   const [form, setForm] = useState({
     campusName: "",
@@ -145,6 +147,8 @@ export function CreateAccount() {
         secondary_phone:
           form.secondaryPhone.trim() || null,
         service_ids: selectedServices,
+        email: user.primaryEmailAddress
+              ?.emailAddress,
       };
 
       const response = await api.post(
