@@ -76,7 +76,7 @@ const populationRanges = [
 export function CreateAccount() {
   const navigate = useNavigate();
   const { api } = useApi();
-  const { user } = useAuthContext();
+  const { user, dbUser, setDbUser, setLoading } = useAuthContext();
 
   const [form, setForm] = useState({
     campusName: "",
@@ -119,6 +119,7 @@ export function CreateAccount() {
     event.preventDefault();
 
     setError(null);
+    setLoading(true);
 
     if (selectedServices.length === 0) {
       setError(
@@ -161,6 +162,9 @@ export function CreateAccount() {
         response.data
       );
 
+      setDbUser(response.data.user ?? null)
+
+
       navigate("/");
     } catch (err: any) {
       console.error(
@@ -173,8 +177,10 @@ export function CreateAccount() {
         "Failed to create campus account.";
 
       setError(message);
+      // setLoading(false);
     } finally {
       setSubmitting(false);
+      setLoading(false);
     }
   };
 

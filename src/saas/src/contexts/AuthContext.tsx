@@ -38,6 +38,7 @@ interface DbUser {
 interface AuthSyncResponse {
   found: boolean;
   message?: string;
+  user?: DbUser | null;
 }
 
 interface AuthContextType {
@@ -129,6 +130,7 @@ export function AuthProvider({
       );
 
       setSyncStatus("success");
+      setDbUser(response.data.user ?? null)
 
       return response.data;
 
@@ -196,6 +198,9 @@ export function AuthProvider({
 
       dbUser,
       user,
+
+      setDbUser,
+      setLoading,
 
       loading,
       error,
