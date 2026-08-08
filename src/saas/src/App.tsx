@@ -27,13 +27,14 @@ import { LandingPage } from "./pages/LandingPage";
 import { SignupPage } from "./pages/Signup";
 import { LoginPage } from "./pages/Login";
 import { CreateAccount } from "./pages/CreateAccount";
-
+import { LoadingPage } from "./pages/LoadingPage";
 
 
 function Router(): JSX.Element {
 
   const {
     status,
+    loading,
   } = useAuthContext();
 
   if(status === "idle" || status === "unauthenticated"){
@@ -239,7 +240,16 @@ function Router(): JSX.Element {
 
 
 export function App(): JSX.Element {
+    const {
+    loading,
+  } = useAuthContext();
 
-  return <Router />;
+  return (
+    <div className="relative min-h-screen">
+      <Router />
+
+      {loading && <LoadingPage />}
+    </div>
+  )
 
 }
