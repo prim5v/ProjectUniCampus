@@ -131,10 +131,16 @@ def create_campus(data):
                 # "campus_id": data["campus_id"],
             },
         )
+        user = {
+            "clerk_id": clerk_id,
+            "email": email,
+            "role": role
+        }
 
         return jsonify({
             "message": "Campus account created successfully",
-            "campus_id": data["campus_id"],
+            "campus_id": clerk_id,
+            "user": user
         }), 201
 
     except Exception:

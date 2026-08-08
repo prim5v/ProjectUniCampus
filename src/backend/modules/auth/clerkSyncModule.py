@@ -53,9 +53,18 @@ def clerk_syncing(email):
                 },
             )
 
+            role = f'{exists["campus_name"]}_admin'
+
+            user = {
+                "clerk_id": clerk_id,
+                "email": email,
+                "role": role
+            }
+
             return jsonify({
                 "found": True,
                 "message": "User found",
+                "user": user
             }), 200
 
         logger.info(
