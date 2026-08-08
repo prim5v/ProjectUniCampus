@@ -5,10 +5,11 @@ from backend.utils.jwt_setup import (
     refresh_token_required,
     generate_access_token
 )
-
+from backend.utils.limiter import limiter
 logger = logging.getLogger("auth")
 
 @auth_bp.route("/refresh/access/token", methods=["POST"])
+@limiter.limit("10 per minute")
 @refresh_token_required
 def refresh_access_token():
     user_id = g.user_id

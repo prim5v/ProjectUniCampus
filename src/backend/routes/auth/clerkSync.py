@@ -2,9 +2,10 @@ from flask import request
 from backend.middleware.auth import require_auth, require_role
 from backend.modules.auth.clerkSyncModule import clerk_syncing
 from backend.routes.auth import auth_bp
-
+from backend.utils.limiter import limiter
 
 @auth_bp.route("/clerk/sync", methods=['POST'])
+@limiter.limit("10 per minute")
 @require_auth
 def clerk_sync():
     print("🔥 ROUTE HIT")

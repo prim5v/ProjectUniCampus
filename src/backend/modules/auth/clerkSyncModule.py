@@ -53,7 +53,8 @@ def clerk_syncing(email):
                 },
             )
 
-            role = f'{exists["campus_name"]}_admin'
+            # role = f'{exists["campus_name"]}_admin'
+            role = "admin"
 
             user = {
                 "clerk_id": clerk_id,
