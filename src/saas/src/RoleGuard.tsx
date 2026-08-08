@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext";
+import { useAuthContext } from "./contexts/AuthContext";
 
 interface RoleGuardProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ export function RoleGuard({
   children,
   allowedRoles,
 }: RoleGuardProps): JSX.Element {
-  const { dbUser, loading } = useAuth();
+  const { dbUser, loading } = useAuthContext();
 
   // Wait until the auth state has finished loading
   if (loading) {

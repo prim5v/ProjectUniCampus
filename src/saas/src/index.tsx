@@ -5,6 +5,8 @@ import { ClerkProvider } from "@clerk/clerk-react";
 
 import { App } from "./App";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ApiProvider } from "./contexts/ApiContext";
+
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string;
 
@@ -23,9 +25,11 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <ApiProvider>
       <AuthProvider>
         <App />
       </AuthProvider>
+      </ApiProvider>
     </ClerkProvider>
   </React.StrictMode>
 );

@@ -4,6 +4,7 @@ import {
   useMemo,
   useState,
   ReactNode,
+  useEffect
 } from "react";
 
 import {
@@ -105,6 +106,19 @@ export function AuthProvider({
 
 
   const { api } = useApi();
+
+
+useEffect(() => {
+  const sync = async () => {
+    try {
+      await authSync();
+    } catch (error) {
+      console.error("Auth sync failed:", error);
+    }
+  };
+
+  sync();
+}, [user?.id]);
 
 
 

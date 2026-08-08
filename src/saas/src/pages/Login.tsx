@@ -1,15 +1,12 @@
 import { SignIn } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
 import { GraduationCap } from "lucide-react";
-import { NetworkWatcher } from "../components/NetworkWatcher";
 
 export function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <NetworkWatcher />
-
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
         className="w-full max-w-md"
@@ -30,22 +27,13 @@ export function LoginPage() {
 
         <SignIn
           routing="path"
-          path="/login"
-          signUpUrl="/signup"
+          path="/signin"
+          signUpUrl="/get-started"
+          fallbackRedirectUrl="/"
           appearance={{
             elements: {
               rootBox: "w-full",
-              card: "rounded-2xl border bg-white shadow-xl",
-              headerTitle: "hidden",
-              headerSubtitle: "hidden",
-              socialButtonsBlockButton:
-                "rounded-xl border hover:bg-slate-50 transition",
-              formFieldInput:
-                "rounded-xl border focus:ring-2 focus:ring-emerald-500",
-              formButtonPrimary:
-                "rounded-xl bg-emerald-600 hover:bg-emerald-700 transition",
-              footerActionLink:
-                "text-emerald-600 hover:text-emerald-700",
+              card: "shadow-none border-0 bg-transparent",
             },
           }}
         />

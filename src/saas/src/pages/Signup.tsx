@@ -4,9 +4,9 @@ import { GraduationCap } from "lucide-react";
 
 export function SignupPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
         className="w-full max-w-md"
@@ -27,22 +27,13 @@ export function SignupPage() {
 
         <SignUp
           routing="path"
-          path="/signup"
-          signInUrl="/login"
+          path="/get-started"
+          signInUrl="/signin"
+          fallbackRedirectUrl="/"
           appearance={{
             elements: {
               rootBox: "w-full",
-              card: "rounded-2xl border bg-white shadow-xl",
-              headerTitle: "hidden",
-              headerSubtitle: "hidden",
-              socialButtonsBlockButton:
-                "rounded-xl border hover:bg-slate-50 transition",
-              formFieldInput:
-                "rounded-xl border focus:ring-2 focus:ring-emerald-500",
-              formButtonPrimary:
-                "rounded-xl bg-emerald-600 hover:bg-emerald-700 transition",
-              footerActionLink:
-                "text-emerald-600 hover:text-emerald-700",
+              card: "shadow-none border-0 bg-transparent",
             },
           }}
         />

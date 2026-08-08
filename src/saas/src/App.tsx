@@ -5,6 +5,7 @@ import {
   Route,
 } from "react-router-dom";
 
+
 import { AppLayout } from "./components/layout/AppLayout";
 
 import { Dashboard } from "./pages/Dashboard";
@@ -22,6 +23,9 @@ import { NotFound } from "./pages/NotFound";
 
 import { RoleGuard } from "./RoleGuard";
 import { useAuthContext } from "./contexts/AuthContext";
+import { LandingPage } from "./pages/LandingPage";
+import { SignupPage } from "./pages/Signup";
+import { LoginPage } from "./pages/Login";
 
 
 
@@ -31,6 +35,35 @@ function Router(): JSX.Element {
     status,
   } = useAuthContext();
 
+  if(status === "idle" || status === "unauthenticated"){
+    return(
+      <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+
+        <Route
+          path="/signin"
+          element={<LoginPage />}
+        />
+
+        <Route
+          path="/signin/sso-callback"
+          element={<LoginPage />}
+        />
+
+        <Route
+          path="/get-started"
+          element={<SignupPage />}
+        />
+
+        <Route
+          path="*"
+          element={<NotFound />}
+        />
+      </Routes>
+      </BrowserRouter>
+    ) 
+  }
 
 
   return (
@@ -61,19 +94,26 @@ function Router(): JSX.Element {
             <Route
               path="/students"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                // <RoleGuard allowedRoles={["admin"]}>
                   <Students />
-                </RoleGuard>
+                // {/* </RoleGuard> */}
               }
             />
 
 
-            <Route
+            {/* <Route
               path="/digital-ids"
               element={
                 <RoleGuard allowedRoles={["admin"]}>
                   <DigitalIds />
                 </RoleGuard>
+              }
+            /> */}
+
+            <Route
+              path="/digital-ids"
+              element={
+                  <DigitalIds />
               }
             />
 
@@ -178,6 +218,8 @@ function Router(): JSX.Element {
 
 
       </Routes>
+
+      
 
     </BrowserRouter>
   );
