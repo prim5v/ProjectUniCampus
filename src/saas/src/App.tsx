@@ -106,28 +106,22 @@ function Router(): JSX.Element {
             <Route
               path="/students"
               element={
-                // <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard allowedRoles={["admin"]}>
                   <Students />
-                // {/* </RoleGuard> */}
+                </RoleGuard>
               }
             />
 
-
-            {/* <Route
+              <Route
               path="/digital-ids"
               element={
                 <RoleGuard allowedRoles={["admin"]}>
                   <DigitalIds />
                 </RoleGuard>
               }
-            /> */}
+            /> 
 
-            <Route
-              path="/digital-ids"
-              element={
-                  <DigitalIds />
-              }
-            />
+
 
 
             <Route

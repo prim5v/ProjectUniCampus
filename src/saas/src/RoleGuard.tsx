@@ -56,21 +56,23 @@ export function RoleGuard({
     return <Navigate to="/signin" replace />;
   }
 
-  // Convert "Zetech University_admin" -> "admin"
+  // Supports both:
+  // "admin" -> "admin"
+  // "sdhhd_admin" -> "admin"
   const role = dbUser.role
-    ?.split("_")
-    .pop()
-    ?.toLowerCase();
+    ?.trim()
+    .toLowerCase()
+    .endsWith("_admin")
+    ? "admin"
+    : dbUser.role?.trim().toLowerCase();
 
   // User doesn't have permission
-  if (
-    !role ||
-    !allowedRoles
-      .map((allowedRole) =>
-        allowedRole.toLowerCase()
-      )
-      .includes(role)
-  ) {
+  const hasPermission = allowedRoles.some(
+    (allowedRole) =>
+      allowedRole.trim().toLowerCase() === role
+  );
+
+  if (!role || !hasPermission) {
     return <Navigate to="/" replace />;
   }
 
