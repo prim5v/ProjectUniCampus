@@ -26,6 +26,7 @@ import { useAuthContext } from "./contexts/AuthContext";
 import { LandingPage } from "./pages/LandingPage";
 import { SignupPage } from "./pages/Signup";
 import { LoginPage } from "./pages/Login";
+import { CreateAccount } from "./pages/CreateAccount";
 
 
 
@@ -63,6 +64,16 @@ function Router(): JSX.Element {
       </Routes>
       </BrowserRouter>
     ) 
+  }
+
+  if(status==="account_creation"){
+    return(
+      <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<CreateAccount/>}/>
+      </Routes>
+      </BrowserRouter>
+    )
   }
 
 

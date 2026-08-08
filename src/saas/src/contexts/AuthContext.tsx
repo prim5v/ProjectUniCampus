@@ -23,6 +23,7 @@ export const AUTH = {
   OTP_REQUIRED: "otp_required",
   MPESA: "mpesa",
   CONSENT_REQUIRED: "consent_required",
+  ACCOUNT_CREATION: "account_creation",
 } as const;
 
 
@@ -111,9 +112,15 @@ export function AuthProvider({
 useEffect(() => {
   const sync = async () => {
     try {
-      await authSync();
+      const res = await authSync();
+      // const data = res.data
     } catch (error) {
       console.error("Auth sync failed:", error);
+      // setStatus(AUTH.ACCOUNT_CREATION);
+      // console.log("Status:", status);
+    }finally{
+      setStatus(AUTH.ACCOUNT_CREATION);
+      console.log("Status:", status);
     }
   };
 
