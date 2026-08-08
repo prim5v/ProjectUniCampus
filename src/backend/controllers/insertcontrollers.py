@@ -1,5 +1,8 @@
 import uuid
 from backend.utils.db import get_db_cursor
+import logging
+
+logger = logging.getLogger(__name__)
 
 def create_service_session(service_id, student_id, nonce, timestamp):
     conn, cursor = get_db_cursor()
@@ -97,6 +100,129 @@ def insert_into_student_devices(student_id, device_id, device_name, platform, ap
             )
         conn.commit()
         return cursor.lastrowid
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+def create_campus_account(data, email, campus_id, security_token, role):
+    conn, cursor = get_db_cursor()
+
+    if not conn:
+        logger.error("DB_CONNECTION_FAILED")
+        raise RuntimeError("Database connection failed")
+
+    try:
+        campus_name = data["campus_name"]
+        institution_type = data["institution_type"]
+        estimated_population = data["estimated_population"]
+        phone_number = data["phone_number"]
+        service_ids = data["service_ids"]
+
+        # Create campus credentials
+        cursor.execute(
+            """
+            INSERT INTO campus_credentials (
+                campus_id,
+                security_token,
+                verified,
+                email,
+                role,
+                phone_number,
+                estimated_population,
+                institution_type,
+                createdAt
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s,
+                CURRENT_TIMESTAMP
+            )
+            """,
+            (
+                campus_id,
+                security_token,
+                False,
+                email,
+                role,
+                phone_number,
+                estimated_population,
+                institution_type,
+            ),
+        )
+
+        # Create campus data
+        cursor.execute(
+            """
+            INSERT INTO campus_data (
+                campus_id,
+                campus_name,
+                isActive,
+                joinedWhen
+            )
+            VALUES (
+                %s, %s, %s, CURRENT_TIMESTAMP
+            )
+            """,
+            (
+                campus_id,
+                campus_name,
+                True,
+            ),
+        )
+
+        # Create campus service selections
+        for service_id in service_ids:
+            cursor.execute(
+                """
+                INSERT INTO campus_services (
+                    campus_id,
+                    service_id,
+                    status,
+                    trial_started_at,
+                    trial_ends_at,
+                    created_at
+                )
+                VALUES (
+                    %s,
+                    %s,
+                    'trialing',
+                    CURRENT_TIMESTAMP,
+                    CURRENT_TIMESTAMP + INTERVAL '30 days',
+                    CURRENT_TIMESTAMP
+                )
+                """,
+                (
+                    campus_id,
+                    service_id,
+                ),
+            )
+
+        conn.commit()
+
+        logger.info(
+            "CAMPUS_ACCOUNT_CREATED",
+            extra={
+                "campus_id": campus_id,
+                "email": email,
+                "service_count": len(service_ids),
+            },
+        )
+
+        return True
+
+    except Exception:
+        conn.rollback()
+
+        logger.exception(
+            "CAMPUS_ACCOUNT_CREATION_FAILED",
+            extra={
+                "campus_id": data.get("campus_id"),
+            },
+        )
+
+        raise
+
     finally:
         cursor.close()
         conn.close()
