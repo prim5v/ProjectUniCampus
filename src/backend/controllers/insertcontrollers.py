@@ -127,8 +127,8 @@ def create_campus_account(data, email, campus_id, security_token, role):
             INSERT INTO campus_data (
                 campus_id,
                 campus_name,
-                isActive,
-                joinedWhen
+                "isActive",
+                "joinedWhen"
             )
             VALUES (
                 %s, %s, %s, CURRENT_TIMESTAMP
