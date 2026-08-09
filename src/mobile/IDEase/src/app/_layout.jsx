@@ -63,3 +63,5 @@ export default function RootLayout() {
   // {/* default landing */}
   // <Stack.Screen name="(auth)/_layout.jsx" />
 // </Stack>
+
+// this is the code
