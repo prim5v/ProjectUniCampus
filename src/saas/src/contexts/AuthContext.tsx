@@ -94,6 +94,9 @@ export function AuthProvider({
   const [error, setError] =
     useState<string | null>(null);
 
+  const [successStatus, setSuccessStatus]=
+    useState<string | null > (null);
+
   const [message, setMessage] =
     useState<string | null>(null);
 
@@ -199,8 +202,13 @@ export function AuthProvider({
       dbUser,
       user,
 
+      successStatus,
+
       setDbUser,
       setLoading,
+      setError,
+      setMessage,
+      setSuccessStatus,
 
       loading,
       error,

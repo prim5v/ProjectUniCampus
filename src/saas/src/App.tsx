@@ -28,6 +28,7 @@ import { SignupPage } from "./pages/Signup";
 import { LoginPage } from "./pages/Login";
 import { CreateAccount } from "./pages/CreateAccount";
 import { LoadingPage } from "./pages/LoadingPage";
+import { GlobalNotification } from "./components/dashboard/GlobalNotification";
 
 
 function Router(): JSX.Element {
@@ -243,6 +244,7 @@ export function App(): JSX.Element {
       <Router />
 
       {loading && <LoadingPage />}
+      <GlobalNotification/>
     </div>
   )
 

@@ -137,7 +137,14 @@ export function Students() {
         
       </Card>
 
-      <AddStudentModal open={addOpen} onClose={() => setAddOpen(false)} />
+      {/* <AddStudentModal open={addOpen} onClose={() => setAddOpen(false)} /> */}
+      <AddStudentModal
+        open={addOpen}
+        onClose={() => {
+          console.log("🚨 ADD STUDENT MODAL onClose CALLED");
+          setAddOpen(false);
+        }}
+      />
       <ImportStudentsModal open={importOpen} onClose={() => setImportOpen(false)} />
     </div>);
 
