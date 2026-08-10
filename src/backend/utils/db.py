@@ -7,9 +7,21 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 import logging
 
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+
+
+
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+MONGODB_URI = os.getenv("MONGODB_URI")
+
+
+
+
+
+
 
 
 def get_db_connection():
@@ -53,6 +65,101 @@ def check_db_connection():
         return False
 
 
+
+
+
+# Create MongoDB client once
+client = MongoClient(
+    MONGODB_URI,
+    server_api=ServerApi("1")
+)
+
+
+def get_mongo_connection():
+    """
+    Returns the MongoDB client.
+    """
+    try:
+        return client
+
+    except Exception as e:
+        print("MongoDB connection failed:", e)
+        return None
+
+
+def get_mongo_db():
+    """
+    Returns the UniCampus MongoDB database.
+    """
+    try:
+        db = client["unicampus"]
+        return db
+
+    except Exception as e:
+        print("MongoDB database access failed:", e)
+        return None
+
+
+# def get_mongo_collection(collection_name):
+#     """
+#     Returns a collection from the UniCampus database.
+#     """
+#     try:
+#         db = get_mongo_db()
+#         db.create_index(
+#                 "created_at",
+#                 expireAfterSeconds=60 * 60 * 24 * 90
+#             )
+
+#         if db is None:
+#             return None
+
+#         return db[collection_name]
+
+#     except Exception as e:
+#         print("MongoDB collection access failed:", e)
+#         return None
+
+def get_mongo_collection(collection_name):
+    """
+    Returns a collection from the UniCampus database.
+    """
+    try:
+        db = get_mongo_db()
+
+        if db is None:
+            return None
+
+        collection = db[collection_name]
+
+        # Create TTL index once
+        collection.create_index(
+            "created_at",
+            expireAfterSeconds=60 * 60 * 24 * 90
+        )
+
+        return collection
+
+    except Exception as e:
+        print("MongoDB collection access failed:", e)
+        return None
+
+
+def check_mongo_connection():
+    """
+    Checks whether MongoDB is reachable.
+    """
+    try:
+        client.admin.command("ping")
+
+        logging.info("✅ MongoDB connection successful")
+
+        return True
+
+    except Exception as e:
+        logging.error(f"❌ MongoDB connection failed: {str(e)}")
+
+        return False
 
 
 # import os

@@ -1,6 +1,8 @@
 import uuid
-from backend.utils.db import get_db_cursor
+from backend.utils.db import get_db_cursor, get_mongo_collection
 import logging
+from datetime import datetime, timezone
+
 
 logger = logging.getLogger(__name__)
 
@@ -230,3 +232,29 @@ def create_campus_account(data, email, campus_id, security_token, role):
     finally:
         cursor.close()
         conn.close()
+
+
+def insert_single_student(data):
+    try:
+        student = get_mongo_collection("students_data")
+
+        result = student.insert_one({
+            "first_name": data["first_name"],
+            "middle_name": data.get("middle_name"),
+            "last_name": data["last_name"],
+            "admission_number": data["admission_number"],
+            "university_email": data["university_email"],
+            "faculty": data["faculty"],
+            "course": data["course"],
+            "expiry": data["expiry"],
+            "created_at": datetime.now(timezone.utc)
+        })
+
+        if not result.inserted_id:
+            return None
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Error inserting student: {e}")
+        return None

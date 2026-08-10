@@ -6,6 +6,7 @@ Flask-SocketIO==5.5.1
 gunicorn==25.3.0
 eventlet==0.40.3
 
+pymongo==4.17.0
 PyMySQL==1.1.2
 SQLAlchemy==2.0.42
 psycopg2-binary==2.9.10

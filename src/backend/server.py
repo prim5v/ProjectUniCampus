@@ -3,11 +3,12 @@ from flask_cors import CORS
 import logging
 from backend.middleware.limiter import limiter
 from backend.utils.cron import start_scheduler
-from backend.utils.db import check_db_connection
+from backend.utils.db import check_db_connection, check_mongo_connection
 from backend.utils.extraFunctions import generate_rsa_key_pair
 from backend.routes.reader import reader_bp
 from backend.routes.auth import auth_bp
 from backend.routes.student import student_bp
+from backend.routes.admin import admin_bp
 from flask_socketio import SocketIO
 
 import os
@@ -103,12 +104,32 @@ def db_health():
             "status": "unhealthy",
             "database": "disconnected"
         }, 500
+
+
+@app.route("/health/mongodb")
+def mongodb_health():
+    is_connected = check_mongo_connection()
+
+    if is_connected:
+            return {
+                "status": "healthy",
+                "database": "connected"
+        }, 200
+    else:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected"
+        }, 500
+
+
+
     
 # ================= BLUEPRINTS =================
 # app.register_blueprint(auth_bp)
 app.register_blueprint(reader_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(student_bp)
+app.register_blueprint(admin_bp)
 
 if __name__ == "__main__":
     # app.run(debug=True)
