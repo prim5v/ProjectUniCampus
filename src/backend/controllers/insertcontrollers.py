@@ -234,7 +234,7 @@ def create_campus_account(data, email, campus_id, security_token, role):
         conn.close()
 
 
-def insert_single_student(data):
+def insert_single_student(data, campus_id):
     try:
         student = get_mongo_collection("students_data")
 
@@ -247,6 +247,8 @@ def insert_single_student(data):
             "faculty": data["faculty"],
             "course": data["course"],
             "expiry": data["expiry"],
+            "campus_id": campus_id,
+            "digitalId_created": False,
             "created_at": datetime.now(timezone.utc)
         })
 

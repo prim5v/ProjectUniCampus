@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 def add_single_student(data):
 
+    campus_id = getattr(g, "user_id", None)
+
     first_name = data.get("first_name")
     middle_name = data.get("middle_name")
     last_name = data.get("last_name")
@@ -23,6 +25,11 @@ def add_single_student(data):
     # --------------------------------
     # VALIDATION
     # --------------------------------
+    if not campus_id:
+        return jsonify({
+            "success": False,
+            "message": "campus id required"
+        }), 400
 
     if not first_name or not last_name:
         return jsonify({
@@ -52,7 +59,7 @@ def add_single_student(data):
     # INSERT STUDENT
     # --------------------------------
 
-    result = insert_single_student(data)
+    result = insert_single_student(data, campus_id)
 
     if not result:
         return jsonify({

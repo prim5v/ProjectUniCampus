@@ -10,3 +10,4 @@ from backend.middleware.auth import require_auth, require_role
 def student_add():
     data = request.get_json()
     return add_single_student(data)
+
