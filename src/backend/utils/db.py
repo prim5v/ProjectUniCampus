@@ -138,6 +138,15 @@ def get_mongo_collection(collection_name):
             expireAfterSeconds=60 * 60 * 24 * 90
         )
 
+        collection.create_index(
+            [
+                ("campus_id", 1),
+                ("admission_number", 1)
+            ],
+            unique=True,
+            name="unique_campus_admission_number"
+        )
+
         return collection
 
     except Exception as e:
