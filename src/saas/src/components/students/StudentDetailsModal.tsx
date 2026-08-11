@@ -1,7 +1,13 @@
 import React from "react";
-import { Mail, GraduationCap, Hash, CalendarDays } from "lucide-react";
+import {
+  Mail,
+  GraduationCap,
+  Hash,
+  CalendarDays,
+} from "lucide-react";
 import { Modal } from "../ui/Modal";
-import type { Student, backendStudents } from "../../types";
+import type { Student } from "../../types";
+import { Link } from "react-router-dom";
 
 type StudentDetailsModalProps = {
   open: boolean;
@@ -37,7 +43,10 @@ export function StudentDetailsModal({
     >
       <div className="space-y-6">
 
+        {/* -------------------------------- */}
         {/* Name */}
+        {/* -------------------------------- */}
+
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Student
@@ -50,13 +59,28 @@ export function StudentDetailsModal({
               : ""}
             {student.lastName}
           </h2>
+
+          <Link
+            to={`/students/${student.id}/digital-id`}
+            state={{ student }}
+            className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+          >
+            View the complete student record
+          </Link>
         </div>
 
+        {/* -------------------------------- */}
+        {/* Student information */}
+        {/* -------------------------------- */}
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+          {/* Admission number */}
 
           <div className="rounded-lg border border-line p-4">
             <div className="flex items-center gap-2 text-muted">
               <Hash className="h-4 w-4" />
+
               <span className="text-xs font-medium">
                 Admission number
               </span>
@@ -67,9 +91,12 @@ export function StudentDetailsModal({
             </p>
           </div>
 
+          {/* University email */}
+
           <div className="rounded-lg border border-line p-4">
             <div className="flex items-center gap-2 text-muted">
               <Mail className="h-4 w-4" />
+
               <span className="text-xs font-medium">
                 University email
               </span>
@@ -80,9 +107,12 @@ export function StudentDetailsModal({
             </p>
           </div>
 
+          {/* Faculty */}
+
           <div className="rounded-lg border border-line p-4">
             <div className="flex items-center gap-2 text-muted">
               <GraduationCap className="h-4 w-4" />
+
               <span className="text-xs font-medium">
                 Faculty
               </span>
@@ -93,9 +123,12 @@ export function StudentDetailsModal({
             </p>
           </div>
 
+          {/* Course */}
+
           <div className="rounded-lg border border-line p-4">
             <div className="flex items-center gap-2 text-muted">
               <GraduationCap className="h-4 w-4" />
+
               <span className="text-xs font-medium">
                 Course
               </span>
@@ -106,9 +139,12 @@ export function StudentDetailsModal({
             </p>
           </div>
 
+          {/* Record expiry */}
+
           <div className="rounded-lg border border-line p-4">
             <div className="flex items-center gap-2 text-muted">
               <CalendarDays className="h-4 w-4" />
+
               <span className="text-xs font-medium">
                 Record expiry
               </span>
@@ -118,6 +154,8 @@ export function StudentDetailsModal({
               {student.expiry}
             </p>
           </div>
+
+          {/* Digital ID */}
 
           <div className="rounded-lg border border-line p-4">
             <p className="text-xs font-medium text-muted">
@@ -130,7 +168,6 @@ export function StudentDetailsModal({
                 : "Not created"}
             </p>
           </div>
-
         </div>
       </div>
     </Modal>

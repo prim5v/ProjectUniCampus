@@ -27,8 +27,10 @@ import { LandingPage } from "./pages/LandingPage";
 import { SignupPage } from "./pages/Signup";
 import { LoginPage } from "./pages/Login";
 import { CreateAccount } from "./pages/CreateAccount";
+// import {CreateDigitalId} from "./pages/CreateDigitalId";
 import { LoadingPage } from "./pages/LoadingPage";
 import { GlobalNotification } from "./components/dashboard/GlobalNotification";
+import { CreateDigitalId } from "./pages/CreateDigitalId";
 
 
 function Router(): JSX.Element {
@@ -130,6 +132,15 @@ function Router(): JSX.Element {
               element={
                 <RoleGuard allowedRoles={["admin"]}>
                   <Attendance />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/students/:studentId/digital-id"
+              element={
+                <RoleGuard allowedRoles={["admin"]}>
+                  <CreateDigitalId/>
                 </RoleGuard>
               }
             />

@@ -3,13 +3,22 @@ export type StudentStatus = "active" | "inactive" | "pending";
 
 export interface Student {
   id: string;
-  studentId: string;
+
   firstName: string;
+  middleName: string | null;
   lastName: string;
-  email: string;
+
+  admissionNumber: string;
+  universityEmail: string;
+
   faculty: string;
   course: string;
-  status: StudentStatus;
+
+  expiry: string;
+
+  digitalIdCreated: boolean;
+
+  createdAt: string | null;
 }
 
 export type DigitalIdStatus = "activated" | "pending" | "revoked";
