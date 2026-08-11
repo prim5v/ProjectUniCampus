@@ -1,4 +1,4 @@
-from backend.utils.db import get_db_cursor
+from backend.utils.db import get_db_cursor, get_mongo_collection
 from flask import jsonify
 import bcrypt, uuid
 import logging
@@ -303,7 +303,6 @@ def get_student_data(student_id):
 
 
 
-
 def check_campus_exists(clerk_id):
     conn, cursor = get_db_cursor()
 
@@ -343,3 +342,57 @@ def check_campus_exists(clerk_id):
     finally:
         cursor.close()
         conn.close()
+
+
+
+
+def get_students(campus_id, page=1, limit=20):
+    try:
+        collection = get_mongo_collection("students_data")
+
+        if collection is None:
+            logger.error("Students collection could not be accessed")
+            return None
+
+        # Calculate how many documents to skip
+        skip = (page - 1) * limit
+
+        # Filter students belonging to this campus
+        query = {
+            "campus_id": campus_id
+        }
+
+        # Get total number of students
+        total = collection.count_documents(query)
+
+        # Get only the requested page
+        students = list(
+            collection
+            .find(query)
+            .sort("created_at", -1)
+            .skip(skip)
+            .limit(limit)
+        )
+
+        # Calculate total pages
+        total_pages = (
+            (total + limit - 1) // limit
+            if total > 0
+            else 0
+        )
+
+        return {
+            "data": students,
+            "pagination": {
+                "page": page,
+                "limit": limit,
+                "total": total,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_previous": page > 1
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to get students: {e}")
+        return None

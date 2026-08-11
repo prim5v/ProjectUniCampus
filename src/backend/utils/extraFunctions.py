@@ -15,6 +15,22 @@ import user_agents
 
 import requests
 import uuid
+from upstash_redis import Redis
+import os
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def get_redis():
+    redis_client = Redis(
+        url=os.getenv("UPSTASH_REDIS_REST_URL"),
+        token=os.getenv("UPSTASH_REDIS_REST_TOKEN"),
+    )
+
+    return redis_client
 
 def haversine_distance(lat1, lon1, lat2, lon2):
     """
