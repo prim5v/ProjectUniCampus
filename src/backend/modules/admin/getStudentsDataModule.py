@@ -91,7 +91,21 @@ def get_students_data():
 
     for student in students["data"]:
         response.append({
-            # your fields
+            "id": str(student["_id"]),
+            "first_name": student.get("first_name"),
+            "middle_name": student.get("middle_name"),
+            "last_name": student.get("last_name"),
+            "admission_number": student.get("admission_number"),
+            "university_email": student.get("university_email"),
+            "faculty": student.get("faculty"),
+            "course": student.get("course"),
+            "expiry": student.get("expiry"),
+            "digitalId_created": student.get("digitalId_created", False),
+            "created_at": (
+                student["created_at"].isoformat()
+                if student.get("created_at")
+                else None
+            ),
         })
 
     result = {

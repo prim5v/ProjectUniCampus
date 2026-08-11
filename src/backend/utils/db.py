@@ -142,6 +142,7 @@ def get_mongo_collection(collection_name):
             [
                 ("campus_id", 1),
                 ("admission_number", 1)
+                ("university_email", 1)
             ],
             unique=True,
             name="unique_campus_admission_number"
