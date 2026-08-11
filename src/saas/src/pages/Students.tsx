@@ -72,6 +72,7 @@ export function Students() {
         );
 
         setData(response.data || []);
+        console.log(response.data);
         setPagination(response.pagination || null);
 
       } catch (error) {

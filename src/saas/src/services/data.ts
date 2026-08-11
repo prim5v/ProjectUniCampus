@@ -86,6 +86,11 @@ export const getStudents = async (
 
   const backendStudents: BackendStudent[] =
     response.data?.data ?? [];
+  
+  // console.log(backendStudents);
+  // console.log(response);
+  console.log("Students payload:", response.data);
+  console.log("First student:", response.data?.data?.[0]);
 
 
   /*

@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, GraduationCap, Hash, CalendarDays } from "lucide-react";
 import { Modal } from "../ui/Modal";
-import type { Student } from "../../types";
+import type { Student, backendStudents } from "../../types";
 
 type StudentDetailsModalProps = {
   open: boolean;
