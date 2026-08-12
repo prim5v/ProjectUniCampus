@@ -291,7 +291,7 @@ def insert_digital_id(
                 student_id,
                 student_name,
                 admission_number,
-                course,
+                student_course,
                 year_of_study,
                 university_email,
                 faculty,
