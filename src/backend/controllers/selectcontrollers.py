@@ -359,7 +359,8 @@ def get_students(campus_id, page=1, limit=20):
 
         # Filter students belonging to this campus
         query = {
-            "campus_id": campus_id
+            "campus_id": campus_id,
+            "digitalId_created": False
         }
 
         # Get total number of students

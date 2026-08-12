@@ -2,6 +2,7 @@ import logging
 
 from flask import jsonify, g
 from backend.controllers.insertcontrollers import insert_single_student
+from backend.utils.extraFunctions import get_redis
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,25 @@ def add_single_student(data):
     # --------------------------------
 
     result = insert_single_student(data, campus_id)
+
+    # student_id = collection.insert_one(student_data).inserted_id
+
+    # Invalidate student cache
+    try:
+        pattern = f"students_data:{campus_id}:*"
+        redis_client = get_redis()
+
+        for key in redis_client.scan_iter(match=pattern):
+            redis_client.delete(key)
+
+        logger.info(
+            f"Student cache invalidated for campus {campus_id}"
+        )
+
+    except Exception as redis_error:
+        logger.error(
+            f"FAILED TO INVALIDATE STUDENT CACHE: {redis_error}"
+        )
 
     if not result:
         return jsonify({
