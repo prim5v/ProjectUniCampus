@@ -8,7 +8,7 @@ from backend.middleware.auth import require_auth
 
 @admin_bp.route("/get/students/data", methods=["GET"])
 @limiter.limit("20 per minute")
-# @require_auth
+@require_auth
 def students_get():
 
     return get_students_data()

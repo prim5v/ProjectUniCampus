@@ -260,3 +260,98 @@ def insert_single_student(data, campus_id):
     except Exception as e:
         logger.error(f"Error inserting student: {e}")
         return None
+
+def insert_digital_id(
+    student_id,
+    campus_id,
+    student_name,
+    admission_number,
+    course,
+    year_of_study,
+    university_email,
+    faculty,
+    expiry,
+    username,
+    pwd_hash
+):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return False
+
+    try:
+        # --------------------------------
+        # Insert student credentials
+        # --------------------------------
+
+        cursor.execute(
+            """
+            INSERT INTO students_credentials
+            (
+                student_id,
+                student_name,
+                admission_number,
+                course,
+                year_of_study,
+                university_email,
+                faculty,
+                expiry
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                student_id,
+                student_name,
+                admission_number,
+                course,
+                year_of_study,
+                university_email,
+                faculty,
+                expiry
+            )
+        )
+
+        # --------------------------------
+        # Insert student account data
+        # --------------------------------
+
+        cursor.execute(
+            """
+            INSERT INTO students_data
+            (
+                campus_id,
+                student_id,
+                username,
+                pwd_hash,
+                isActive,
+                nfc_status,
+                account_status
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                campus_id,
+                student_id,
+                username,
+                pwd_hash,
+                True,
+                "Active",
+                "Active"
+            )
+        )
+
+        # --------------------------------
+        # Commit both inserts
+        # --------------------------------
+
+        conn.commit()
+
+        return True
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        cursor.close()
+        conn.close()
