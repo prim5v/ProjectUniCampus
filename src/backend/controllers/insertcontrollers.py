@@ -323,7 +323,7 @@ def insert_digital_id(
                 student_id,
                 username,
                 pwd_hash,
-                isActive,
+                "isActive",
                 nfc_status,
                 account_status
             )
