@@ -29,8 +29,8 @@ export function CreateDigitalId() {
   const navigate = useNavigate();
 
   const { student } = (location.state as LocationState) || {};
-  const {api}= useApi;
-  const {setLoading} = useAuthContext;
+  const {api}= useApi();
+  const { setLoading, setError, setMessage, setSuccessStatus } = useAuthContext();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -142,15 +142,39 @@ export function CreateDigitalId() {
     };
 
     const response = await api.post(
-      "/api/digital-id/create",
+      "/admin/create/digital/id",
       payload
     );
 
     console.log("Digital ID created:", response.data);
 
+    setSuccessStatus("success")
+
     navigate("/students");
+    setError({})
   } catch (error) {
     console.error("Failed to create digital ID:", error);
+
+    let message =
+        "Something went wrong while adding the student.";
+
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error
+      ) {
+        const axiosError = error as {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
+        };
+
+        message =
+          axiosError.response?.data?.message || message;
+      }
+      setError(message);
   } finally {
     setIsSubmitting(false);
     setLoading(false)
@@ -386,7 +410,14 @@ export function CreateDigitalId() {
 
             <div className="border-t border-line pt-5">
 
-              <Button className="w-full">
+              {/* <Button className="w-full"> */}
+              <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creating digital ID..." : "Create digital ID"}
+          {/* </Button> */}
                 Create digital ID
               </Button>
 
