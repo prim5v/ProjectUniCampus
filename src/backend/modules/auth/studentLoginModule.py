@@ -14,6 +14,7 @@ def student_login(data):
             return jsonify({"error": "Missing required fields"}), 400
 
         username = username.strip()
+        pwd = pwd.strip().lower()
 
         if len(username) > 255 or len(pwd) > 128:
             return jsonify({"error": "Invalid input"}), 400
