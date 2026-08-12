@@ -129,7 +129,7 @@ export function CreateDigitalId() {
 
   try {
     setIsSubmitting(true);
-    setLoading(true);
+    // setLoading(true);
 
     const payload = {
       student_name: studentName.trim(),
@@ -149,6 +149,11 @@ export function CreateDigitalId() {
     console.log("Digital ID created:", response.data);
 
     setSuccessStatus("success")
+
+    setMessage(
+      response.data?.message ||
+      "Digital id created successfully"
+    );
 
     navigate("/students");
     setError({})
@@ -174,10 +179,11 @@ export function CreateDigitalId() {
         message =
           axiosError.response?.data?.message || message;
       }
+      setSuccessStatus("error");
       setError(message);
   } finally {
     setIsSubmitting(false);
-    setLoading(false)
+    // setLoading(false)
   }
 };
 
