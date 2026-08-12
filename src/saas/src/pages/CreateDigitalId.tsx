@@ -17,6 +17,8 @@ import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import type { Student } from "../types";
+import { useApi } from "../contexts/ApiContext";
+import { useAuthContext } from "../contexts/AuthContext";
 
 type LocationState = {
   student?: Student;
@@ -27,6 +29,8 @@ export function CreateDigitalId() {
   const navigate = useNavigate();
 
   const { student } = (location.state as LocationState) || {};
+  const {api}= useApi;
+  const {setLoading} = useAuthContext;
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -34,6 +38,24 @@ export function CreateDigitalId() {
   const [admissionNumber, setAdmissionNumber] = useState("");
   const [course, setCourse] = useState("");
   const [yearOfStudy, setYearOfStudy] = useState("");
+
+  const [universityEmail, setUniversityEmail] = useState("");
+  const [faculty, setFaculty] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const faculties = [
+  "ICT",
+  "Medicine",
+  "Engineering",
+  "Business",
+  "Education",
+  "Law",
+  "Health Sciences",
+  "Social Sciences",
+  "Humanities",
+  "Science",
+];
 
   /*
    * --------------------------------
@@ -89,6 +111,51 @@ export function CreateDigitalId() {
    * Image
    * --------------------------------
    */
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+
+  if (
+    !studentName ||
+    !admissionNumber ||
+    !course ||
+    !yearOfStudy ||
+    !universityEmail ||
+    !faculty ||
+    !expiry
+  ) {
+    return;
+  }
+
+  try {
+    setIsSubmitting(true);
+    setLoading(true);
+
+    const payload = {
+      student_name: studentName.trim(),
+      admission_number: admissionNumber.trim(),
+      course: course.trim(),
+      year_of_study: yearOfStudy,
+      university_email: universityEmail.trim(),
+      faculty,
+      expiry,
+    };
+
+    const response = await api.post(
+      "/api/digital-id/create",
+      payload
+    );
+
+    console.log("Digital ID created:", response.data);
+
+    navigate("/students");
+  } catch (error) {
+    console.error("Failed to create digital ID:", error);
+  } finally {
+    setIsSubmitting(false);
+    setLoading(false)
+  }
+};
 
   const handleImageChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -163,7 +230,8 @@ export function CreateDigitalId() {
             </div>
           </div>
 
-          <div className="space-y-5 p-5">
+          {/* <div className="space-y-5 p-5"> */}
+          <form onSubmit={handleSubmit} className="space-y-5 p-5">
 
             {/* -------------------------------- */}
             {/* Image */}
@@ -247,6 +315,38 @@ export function CreateDigitalId() {
               }
             />
 
+            <Input
+              label="University email"
+              type="email"
+              placeholder="student@university.ac.ke"
+              value={universityEmail}
+              onChange={(event) => setUniversityEmail(event.target.value)}
+            />
+
+            <div>
+                {/* <label
+                  htmlFor="faculty"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
+                  Faculty
+                </label> */}
+
+                <select
+                  id="faculty"
+                  value={faculty}
+                  onChange={(event) => setFaculty(event.target.value)}
+                  className="w-full rounded-lg border border-line bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-foreground"
+                >
+                  <option value="">Select faculty</option>
+
+                  {faculties.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
             {/* -------------------------------- */}
             {/* Course */}
             {/* -------------------------------- */}
@@ -273,6 +373,13 @@ export function CreateDigitalId() {
               }
             />
 
+            <Input
+              label="Expiry date"
+              type="date"
+              value={expiry}
+              onChange={(event) => setExpiry(event.target.value)}
+            />
+
             {/* -------------------------------- */}
             {/* Action */}
             {/* -------------------------------- */}
@@ -285,7 +392,8 @@ export function CreateDigitalId() {
 
             </div>
 
-          </div>
+          {/* </div> */}
+          </form>
         </Card>
 
         {/* -------------------------------- */}
