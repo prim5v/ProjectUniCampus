@@ -57,7 +57,17 @@ function Router(): JSX.Element {
         />
 
         <Route
+          path="/signin/*"
+          element={<LoginPage/>}
+          />
+
+        <Route
           path="/get-started"
+          element={<SignupPage />}
+        />
+
+        <Route
+          path="/get-started/*"
           element={<SignupPage />}
         />
 
