@@ -346,6 +346,19 @@ def insert_digital_id(
 
         conn.commit()
 
+        # update state in mongodb
+        student = get_mongo_collection("students_data")
+        result = student.update_one(
+            {
+                "admission_number": admission_number
+            },
+            {
+                "$set":{
+                    "digitalId_created": True
+                }
+            }
+        )
+
         return True
 
     except Exception:
