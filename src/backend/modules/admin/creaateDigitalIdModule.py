@@ -5,7 +5,7 @@ import string
 import bcrypt
 
 from backend.controllers.insertcontrollers import insert_digital_id
-from backend.utils.extraFunctions import generate_student_id
+from backend.utils.extraFunctions import generate_student_id, get_redis
 logger = logging.getLogger(__name__)
 
 
@@ -86,6 +86,24 @@ def create_digital_id(data):
             username,
             pwd_hash
         )
+
+        # Invalidate student cache
+        try:
+            pattern = f"students_data:{campus_id}:*"
+            redis_client = get_redis()
+
+            for key in redis_client.scan_iter(match=pattern):
+                redis_client.delete(key)
+
+            logger.info(
+                f"Student cache invalidated for campus {campus_id}"
+            )
+
+        except Exception as redis_error:
+            logger.error(
+                f"FAILED TO INVALIDATE STUDENT CACHE: {redis_error}"
+            )
+            
 
         if not result:
             return jsonify({

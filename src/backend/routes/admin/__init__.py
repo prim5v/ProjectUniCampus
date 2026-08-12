@@ -2,4 +2,4 @@ from flask import Blueprint
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
-from . import addSingleStudent, getStudentsData, creaateDigitalId
+from . import addSingleStudent, getStudentsData, creaateDigitalId, getDigitalIds

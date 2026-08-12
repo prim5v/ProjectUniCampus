@@ -195,9 +195,22 @@ def login_check(username, pwd):
             return None
 
         # if not bcrypt.checkpw(pwd.encode(), user["pwd_hash"].encode()):
-        if pwd != user["pwd_hash"]:
+        # if pwd != user["pwd_hash"]:
+        #     logging.warning(f"❌ Invalid password for user {username}")
+        #     return None
+        stored_hash = user["pwd_hash"]
+
+        password_valid = bcrypt.checkpw(
+            pwd.encode("utf-8"),
+            stored_hash.encode("utf-8")
+        )
+
+        if not password_valid:
             logging.warning(f"❌ Invalid password for user {username}")
             return None
+        
+        # Never return the password hash
+        user.pop("pwd_hash", None)
 
         logging.info(f"✅ User {username} authenticated successfully")
         return user
@@ -397,3 +410,134 @@ def get_students(campus_id, page=1, limit=20):
     except Exception as e:
         logger.error(f"Failed to get students: {e}")
         return None
+
+
+
+def get_ids(campus_id, page=1, limit=20):
+    conn, cursor = get_db_cursor()
+
+    if not conn or not cursor:
+        logger.error(
+            "Database connection or cursor unavailable"
+        )
+        return None
+
+    try:
+        # -----------------------------
+        # Pagination
+        # -----------------------------
+
+        offset = (page - 1) * limit
+
+        # -----------------------------
+        # Get total digital IDs
+        # -----------------------------
+        #
+        # nfc_status is being used to determine
+        # whether the student has a digital ID.
+        #
+        # Change "active" if your actual value
+        # is something different, e.g. "enabled".
+        # -----------------------------
+
+        count_query = """
+            SELECT COUNT(*)
+            FROM students_data
+            WHERE campus_id = %s
+              AND nfc_status = %s
+        """
+
+        cursor.execute(
+            count_query,
+            (campus_id, "active")
+        )
+
+        total = cursor.fetchone()[0]
+
+        # -----------------------------
+        # Get requested page
+        # -----------------------------
+
+        query = """
+            SELECT
+                id,
+                campus_id,
+                student_id,
+                username,
+                "isActive",
+                nfc_status,
+                account_status,
+                "onBoardedWhen"
+            FROM students_data
+            WHERE campus_id = %s
+              AND nfc_status = %s
+            ORDER BY "onBoardedWhen" DESC
+            LIMIT %s OFFSET %s
+        """
+
+        cursor.execute(
+            query,
+            (
+                campus_id,
+                "active",
+                limit,
+                offset
+            )
+        )
+
+        rows = cursor.fetchall()
+
+        # -----------------------------
+        # Convert rows to dictionaries
+        # -----------------------------
+
+        columns = [
+            description[0]
+            for description in cursor.description
+        ]
+
+        students = []
+
+        for row in rows:
+            students.append(
+                dict(zip(columns, row))
+            )
+
+        # -----------------------------
+        # Total pages
+        # -----------------------------
+
+        total_pages = (
+            (total + limit - 1) // limit
+            if total > 0
+            else 0
+        )
+
+        return {
+            "data": students,
+            "pagination": {
+                "page": page,
+                "limit": limit,
+                "total": total,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_previous": page > 1
+            }
+        }
+
+    except Exception as e:
+        logger.error(
+            f"Error fetching digital IDs: {e}"
+        )
+
+        return None
+
+    finally:
+        try:
+            cursor.close()
+            conn.close()
+
+        except Exception as close_error:
+            logger.error(
+                f"Error closing database connection: {close_error}"
+            )
