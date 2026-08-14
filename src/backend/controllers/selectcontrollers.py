@@ -441,7 +441,7 @@ def get_ids(campus_id, page=1, limit=20):
         # -----------------------------
 
         count_query = """
-            SELECT COUNT(*)
+            SELECT COUNT(*) AS total
             FROM students_data
             WHERE campus_id = %s
               AND nfc_status = %s
@@ -452,8 +452,12 @@ def get_ids(campus_id, page=1, limit=20):
             (campus_id, "Active")
         )
 
-        total = cursor.fetchone()[0]
+        count_row = cursor.fetchone()
 
+        if not count_row:
+            total = 0
+        else:
+            total = count_row["total"]
         # -----------------------------
         # Get requested page
         # -----------------------------
