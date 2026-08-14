@@ -166,7 +166,7 @@ def get_digital_ids():
         redis_client.set(
             cache_key,
             json.dumps(result),
-            ex=900
+            ex=300
         )
 
     except Exception as redis_error:
