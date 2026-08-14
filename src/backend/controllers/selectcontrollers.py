@@ -492,17 +492,17 @@ def get_ids(campus_id, page=1, limit=20):
         # Convert rows to dictionaries
         # -----------------------------
 
-        columns = [
-            description[0]
-            for description in cursor.description
-        ]
+        # columns = [
+        #     description[0]
+        #     for description in cursor.description
+        # ]
 
-        students = []
+        students = rows
 
-        for row in rows:
-            students.append(
-                dict(zip(columns, row))
-            )
+        # for row in rows:
+        #     students.append(
+        #         dict(zip(columns, row))
+        #     )
 
         # -----------------------------
         # Total pages
