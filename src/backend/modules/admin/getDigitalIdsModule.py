@@ -1,7 +1,7 @@
 from flask import jsonify, g, request, json
 import logging
 
-from backend.utils.extraFunctions import get_redis
+from backend.utils.extraFunctions import get_redis, serialize_datetime
 from backend.controllers.selectcontrollers import get_ids
 
 logger = logging.getLogger(__name__)
@@ -142,7 +142,7 @@ def get_digital_ids():
             "nfc_status": student.get("nfc_status"),
             "account_status": student.get("account_status"),
             "onBoardedWhen": (
-                student["onBoardedWhen"].isoformat()
+                serialize_datetime( student["onBoardedWhen"])
                 if student.get("onBoardedWhen")
                 else None
             )

@@ -18,6 +18,10 @@ import uuid
 from upstash_redis import Redis
 import os
 
+
+from datetime import datetime
+
+
 import os
 from dotenv import load_dotenv
 
@@ -76,6 +80,22 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return int(R * c)  # return meters (integer)
 
 
+
+
+def serialize_datetime(value):
+    if value is None:
+        return None
+
+    if isinstance(value, datetime):
+        return value.isoformat()
+
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value).isoformat()
+        except ValueError:
+            return value
+
+    return str(value)
 
 
 
