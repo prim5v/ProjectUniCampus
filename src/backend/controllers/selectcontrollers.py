@@ -449,7 +449,7 @@ def get_ids(campus_id, page=1, limit=20):
 
         cursor.execute(
             count_query,
-            (campus_id, "active")
+            (campus_id, "Active")
         )
 
         total = cursor.fetchone()[0]
