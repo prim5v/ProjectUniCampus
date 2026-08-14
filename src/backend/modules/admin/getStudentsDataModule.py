@@ -122,7 +122,7 @@ def get_students_data():
         redis_client.set(
             cache_key,
             json.dumps(result),
-            ex=900
+            ex=300
         )
 
     except Exception as redis_error:
