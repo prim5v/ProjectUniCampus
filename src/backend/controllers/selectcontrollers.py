@@ -444,12 +444,11 @@ def get_ids(campus_id, page=1, limit=20):
             SELECT COUNT(*) AS total
             FROM students_data
             WHERE campus_id = %s
-              AND nfc_status = %s
         """
 
         cursor.execute(
             count_query,
-            (campus_id, "Active")
+            (campus_id,)
         )
 
         count_row = cursor.fetchone()
@@ -474,7 +473,6 @@ def get_ids(campus_id, page=1, limit=20):
                 "onBoardedWhen"
             FROM students_data
             WHERE campus_id = %s
-              AND nfc_status = %s
             ORDER BY "onBoardedWhen" DESC
             LIMIT %s OFFSET %s
         """
@@ -483,7 +481,6 @@ def get_ids(campus_id, page=1, limit=20):
             query,
             (
                 campus_id,
-                "Active",
                 limit,
                 offset
             )
