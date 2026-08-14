@@ -483,7 +483,7 @@ def get_ids(campus_id, page=1, limit=20):
             query,
             (
                 campus_id,
-                "active",
+                "Active",
                 limit,
                 offset
             )
