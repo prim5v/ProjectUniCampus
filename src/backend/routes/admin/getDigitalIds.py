@@ -8,7 +8,7 @@ from backend.middleware.auth import require_auth
 
 @admin_bp.route("/get/digital/ids", methods=["GET"])
 @limiter.limit("20 per minute")
-@require_auth
+# @require_auth
 def ids_get():
 
     return get_digital_ids()

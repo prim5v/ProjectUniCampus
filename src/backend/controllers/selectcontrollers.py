@@ -525,10 +525,8 @@ def get_ids(campus_id, page=1, limit=20):
             }
         }
 
-    except Exception as e:
-        logger.error(
-            f"Error fetching digital IDs: {e}"
-        )
+    except Exception:
+        logger.exception("Error fetching IDs")
 
         return None
 
