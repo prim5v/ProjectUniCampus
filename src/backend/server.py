@@ -18,11 +18,12 @@ CORS(app,
     supports_credentials=True,
     resources={r"/*": {
         "origins": [
-            "http://localhost:5173"
+            "http://localhost:5173",
+            "https://unicampus-os-ruddy.vercel.app"
         ]
     }})
 
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173", "https://unicampus-os-ruddy.vercel.app"])
 
 # expose it
 app.extensions["socketio"] = socketio
