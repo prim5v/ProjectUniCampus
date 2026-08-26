@@ -14,6 +14,7 @@ import ScreenHeader from '../components/ScreenHeader';
 import StatCard from '../components/StatCard';
 import TransactionRow from '../components/TransactionRow';
 import { colors, typography, radii, spacing, shadow } from '../styles/theme';
+import { BlurView } from 'expo-blur';
 
 /**
  * WalletScreen
@@ -24,6 +25,7 @@ import { colors, typography, radii, spacing, shadow } from '../styles/theme';
  */
 const WalletScreen = () => {
   const [autoTopUpEnabled, setAutoTopUpEnabled] = useState(true);
+  const [balanceHidden, setBalanceHidden] = useState(false);
 
   const transactions = [
     {
@@ -66,7 +68,7 @@ const WalletScreen = () => {
   return (
     <View style={styles.screen}>
       <ScreenHeader 
-      title="Closed Loop Account" 
+      title="Wallet" 
       rightIcon="ellipsis-horizontal" 
       onBackPress={() => router.back()}
       />
@@ -82,28 +84,48 @@ const WalletScreen = () => {
           </View>
 
           <View style={styles.balanceRow}>
-            <Text style={styles.balanceValue}>KSh 1,250.00</Text>
+            {/* <Text style={styles.balanceValue}>KSh 1,250.00</Text> */}
+            <View style={styles.balanceContainer}>
+              {/* <Text style={styles.balanceValue}>
+                KSh 1,250.00
+              </Text> */}
+              <Text style={styles.balanceValue}>
+                {balanceHidden ? "••••••••••••••••" : "KSh 1,250.00"}
+              </Text>
+
+              {balanceHidden && (
+                <BlurView
+                  intensity={5000}
+                  tint="light"
+                  style={styles.blurOverlay}
+                />
+              )}
+            </View>
             <TouchableOpacity
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               activeOpacity={0.6}
+              onPress={() => setBalanceHidden(!balanceHidden)}
             >
-              <Ionicons
-                name="eye-outline"
-                size={20}
-                color={colors.textSecondary}
-              />
+            <Ionicons
+              name={balanceHidden ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color={colors.textSecondary}
+            />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.availableBalanceText}>Available Balance</Text>
+          {/* <Text style={styles.availableBalanceText}>Available Balance</Text> */}
 
           <View style={styles.balanceButtonsRow}>
-            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85}>
+            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85}
+            onPress={() => router.push("/add-funds")}
+            >
               <Ionicons name="add" size={18} color="#FFFFFF" />
               <Text style={styles.primaryButtonText}>Add Funds</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.7}
+            onPress={() => router.push("/transfer")}>
               <Ionicons
                 name="swap-horizontal"
                 size={18}
@@ -118,7 +140,8 @@ const WalletScreen = () => {
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
-            <TouchableOpacity activeOpacity={0.6}>
+            <TouchableOpacity activeOpacity={0.6}
+            onPress={() => router.push("/transactions")}>
               <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
           </View>
@@ -323,6 +346,19 @@ const styles = StyleSheet.create({
   minBalanceValue: {
     ...typography.bodyMedium,
   },
+  balanceContainer: {
+  position: 'relative',
+  justifyContent: 'center',
+},
+
+blurOverlay: {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  borderRadius: 8,
+},
 });
 
 export default WalletScreen;
