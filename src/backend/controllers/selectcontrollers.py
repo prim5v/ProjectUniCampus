@@ -540,3 +540,293 @@ def get_ids(campus_id, page=1, limit=20):
             logger.error(
                 f"Error closing database connection: {close_error}"
             )
+
+
+
+
+def get_wallet_data(student_id):
+
+
+    conn, cursor = get_db_cursor()
+
+
+    if conn is None:
+        return None
+
+
+    try:
+
+
+        # -----------------------------
+        # Transactions
+        # -----------------------------
+
+        transaction_query = """
+
+        SELECT
+
+            t.icon_name AS icon,
+
+            t.title,
+
+            td.amount,
+
+            t.category AS direction,
+
+            td.createdAt AS time
+
+
+        FROM transactions_data td
+
+
+        INNER JOIN transactions t
+
+        ON td.transaction_id = t.id
+
+
+        WHERE td.student_id = %s
+
+
+        ORDER BY td.createdAt DESC
+
+
+        """
+
+
+        cursor.execute(
+            transaction_query,
+            (student_id,)
+        )
+
+
+        transactions = cursor.fetchall()
+
+
+
+        # -----------------------------
+        # Wallet summary
+        # -----------------------------
+
+        summary_query = """
+
+        SELECT
+
+
+        COALESCE(
+
+            SUM(
+
+                CASE
+
+                WHEN t.category='incoming'
+
+                THEN td.amount
+
+                ELSE 0
+
+                END
+
+            ),0
+
+        ) AS total_topups,
+
+
+
+        COALESCE(
+
+            SUM(
+
+                CASE
+
+                WHEN t.category='outgoing'
+
+                THEN td.amount
+
+                ELSE 0
+
+                END
+
+            ),0
+
+        ) AS total_spent,
+
+
+
+        COUNT(td.id) AS total_transactions
+
+
+
+        FROM transactions_data td
+
+
+        INNER JOIN transactions t
+
+        ON td.transaction_id = t.id
+
+
+        WHERE td.student_id=%s
+
+
+        """
+
+
+
+        cursor.execute(
+
+            summary_query,
+
+            (student_id,)
+
+        )
+
+
+        summary = cursor.fetchone()
+
+
+
+        balance = (
+
+            summary["total_topups"]
+
+            -
+
+            summary["total_spent"]
+
+        )
+
+
+
+        # -----------------------------
+        # This Month Spending
+        # -----------------------------
+
+        month_query = """
+
+        SELECT
+
+        COALESCE(
+
+            SUM(td.amount),
+
+            0
+
+        ) AS amount
+
+
+
+        FROM transactions_data td
+
+
+        INNER JOIN transactions t
+
+        ON td.transaction_id=t.id
+
+
+        WHERE td.student_id=%s
+
+
+        AND t.category='outgoing'
+
+
+        AND DATE_TRUNC(
+
+            'month',
+
+            td.createdAt
+
+        )
+
+        =
+
+        DATE_TRUNC(
+
+            'month',
+
+            CURRENT_DATE
+
+        )
+
+
+        """
+
+
+
+        cursor.execute(
+
+            month_query,
+
+            (student_id,)
+
+        )
+
+
+        month = cursor.fetchone()
+
+
+
+        return {
+
+
+            "balance": f"KSh {balance}",
+
+
+            "transactions": transactions,
+
+
+            "summaryStats": [
+
+                {
+
+                "label": "Total Top-ups",
+
+                "value": f"KSh {summary['total_topups']}"
+
+                },
+
+
+                {
+
+                "label": "Total Spent",
+
+                "value": f"KSh {summary['total_spent']}"
+
+                },
+
+
+                {
+
+                "label": "This Month",
+
+                "value": f"KSh {month['amount']}"
+
+                },
+
+
+                {
+
+                "label": "Transactions",
+
+                "value": str(summary["total_transactions"])
+
+                }
+
+            ]
+
+        }
+
+
+
+    except Exception as e:
+
+        print(
+            f"Wallet controller error: {e}"
+        )
+
+        return None
+
+
+
+    finally:
+
+        cursor.close()
+        conn.close()

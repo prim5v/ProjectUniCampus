@@ -34,6 +34,7 @@ with open(PRIVATE_KEY_PATH, "rb") as f:
 def get_payload(data):
     try:
         ciphertext =data.get("dataInBytes")
+        # due to issues i will send raw unencrypted student_id on cipher_text var
         reader_id = data.get("reader_id")
         amount = data.get("amount") # we use amount if serviceType is Payment
 
