@@ -34,7 +34,7 @@ import { DigitalIdModal } from "../components/students/DigitalIdModal";
 /* -------------------------------- */
 
 type DigitalIdRecord = {
-  id: string;
+  id: number;
   campus_id: string;
   student_id: string;
   username: string;
@@ -219,9 +219,12 @@ export function DigitalIds() {
         digitalId.username
           .toLowerCase()
           .includes(normalizedSearch) ||
-        digitalId.id
+        // digitalId.id
+        //   .toLowerCase()
+        //   .includes(normalizedSearch);
+        String(digitalId.id)
           .toLowerCase()
-          .includes(normalizedSearch);
+          .includes(normalizedSearch)
 
       const matchesStatus =
         !statusFilter ||

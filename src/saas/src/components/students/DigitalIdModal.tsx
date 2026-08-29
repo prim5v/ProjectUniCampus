@@ -17,7 +17,7 @@ import { Modal } from "../ui/Modal";
 /* -------------------------------- */
 
 type DigitalIdRecord = {
-  id: string;
+  id: SVGAnimatedNumber;
   campus_id: string;
   student_id: string;
   username: string;
@@ -357,7 +357,7 @@ export function DigitalIdModal({
         {/* Future photo note */}
         {/* -------------------------------- */}
 
-        <div className="flex items-start gap-3 rounded-xl border border-dashed border-line p-4">
+        {/* <div className="flex items-start gap-3 rounded-xl border border-dashed border-line p-4">
           <UserRound className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
 
           <div>
@@ -372,7 +372,7 @@ export function DigitalIdModal({
               the backend exposes a photo URL.
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </Modal>
   );
