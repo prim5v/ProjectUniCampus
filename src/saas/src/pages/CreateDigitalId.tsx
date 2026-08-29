@@ -43,6 +43,7 @@ export function CreateDigitalId() {
   const [faculty, setFaculty] = useState("");
   const [expiry, setExpiry] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const faculties = [
   "ICT",
@@ -131,20 +132,75 @@ export function CreateDigitalId() {
     setIsSubmitting(true);
     // setLoading(true);
 
-    const payload = {
-      student_name: studentName.trim(),
-      admission_number: admissionNumber.trim(),
-      course: course.trim(),
-      year_of_study: yearOfStudy,
-      university_email: universityEmail.trim(),
-      faculty,
-      expiry,
-    };
+    // const payload = {
+    //   student_name: studentName.trim(),
+    //   admission_number: admissionNumber.trim(),
+    //   course: course.trim(),
+    //   year_of_study: yearOfStudy,
+    //   university_email: universityEmail.trim(),
+    //   faculty,
+    //   expiry,
+    // };
 
+    const formData = new FormData();
+
+formData.append(
+  "student_name",
+  studentName.trim()
+);
+
+formData.append(
+  "admission_number",
+  admissionNumber.trim()
+);
+
+formData.append(
+  "course",
+  course.trim()
+);
+
+formData.append(
+  "year_of_study",
+  yearOfStudy
+);
+
+formData.append(
+  "university_email",
+  universityEmail.trim()
+);
+
+formData.append(
+  "faculty",
+  faculty
+);
+
+formData.append(
+  "expiry",
+  expiry
+);
+
+
+if (imageFile) {
+  formData.append(
+    "image",
+    imageFile
+  );
+}
+
+    // const response = await api.post(
+    //   "/admin/create/digital/id",
+    //   payload
+    // );
     const response = await api.post(
       "/admin/create/digital/id",
-      payload
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+    
 
     console.log("Digital ID created:", response.data);
 
@@ -187,19 +243,35 @@ export function CreateDigitalId() {
   }
 };
 
+  // const handleImageChange = (
+  //   event: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   const file = event.target.files?.[0];
+
+  //   if (!file) {
+  //     return;
+  //   }
+
+  //   const preview = URL.createObjectURL(file);
+
+  //   setImagePreview(preview);
+  // };
+
   const handleImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
+  event: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+  if (!file) {
+    return;
+  }
 
-    const preview = URL.createObjectURL(file);
+  setImageFile(file);
 
-    setImagePreview(preview);
-  };
+  const preview = URL.createObjectURL(file);
+
+  setImagePreview(preview);
+};
 
   /*
    * --------------------------------
