@@ -3,10 +3,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import { colors } from "../../styles/theme";
 import LoadingScreen from "../../screens/LoadingScreen";
-
+import { Image } from "react-native";
 import { useAuth } from "@/contexts/AuthContext";
 import BiometricScreen from "../../screens/BiometricScreen";
 import { useBiometric } from "@/contexts/BiometricContext";
+// import { useAuth } from '@/contexts/AuthContext';
 // import { platform, StatusBar, StyleSheet } from "react-native";
 // import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,10 +15,13 @@ import { useBiometric } from "@/contexts/BiometricContext";
 const TabsLayout = () =>{
     const Signedin= true;
     // const loading = true;
-    const { isLoggedIn, authReady, loading, authStatus } = useAuth();
+    const { isLoggedIn, authReady, loading, authStatus, user } = useAuth();
     const {isAuthenticated } = useBiometric();
+    // const { user } = useAuth()
 
     const SignedIn = isLoggedIn && authReady;
+
+    const userProfileUri = user.user.image_url;
 
     if(!SignedIn){
         return <Redirect href="/(auth)" />;
@@ -104,9 +108,18 @@ const TabsLayout = () =>{
             <Tabs.Screen 
                 name="more"
                 options={{
-                    title:"More",
+                    title:"You",
                     tabBarIcon: ({color, size}) => (
-                        <Ionicons name="grid-outline" size={size} color={color} />
+                        // <Ionicons name="grid-outline" size={size} color={color} />
+                        userProfileUri ? (
+                            <Image 
+                                source={{ uri: userProfileUri }} 
+                                style={{ width: size, height: size, borderRadius: size / 2 }} 
+                            />
+                        ) : (
+                            // Fallback icon when no profile image exists
+                            <Ionicons name="person-circle-outline" size={size} color={color} />
+                        )
                     ),
                 }}
             />

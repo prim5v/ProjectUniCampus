@@ -6,7 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Animated,
+  Modal,
+  Pressable,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Clipboard from 'expo-clipboard';
@@ -16,6 +20,7 @@ import FeatureCard from '../components/FeatureCard';
 import { colors, typography, radii, spacing, shadow } from '../styles/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { router } from "expo-router";
+import StudentIDCard from '../components/StudentIDCard';
 /**
  * ProfileScreen
  * UI only — no navigation, no state, no NFC logic.
@@ -23,16 +28,45 @@ import { router } from "expo-router";
  */
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
+  const [showIDPreview, setShowIDPreview] = React.useState(false);
   const features = [
-    { icon: 'person-outline', label: 'Personal Info' },
-    { icon: 'call-outline', label: 'Contact' },
-    { icon: 'school-outline', label: 'Programme' },
-    { icon: 'card-outline', label: 'Payments' },
-    { icon: 'key-outline', label: 'Access' },
-    { icon: 'checkmark-done-outline', label: 'Attendance' },
-    { icon: 'book-outline', label: 'Library' },
-    { icon: 'bed-outline', label: 'Hostels' },
-    { icon: 'bus-outline', label: 'Transport' },
+    { icon: 'person-outline',
+      label: 'Personal Info',
+      available: false,
+    },
+    { icon: 'call-outline',
+      label: 'Contact',
+      available: false,
+    },
+    { icon: 'school-outline', 
+      label: 'Programme',
+      available: false,
+    },
+    { icon: 'card-outline',
+      label: 'Payments',
+      available: true,
+      route: "/wallet",
+    },
+    { icon: 'key-outline', 
+      label: 'Access',
+      available: false,
+    },
+    { icon: 'checkmark-done-outline', 
+      label: 'Attendance',
+      available: false,
+    },
+    { icon: 'book-outline', 
+      label: 'Library',
+      available: false,
+    },
+    { icon: 'bed-outline', 
+      label: 'Hostels',
+      available: false,
+    },
+    { icon: 'bus-outline', 
+      label: 'Transport',
+      available: false,
+    },
   ];
 
   const copyAdmissionNumber = async () => {
@@ -43,6 +77,14 @@ const ProfileScreen = () => {
   await Clipboard.setStringAsync(user.user.admission_number);
 
   console.log('[Profile] Admission number copied.');
+};
+
+const handleFeaturePress = (feature) => {
+  if (feature.available) {
+    router.push(feature.route);
+  } else {
+    alert(`${feature.label} feature is coming soon `);
+  }
 };
 
 const handleLogout = async () => {
@@ -70,11 +112,31 @@ const handleLogout = async () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Student ID Card */}
-        <View style={styles.idCard}>
-          <View style={styles.idCardTopRow}>
-            <View style={styles.avatar}>
+        {/* <View style={styles.idCard}> */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => setShowIDPreview(true)}
+        >
+          <View style={styles.idCard}>
+            <View style={styles.idCardTopRow}>
+            {/* <View style={styles.avatar}>
               <Ionicons name="person" size={50} color={colors.textSecondary} />
-            </View>
+            </View> */}
+            <View style={styles.avatar}>
+            {user?.user?.image_url ? (
+              <Image
+                source={{ uri: user.user.image_url }}
+                style={styles.avatarImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <Ionicons
+                name="person"
+                size={50}
+                color={colors.textSecondary}
+              />
+            )}
+          </View>
 
             <View style={styles.idCardInfo}>
               <Text style={styles.studentName}>{user?.user?.name || 'Unknown'}</Text>
@@ -126,6 +188,7 @@ const handleLogout = async () => {
           </View>
           {/* <Text style={styles.universityText}>Kenyatta University</Text> */}
         </View>
+        </TouchableOpacity>
 
         {/* NFC Status Card */}
         <TouchableOpacity style={styles.nfcStatusCard} activeOpacity={0.7}
@@ -152,22 +215,25 @@ const handleLogout = async () => {
         </TouchableOpacity>
 
         {/* Feature Grid */}
-        {/* <View style={styles.featureGrid}>
+        <View style={styles.featureGrid}>
           {features.map((feature) => (
             <FeatureCard
               key={feature.label}
               icon={feature.icon}
               label={feature.label}
+              // onPress={feature.onPress}
+              onPress={() => handleFeaturePress(feature)}
             />
           ))}
-        </View> */}
+        </View>
+
 
 {/* ============================================================
     STUDENT WELCOME HERO
     Temporary replacement for the feature grid.
     ============================================================ */}
 
-<View style={styles.welcomeHero}>
+{/* <View style={styles.welcomeHero}>
   <View style={styles.welcomeHeroContent}>
     <Text style={styles.welcomeEyebrow}>
       Welcome back
@@ -187,10 +253,48 @@ const handleLogout = async () => {
     style={styles.welcomeHeroImage}
     resizeMode="contain"
   />
-</View>
+</View> */}
 
 
       </ScrollView>
+<Modal
+  visible={showIDPreview}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setShowIDPreview(false)}
+>
+
+  <Pressable
+    style={styles.previewBackground}
+    onPress={() => setShowIDPreview(false)}
+  >
+
+
+    <BlurView
+      intensity={100}
+      tint="dark"
+      style={StyleSheet.absoluteFill}
+    />
+
+
+    <Pressable
+      style={styles.previewContainer}
+      onPress={(e)=>e.stopPropagation()}
+    >
+
+      <StudentIDCard
+        user={user}
+        expanded={true}
+      />
+
+
+    </Pressable>
+
+
+  </Pressable>
+
+
+</Modal>
     </View>
   );
 };
@@ -229,8 +333,8 @@ const styles = StyleSheet.create({
 },
 
 avatar: {
-  width: 80,
-  height: 80,
+  width: 120,
+  height: 170,
   borderRadius: radii.lg,
   backgroundColor: colors.background,
   borderWidth: 1,
@@ -248,7 +352,7 @@ idCardInfo: {
 
 studentName: {
     ...typography.largeTitle,
-    fontSize: 20,
+    fontSize: 15,
     marginBottom: 4,
   },
   admissionRow: {
@@ -292,6 +396,7 @@ nfcBadgeText: {
     ...typography.body,
     fontWeight: '500',
     marginBottom: 3,
+    fontSize: 13,
   },
   yearText: {
     ...typography.captionLarge,
@@ -300,7 +405,7 @@ nfcBadgeText: {
   },
   universityText: {
     ...typography.sectionTitle,
-    fontSize: 17,
+    fontSize: 12,
   },
 
   /* NFC Status Card */
@@ -404,6 +509,39 @@ welcomeHeroImage: {
 
   marginRight: -5,
 },
+avatarImage: {
+  width: '100%',
+  height: '100%',
+  borderRadius: radii.lg,
+},
+previewBackground:{
+ flex:1,
+ justifyContent:'center',
+ alignItems:'center',
+ backgroundColor:'rgba(0,0,0,0.5)',
+},
+
+previewCard:{
+ width:'90%',
+ borderRadius:20,
+ backgroundColor:colors.card,
+ padding:20,
+ ...shadow.soft,
+ transform:[
+   {
+    scale:1.05
+   }
+ ]
+},
+previewContainer:{
+  width:"92%",
+  transform:[
+    {
+      scale:1.15
+    }
+  ],
+},
+
 });
 
 export default ProfileScreen;
