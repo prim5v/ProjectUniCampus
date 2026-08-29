@@ -1,6 +1,8 @@
 import math
 from pathlib import Path
 
+from imagekitio import ImageKit
+
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 
@@ -438,3 +440,14 @@ def get_device_info() -> dict:
     }
 
 
+
+
+def get_imagekit():
+
+    imagekit = ImageKit(
+        private_key=os.getenv("IMAGEKIT_PRIVATE_KEY"),
+        public_key=os.getenv("IMAGEKIT_PUBLIC_KEY"),
+        url_endpoint=os.getenv("IMAGEKIT_URL_ENDPOINT")
+    )
+
+    return imagekit

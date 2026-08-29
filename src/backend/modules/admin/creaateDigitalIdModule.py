@@ -1,11 +1,11 @@
-from flask import g, jsonify
+from flask import g, jsonify, request
 import logging
 import secrets
 import string
 import bcrypt
 
 from backend.controllers.insertcontrollers import insert_digital_id
-from backend.utils.extraFunctions import generate_student_id, get_redis
+from backend.utils.extraFunctions import generate_student_id, get_redis, get_imagekit
 logger = logging.getLogger(__name__)
 
 
@@ -20,6 +20,10 @@ def create_digital_id(data):
         university_email = data.get("university_email")
         faculty = data.get("faculty")
         expiry = data.get("expiry")
+
+
+        # Image comes from multipart/form-data
+        image = request.files.get("image")
 
         if not campus_id:
             return jsonify({
@@ -50,6 +54,30 @@ def create_digital_id(data):
                 "success": False,
                 "message": "Full name and year of study are required"
             }), 400
+
+        # -------------------------------
+        # Upload image to ImageKit
+        # -------------------------------
+
+        image_url = None
+
+        if image:
+            imagekit = get_imagekit()
+
+            image_response = imagekit.files.upload(
+                file=image.read(),
+                file_name=image.filename,
+                folder="/students"
+            )
+
+            image_url = image_response.url
+
+        else:
+            return jsonify({
+                "success": False,
+                "message": "Student image is required"
+            }), 400
+
 
         # --------------------------------
         # Generate student credentials
@@ -84,7 +112,8 @@ def create_digital_id(data):
             faculty,
             expiry,
             username,
-            pwd_hash
+            pwd_hash,
+            image_url
         )
 
         # Invalidate student cache

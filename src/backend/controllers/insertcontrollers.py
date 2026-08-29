@@ -272,7 +272,8 @@ def insert_digital_id(
     faculty,
     expiry,
     username,
-    pwd_hash
+    pwd_hash,
+    image_url
 ):
     conn, cursor = get_db_cursor()
 
@@ -295,9 +296,10 @@ def insert_digital_id(
                 year_of_study,
                 university_email,
                 faculty,
-                expiry
+                expiry,
+                image_url
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 student_id,
@@ -307,7 +309,8 @@ def insert_digital_id(
                 year_of_study,
                 university_email,
                 faculty,
-                expiry
+                expiry,
+                image_url
             )
         )
 
