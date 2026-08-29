@@ -200,7 +200,7 @@ if (imageFile) {
         },
       }
     );
-    
+
 
     console.log("Digital ID created:", response.data);
 
@@ -496,7 +496,7 @@ if (imageFile) {
           >
             {isSubmitting ? "Creating digital ID..." : "Create digital ID"}
           {/* </Button> */}
-                Create digital ID
+                {/* Create digital ID */}
               </Button>
 
             </div>
