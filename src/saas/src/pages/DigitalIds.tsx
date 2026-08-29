@@ -39,6 +39,7 @@ type DigitalIdRecord = {
   student_id: string;
   username: string;
   isActive: boolean;
+  image_url: string | null;
   nfc_status: string | null;
   account_status: string | null;
   onBoardedWhen: string | null;
@@ -144,6 +145,8 @@ export function DigitalIds() {
             },
           }
         );
+
+        console.log("DIGITAL IDS ARRAY:", response.data.data);
 
         const payload = response.data;
 
@@ -272,13 +275,28 @@ export function DigitalIds() {
       render: (digitalId) => (
         <div className="flex items-center gap-3">
           {/* Temporary avatar */}
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+          {/* <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
             {digitalId.username
               ? digitalId.username
                   .charAt(0)
                   .toUpperCase()
               : "S"}
-          </div>
+          </div> */}
+          <div className="flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary/10">
+          {digitalId.image_url ? (
+            <img
+              src={digitalId.image_url}
+              alt={digitalId.username}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-primary">
+              {digitalId.username
+                ? digitalId.username.charAt(0).toUpperCase()
+                : "S"}
+            </div>
+          )}
+        </div>
 
           <div className="min-w-0">
             <p className="truncate font-medium text-ink">

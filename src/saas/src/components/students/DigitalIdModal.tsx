@@ -22,6 +22,7 @@ type DigitalIdRecord = {
   student_id: string;
   username: string;
   isActive: boolean;
+  image_url: string | null;
   nfc_status: string | null;
   account_status: string | null;
   onBoardedWhen: string | null;
@@ -166,9 +167,22 @@ export function DigitalIdModal({
           <div className="p-6">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               {/* Avatar */}
-
+{/* 
               <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-2xl font-bold text-primary ring-4 ring-primary/5">
                 {initials}
+              </div> */}
+              <div className="flex h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-primary/10 text-2xl font-bold text-primary ring-4 ring-primary/5">
+                {digitalId.image_url ? (
+                  <img
+                    src={digitalId.image_url}
+                    alt={digitalId.username}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    {initials}
+                  </div>
+                )}
               </div>
 
               {/* Student identity */}
