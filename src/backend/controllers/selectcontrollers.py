@@ -290,6 +290,7 @@ def get_student_data(student_id):
                 sc.admission_number AS admission_number,
                 sc.student_course AS course,
                 sc.Year_of_study AS year,
+                sc.image_url AS image_url,
                 c.campus_name AS university_name
             FROM students_data sd
             LEFT JOIN students_credentials sc
@@ -462,18 +463,21 @@ def get_ids(campus_id, page=1, limit=20):
         # -----------------------------
 
         query = """
-            SELECT
-                id,
-                campus_id,
-                student_id,
-                username,
-                "isActive",
-                nfc_status,
-                account_status,
-                "onBoardedWhen"
-            FROM students_data
-            WHERE campus_id = %s
-            ORDER BY "onBoardedWhen" DESC
+           SELECT
+                sd.id,
+                sd.campus_id,
+                sd.student_id,
+                sd.username,
+                sd."isActive",
+                sd.nfc_status,
+                sd.account_status,
+                sd."onBoardedWhen",
+                sc.image_url
+            FROM students_data sd
+            LEFT JOIN students_credentials sc
+                ON sd.student_id = sc.student_id
+            WHERE sd.campus_id = %s
+            ORDER BY sd."onBoardedWhen" DESC
             LIMIT %s OFFSET %s
         """
 
