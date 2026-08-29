@@ -139,6 +139,7 @@ def get_digital_ids():
             "student_id": student.get("student_id"),
             "username": student.get("username"),
             "isActive": student.get("isActive"),
+            "image_url": student.get("image_url"),
             "nfc_status": student.get("nfc_status"),
             "account_status": student.get("account_status"),
             "onBoardedWhen": (
