@@ -3,7 +3,7 @@ import logging
 import secrets
 import string
 import bcrypt
-
+import imagekitio
 from backend.controllers.insertcontrollers import insert_digital_id
 from backend.utils.extraFunctions import generate_student_id, get_redis, get_imagekit
 logger = logging.getLogger(__name__)
@@ -24,6 +24,10 @@ def create_digital_id(data):
 
         # Image comes from multipart/form-data
         image = request.files.get("image")
+
+
+        logger.info("ImageKit version:", imagekitio.__version__)
+        logger.info("ImageKit methods:", dir(imagekit))
 
         if not campus_id:
             return jsonify({
