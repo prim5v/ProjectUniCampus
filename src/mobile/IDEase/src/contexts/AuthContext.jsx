@@ -239,10 +239,10 @@ export const AuthProvider = ({ children }) => {
             if (!authReady) {
                 return;
             }
-            if(authStatus === true && isLoggedIn === true){
+            // if(authStatus === true && isLoggedIn === true){
 
             initializeAuthentication();
-            }
+            // }
 
         }, [
             authReady,
@@ -581,13 +581,9 @@ export const AuthProvider = ({ children }) => {
 
                     createdAt: now,
 
-                    /*
-                     * Offline access duration:
-                     * 24 hours
-                     */
 
                     expiresAt:
-                        now + (15 * 60),
+                        now + (3 * 60),
                 };
 
 
@@ -947,7 +943,7 @@ const logout = useCallback(async () => {
                     /*
                      * We need a server access token.
                      */
-
+                    // this runs if no available access token, but refresh token exists, and authStatus is true
                     if (!accessToken) {
 
                         // if (refreshToken && authStatus === true) {
@@ -985,7 +981,7 @@ const logout = useCallback(async () => {
                      *
                      * Check whether it is expired.
                      */
-
+                    // this runs if access token exists. returns true if expired.
                     if (
                         checkAccessTokenExpired(
                             accessToken
@@ -997,27 +993,12 @@ const logout = useCallback(async () => {
                         );
 
                         if(authStatus === true){ //protect refresh token usage with authStatus check
-                        const newToken =
-                            await refreshAccessToken();
-                        
-
-                        if (newToken) {
-
-                            /*
-                             * Axios will retrieve the
-                             * newly stored token.
-                             */
-
-                            // await getProfile();
-                            // setAuthStatus(true);
-
-                        } else {
-
-                            setAuthStatus(false);
-                        }
-
+                        const newToken = await refreshAccessToken();
                         return;
                     }
+                    }else{
+                        console.log("[Auth] Access token is valid.");
+                        setAuthStatus(true); //important to set authStatus to true if access token is valid, otherwise it will remain false and block access to the app
                     }
 
 
@@ -1026,7 +1007,7 @@ const logout = useCallback(async () => {
                      */
 
                     // await getProfile();
-                    setAuthStatus(true); //its working 
+                    // setAuthStatus(true); //its working 
 
                     return;
                 }
@@ -1064,31 +1045,25 @@ const logout = useCallback(async () => {
                     );
 
 
-                if (localExpired && authStatus === true) { //protect local token usage with authStatus check
+                if (localExpired) { //protect local token usage with authStatus check
                 // if(localExpired){
 
                     console.log(
                         "[Auth] Local access token expired."
                     );
+                    if (authStatus===true){
                     generateLocalAccessToken();
 
-                    // setAuthStatus(false);
-
                     return;
-                }
-            // }
-
-
-                /*
-                 * Local credential is valid.
-                 */
+                    }
+                }else{
 
                 console.log(
-                    "[Auth] Offline access granted."
+                    "[Auth] Offline access token is valid."
                 );
 
                 setAuthStatus(true);
-            // };
+                }
 
 
         // initializeAuthentication();

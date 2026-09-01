@@ -18,7 +18,7 @@ const BiometricScreen = () => {
 
     const handleAuthentication = async () => {
         const resuccess = await authenticate();
-        if(resuccess){
+        if(resuccess.success){
             console.log("[Auth] Biometric authentication SUCCESS");
             setAuthStatus(true); // Set authStatus to true upon successful biometric authentication
             // initializeAuthentication();
