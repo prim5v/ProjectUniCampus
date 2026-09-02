@@ -371,3 +371,27 @@ def insert_digital_id(
     finally:
         cursor.close()
         conn.close()
+
+def insert_transaction_record(transaction_id, student_id, campus_id, amount, status, payment_method, invoice_id, phone):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute(
+            """
+            INSERT INTO transactions_data
+            (transaction_id, student_id, campus_id, amount, status, payment_method, invoice_id, phone)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (transaction_id, student_id, campus_id, amount, status, payment_method, invoice_id, phone)
+        )
+        conn.commit()
+        return True
+
+
+    except Exception as e:
+        logger.error(f"Error inserting transaction record: {e}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()

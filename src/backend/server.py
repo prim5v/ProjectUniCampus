@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import logging
 from backend.middleware.limiter import limiter
@@ -9,7 +9,7 @@ from backend.routes.reader import reader_bp
 from backend.routes.auth import auth_bp
 from backend.routes.student import student_bp
 from backend.routes.admin import admin_bp
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room
 
 import os
 
@@ -56,6 +56,13 @@ def handle_connect():
 @socketio.on("disconnect")
 def handle_disconnect():
     print("Client disconnected")
+
+@socketio.on('join_payment_room')
+def handle_join_room(data):
+    room = data.get('room')
+    if room:
+        join_room(room)
+        print(f"🔌 Client {request.sid} joined room: {room}")
 
 
 

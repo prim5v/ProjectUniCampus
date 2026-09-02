@@ -314,6 +314,22 @@ def get_student_data(student_id):
         cursor.close()
         conn.close()
 
+def student_campus(student_id):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute("SELECT campus_id FROM students_data WHERE student_id=%s", (student_id,))
+        record = cursor.fetchone()
+        campus_id = record["campus_id"] if record else None
+        return campus_id
+
+    except Exception as e:
+        logger.error(f"Error fetching student campus: {e}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 
@@ -832,5 +848,34 @@ def get_wallet_data(student_id):
 
     finally:
 
+        cursor.close()
+        conn.close()
+
+
+def transaction_lookup(invoice_id):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return None
+
+    try:
+        cursor.execute(
+            """
+            SELECT *
+            FROM transactions_data
+            WHERE invoice_id=%s
+            """,
+            (invoice_id,)
+        )
+
+        transaction = cursor.fetchone()
+
+        return transaction
+
+    except Exception as e:
+        print(f"Transaction lookup error: {e}")
+        return None
+
+    finally:
         cursor.close()
         conn.close()

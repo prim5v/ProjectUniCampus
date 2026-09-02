@@ -85,3 +85,28 @@ def revoke_student_session(session_id):
     finally:
         cursor.close()
         conn.close()
+
+def update_transaction_status(invoice_id, status, MpesaReceiptNumber):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return False
+
+    try:
+        cursor.execute(
+            """
+            UPDATE transactions_data
+            SET status = %s,
+            SET MpesaReceiptNumber = %s
+            WHERE invoice_id = %s
+            """,
+            (status, MpesaReceiptNumber, invoice_id)
+        )
+
+        conn.commit()
+
+        return cursor.rowcount > 0
+
+    finally:
+        cursor.close()
+        conn.close()
