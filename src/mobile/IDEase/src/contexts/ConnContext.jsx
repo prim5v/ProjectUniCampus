@@ -1,15 +1,35 @@
 import { createContext, useContext, useCallback } from "react";
 import { useApi } from "./ApiContext";
+import { useAuth } from "./AuthContext";
+import react, { useEffect } from "react";
 const ConnContext = createContext(null);
 
 export const ConnProvider = ({ children }) => {
 
     const { api } = useApi()
+    const { accessToken } = useAuth()
+
+    const wallet = useCallback(async () =>{
+
+        try {
+            const response = await api.get("/student/get/wallet")
+            console.log("Wallet response:", response.data);
+            // data = resp
+        } catch (error) {
+            
+        }
+    })
+
+    useEffect(() => {
+        if(accessToken) {
+        wallet()
+    }
+    }, [wallet, accessToken])
 
 
     return (
         <ConnContext.Provider value={{
-            
+            wallet
         }}>
             {children}
         </ConnContext.Provider>
