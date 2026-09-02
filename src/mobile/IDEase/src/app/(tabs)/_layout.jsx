@@ -21,7 +21,7 @@ const TabsLayout = () =>{
 
     const SignedIn = isLoggedIn && authReady;
 
-    const userProfileUri = user.user.image_url;
+    const userProfileUri = user?.user?.image_url;
 
     if(!SignedIn){
         return <Redirect href="/(auth)" />;
