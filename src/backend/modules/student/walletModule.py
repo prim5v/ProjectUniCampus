@@ -11,7 +11,7 @@ def wallet():
 
     student_id = getattr(
         g,
-        "student_id",
+        "user_id",
         None
     )
 
