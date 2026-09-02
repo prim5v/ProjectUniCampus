@@ -440,6 +440,9 @@ export function AddStudentModal({
                 <option value="Medicine">
                   Medicine
                 </option>
+                <option value="SICTM&E">
+                  SICTM&E
+                </option>
               </Select>
             )}
           </FormField>

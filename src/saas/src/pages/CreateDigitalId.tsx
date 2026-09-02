@@ -56,6 +56,7 @@ export function CreateDigitalId() {
   "Social Sciences",
   "Humanities",
   "Science",
+  "SICTM&E",
 ];
 
   /*
