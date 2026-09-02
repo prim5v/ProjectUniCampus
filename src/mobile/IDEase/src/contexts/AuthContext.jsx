@@ -1172,6 +1172,10 @@ const logout = useCallback(async () => {
 
                 setError,
 
+                setLoading,
+
+                loading,
+
                 login,
 
                 logout,

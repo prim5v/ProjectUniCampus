@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 
-import { colors, typography, spacing } from "../styles/theme";
+import { colors, typography, spacing, radii } from "../styles/theme";
 
 
 const LoadingSpinner = ({
@@ -25,27 +25,37 @@ const LoadingSpinner = ({
   return (
 
     <View
+      pointerEvents="none"
       style={[
         styles.container,
         fullscreen && styles.fullscreen
       ]}
     >
 
-      <ActivityIndicator
-        size={size}
-        color={colors.primary}
-      />
+
+      <View style={styles.spinnerBox}>
+
+        <ActivityIndicator
+
+          size={size}
+
+          color={colors.primary}
+
+        />
 
 
-      {
-        message && (
+        {
+          message && (
 
-          <Text style={styles.text}>
-            {message}
-          </Text>
+            <Text style={styles.text}>
+              {message}
+            </Text>
 
-        )
-      }
+          )
+        }
+
+
+      </View>
 
 
     </View>
@@ -55,12 +65,12 @@ const LoadingSpinner = ({
 };
 
 
+
+
 const styles = StyleSheet.create({
 
 
 container: {
-
-  flexDirection:"row",
 
   alignItems:"center",
 
@@ -82,11 +92,33 @@ fullscreen: {
 
   bottom:0,
 
-  backgroundColor:"rgba(0,0,0,0.25)",
-
-  flexDirection:"column",
-
   zIndex:999,
+
+},
+
+
+
+spinnerBox: {
+
+  backgroundColor: colors.card,
+
+  paddingHorizontal: spacing.xl,
+
+  paddingVertical: spacing.lg,
+
+  borderRadius: radii.lg,
+
+  alignItems:"center",
+
+  justifyContent:"center",
+
+  shadowColor:"#000",
+
+  shadowOpacity:0.15,
+
+  shadowRadius:10,
+
+  elevation:5,
 
 },
 
@@ -101,7 +133,6 @@ text: {
   color:colors.textPrimary,
 
 },
-
 
 
 });
