@@ -15,6 +15,7 @@ import StatCard from '../components/StatCard';
 import TransactionRow from '../components/TransactionRow';
 import { colors, typography, radii, spacing, shadow } from '../styles/theme';
 import { BlurView } from 'expo-blur';
+import { useConn } from '../contexts/ConnContext';
 
 /**
  * WalletScreen
@@ -26,6 +27,17 @@ import { BlurView } from 'expo-blur';
 const WalletScreen = () => {
   const [autoTopUpEnabled, setAutoTopUpEnabled] = useState(true);
   const [balanceHidden, setBalanceHidden] = useState(false);
+  const { walletData } = useConn();
+
+  const wallet = {
+    balance: walletData?.balance || 0,
+    transactions: walletData?.transactions || [],
+    totalTopUpsValue: walletData?.summaryStats?.[0]?.value || "KSh 0",
+    totalSpentValue: walletData?.summaryStats?.[1]?.value || "KSh 0",
+    thisMonthValue: walletData?.summaryStats?.[2]?.value || "KSh 0",
+    transactionsCount: walletData?.summaryStats?.[3]?.value || 0,
+    summaryStats: walletData?.summaryStats || [],
+  }
 
   const transactions = [
     {
@@ -90,7 +102,7 @@ const WalletScreen = () => {
                 KSh 1,250.00
               </Text> */}
               <Text style={styles.balanceValue}>
-                {balanceHidden ? "••••••••••••••••" : "KSh 1,250.00"}
+                {balanceHidden ? "••••••••••••••••" : wallet.balance}
               </Text>
 
               {balanceHidden && (
@@ -146,7 +158,7 @@ const WalletScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {transactions.map((transaction, index) => (
+          {/* {wallet.transactions.map((transaction, index) => (
             <TransactionRow
               key={transaction.title + index}
               icon={transaction.icon}
@@ -154,9 +166,40 @@ const WalletScreen = () => {
               time={transaction.time}
               amount={transaction.amount}
               direction={transaction.direction}
-              isLast={index === transactions.length - 1}
+              isLast={index === wallet.transactions.length - 1}
             />
-          ))}
+          ))} */}
+          {wallet.transactions.length > 0 ? (
+              wallet.transactions.map((transaction, index) => (
+                <TransactionRow
+                  key={transaction.title + index}
+                  icon={transaction.icon}
+                  title={transaction.title}
+                  time={transaction.time}
+                  amount={transaction.amount}
+                  direction={transaction.direction}
+                  isLast={index === wallet.transactions.length - 1}
+                />
+              ))
+            ) : (
+              <View style={styles.emptyTransaction}>
+                <View style={styles.emptyIconWrapper}>
+                  <Ionicons
+                    name="receipt-outline"
+                    size={28}
+                    color={colors.textSecondary}
+                  />
+                </View>
+
+                <Text style={styles.emptyTransactionTitle}>
+                  No Transactions Yet
+                </Text>
+
+                <Text style={styles.emptyTransactionText}>
+                  Your wallet activity will appear here once you make a payment or add funds.
+                </Text>
+              </View>
+            )}
         </View>
 
         {/* Account Summary */}
@@ -164,7 +207,7 @@ const WalletScreen = () => {
           <Text style={styles.sectionTitle}>Account Summary</Text>
 
           <View style={styles.statsGrid}>
-            {summaryStats.map((stat) => (
+            {wallet.summaryStats.map((stat) => (
               <StatCard
                 key={stat.label}
                 label={stat.label}
@@ -358,6 +401,34 @@ blurOverlay: {
   left: 0,
   right: 0,
   borderRadius: 8,
+},
+emptyTransaction: {
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: spacing.xl,
+},
+
+emptyIconWrapper: {
+  width: 56,
+  height: 56,
+  borderRadius: radii.lg,
+  backgroundColor: colors.background,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: spacing.md,
+},
+
+emptyTransactionTitle: {
+  ...typography.bodyMedium,
+  fontSize: 16,
+  color: colors.textPrimary,
+},
+
+emptyTransactionText: {
+  ...typography.caption,
+  textAlign: 'center',
+  marginTop: spacing.xs,
+  maxWidth: 260,
 },
 });
 

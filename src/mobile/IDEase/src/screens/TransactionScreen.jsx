@@ -13,6 +13,7 @@ import { router } from "expo-router";
 
 import ScreenHeader from "../components/ScreenHeader";
 import { colors, typography, radii, spacing, shadow } from "../styles/theme";
+import { useConn } from '../contexts/ConnContext';
 
 
 const TransactionScreen = () => {
@@ -48,8 +49,17 @@ const TransactionScreen = () => {
       type: "Outgoing",
     },
   ];
+  const { walletData } = useConn();
 
-
+  const wallet = {
+    balance: walletData?.balance || 0,
+    transactions: walletData?.transactions || [],
+    totalTopUpsValue: walletData?.summaryStats?.[0]?.value || "KSh 0",
+    totalSpentValue: walletData?.summaryStats?.[1]?.value || "KSh 0",
+    thisMonthValue: walletData?.summaryStats?.[2]?.value || "KSh 0",
+    transactionsCount: walletData?.summaryStats?.[3]?.value || 0,
+    summaryStats: walletData?.summaryStats || [],
+  }
 
   return (
 
@@ -58,7 +68,7 @@ const TransactionScreen = () => {
 
       <ScreenHeader
         title="Transactions"
-        onBackPress={() => router.back()}
+        onBackPress={() => router.replace("/wallet")}
       />
 
 
@@ -81,7 +91,7 @@ const TransactionScreen = () => {
 
 
           <Text style={styles.summaryAmount}>
-            23
+            {wallet.transactionsCount}
           </Text>
 
 
@@ -135,86 +145,95 @@ const TransactionScreen = () => {
 
         <View style={styles.card}>
 
+  {wallet.transactions.length > 0 ? (
 
-          {
-            transactions.map((transaction,index)=>(
+    wallet.transactions.map((transaction, index) => (
 
+      <View
+        key={transaction.title + index}
+        style={[
+          styles.transactionRow,
+          index !== wallet.transactions.length - 1 && styles.border
+        ]}
+      >
 
-              <View
-                key={index}
-                style={[
-                  styles.transactionRow,
-                  index !== transactions.length -1 && styles.border
-                ]}
-              >
-
-
-                <View style={styles.iconBox}>
-
-                  <Ionicons
-                    name={transaction.icon}
-                    size={22}
-                    color={colors.primary}
-                  />
-
-                </View>
+        <View style={styles.iconBox}>
+          <Ionicons
+            name={transaction.icon}
+            size={22}
+            color={colors.primary}
+          />
+        </View>
 
 
+        <View style={styles.transactionInfo}>
 
+          <Text style={styles.transactionTitle}>
+            {transaction.title}
+          </Text>
 
-
-                <View style={styles.transactionInfo}>
-
-
-                  <Text style={styles.transactionTitle}>
-                    {transaction.title}
-                  </Text>
-
-
-                  <Text style={styles.transactionDate}>
-                    {transaction.date}
-                  </Text>
-
-
-                </View>
-
-
-
-
-
-                <View style={styles.amountContainer}>
-
-
-                  <Text
-                    style={[
-                      styles.amount,
-                      transaction.type === "Incoming"
-                      ? styles.income
-                      : styles.expense
-                    ]}
-                  >
-                    {transaction.type === "Incoming" ? "+" : "-"}
-                    {transaction.amount}
-                  </Text>
-
-
-                  <Text style={styles.status}>
-                    Completed
-                  </Text>
-
-
-                </View>
-
-
-
-              </View>
-
-
-            ))
-          }
-
+          <Text style={styles.transactionDate}>
+            {transaction.date}
+          </Text>
 
         </View>
+
+
+
+        <View style={styles.amountContainer}>
+
+          <Text
+            style={[
+              styles.amount,
+              transaction.type === "Incoming"
+                ? styles.income
+                : styles.expense
+            ]}
+          >
+            {transaction.type === "Incoming" ? "+" : "-"}
+            {transaction.amount}
+          </Text>
+
+
+          <Text style={styles.status}>
+            Completed
+          </Text>
+
+        </View>
+
+
+      </View>
+
+    ))
+
+  ) : (
+
+    <View style={styles.emptyTransaction}>
+
+      <View style={styles.emptyIconBox}>
+        <Ionicons
+          name="receipt-outline"
+          size={30}
+          color={colors.textSecondary}
+        />
+      </View>
+
+
+      <Text style={styles.emptyTransactionTitle}>
+        No Transactions Yet
+      </Text>
+
+
+      <Text style={styles.emptyTransactionDescription}>
+        Your payments, transfers and wallet activity will appear here.
+      </Text>
+
+
+    </View>
+
+  )}
+
+</View>
 
 
 
@@ -384,6 +403,37 @@ expense:{
 status:{
   ...typography.caption,
   marginTop:3,
+},
+emptyTransaction: {
+  alignItems: "center",
+  justifyContent: "center",
+  paddingVertical: spacing.xxl,
+},
+
+
+emptyIconBox: {
+  width: 60,
+  height: 60,
+  borderRadius: radii.lg,
+  backgroundColor: colors.background,
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: spacing.md,
+},
+
+
+emptyTransactionTitle: {
+  ...typography.bodyMedium,
+  fontSize: 16,
+  color: colors.textPrimary,
+},
+
+
+emptyTransactionDescription: {
+  ...typography.caption,
+  textAlign: "center",
+  marginTop: spacing.xs,
+  maxWidth: 260,
 },
 
 

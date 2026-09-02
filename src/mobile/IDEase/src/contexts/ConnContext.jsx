@@ -8,13 +8,14 @@ export const ConnProvider = ({ children }) => {
 
     const { api } = useApi()
     const { accessToken } = useAuth()
+    const [walletData, setWalletData] = react.useState(null);
 
     const wallet = useCallback(async () =>{
 
         try {
             const response = await api.get("/student/get/wallet")
-            console.log("Wallet response:", response.data);
-            // data = resp
+            console.log("Wallet response:", response.data?.data);
+            setWalletData(response.data?.data);
         } catch (error) {
             console.error("Wallet fetching failed:", error.response?.data || error.message);
         }
@@ -30,7 +31,7 @@ export const ConnProvider = ({ children }) => {
             throw error;
         }
     }
-    
+
 
     useEffect(() => {
         if(accessToken) {
@@ -41,7 +42,9 @@ export const ConnProvider = ({ children }) => {
 
     return (
         <ConnContext.Provider value={{
-            wallet
+            wallet,
+            walletData,
+            stkpush,
         }}>
             {children}
         </ConnContext.Provider>
