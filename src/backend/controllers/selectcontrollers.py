@@ -672,7 +672,7 @@ def get_wallet_data(student_id):
 
 
 
-        COUNT(td.id) AS total_transactions
+        COUNT(td.transaction_id) AS total_transactions
 
 
 
