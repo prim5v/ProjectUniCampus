@@ -20,6 +20,18 @@ export const ConnProvider = ({ children }) => {
         }
     },[])
 
+    const stkpush = async (payload) =>{
+
+        try {
+            const response = await api.post("/pay/student/deposit", payload)
+            return response;
+        } catch (error) {
+            console.error("STK Push failed:", error.response?.data || error.message);
+            throw error;
+        }
+    }
+    
+
     useEffect(() => {
         if(accessToken) {
         wallet()
