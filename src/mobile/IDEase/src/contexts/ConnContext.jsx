@@ -16,9 +16,9 @@ export const ConnProvider = ({ children }) => {
             console.log("Wallet response:", response.data);
             // data = resp
         } catch (error) {
-            
+            console.error("Wallet fetching failed:", error.response?.data || error.message);
         }
-    })
+    },[])
 
     useEffect(() => {
         if(accessToken) {
