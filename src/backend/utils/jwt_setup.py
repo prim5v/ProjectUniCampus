@@ -34,7 +34,7 @@ def generate_access_token(user_id, role, device_id, session_id):
     """Generate a short-lived JWT for API requests."""
 
     now = datetime.utcnow()
-    expiry = now + timedelta(minutes=5)
+    expiry = now + timedelta(minutes=10)
 
     payload = {
         "sub": user_id,

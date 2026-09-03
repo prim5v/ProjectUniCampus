@@ -19,6 +19,9 @@ def stk_push(payload):
     if not phone or not amount:
         return jsonify({"error": "Missing phone number or amount"}), 400
 
+    if not user_id:
+        return jsonify({"error": "Missing student_id"}), 400
+
     try:
 
         try:
@@ -87,23 +90,25 @@ def stk_push(payload):
         campus_id = student_campus(user_id)
         checkout_request_id = mpesa_response.get("CheckoutRequestID")
 
-        insert_transaction_record(
-            transaction_id=1,
-            student_id=user_id,
-            campus_id=campus_id,
-            amount=amount,
-            status="PENDING",
-            payment_method="M-PESA",
-            invoice_id=checkout_request_id,
-            phone=phone
-        )
+        record_inserted = insert_transaction_record(
+                transaction_id=1,
+                student_id=user_id,
+                campus_id=campus_id,
+                amount=amount,
+                status="PENDING",
+                payment_method="M-PESA",
+                invoice_id=checkout_request_id,
+                phone=phone,
+            )
 
-        return jsonify({
-            "message": "STK push initiated successfully",
-            "checkout_request_id": checkout_request_id,
-            "status": "PENDING"
-        }), 200
-
-
+        if record_inserted:
+            return jsonify({
+                "message": "STK push initiated successfully",
+                "checkout_request_id": checkout_request_id,
+                "status": "PENDING"
+            }), 200
+        else:
+            return jsonify({"error": "Failed to insert transaction record"}), 500
+            
     except Exception as e:
         return jsonify({"error": str(e)}), 500
