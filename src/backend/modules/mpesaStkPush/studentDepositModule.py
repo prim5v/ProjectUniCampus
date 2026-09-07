@@ -12,7 +12,7 @@ def stk_push(payload):
     amount = payload.get("amount")
     user_id = getattr(
         g,
-        "student_id",
+        "user_id",
         None
     )
 
