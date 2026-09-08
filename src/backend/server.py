@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import logging
 from backend.middleware.limiter import limiter
-from backend.utils.cron import start_scheduler
+# from backend.utils.cron import start_scheduler
 from backend.utils.db import check_db_connection, check_mongo_connection
 from backend.utils.extraFunctions import generate_rsa_key_pair
 from backend.routes.reader import reader_bp
@@ -80,7 +80,7 @@ def ratelimit_error(e):
     }), 429
 
 # start cron job
-start_scheduler()
+# start_scheduler()
 # 
 # import os
 
