@@ -617,7 +617,7 @@ def get_wallet_data(student_id):
 
         cursor.execute(
             transaction_query,
-            (student_id, 'COMPLETED')
+            (student_id, 'COMPLETE')
         )
 
 
@@ -699,7 +699,7 @@ def get_wallet_data(student_id):
 
             summary_query,
 
-            (student_id, 'COMPLETED')
+            (student_id, 'COMPLETE')
 
         )
 
@@ -750,7 +750,7 @@ def get_wallet_data(student_id):
 
         AND t.category='outgoing'
 
-        AND td.status='COMPLETED'
+        AND td.status='COMPLETE'
 
 
         AND DATE_TRUNC(
