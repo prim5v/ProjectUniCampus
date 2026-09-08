@@ -6,6 +6,7 @@ from requests.auth import HTTPBasicAuth
 import base64
 from backend.controllers.insertcontrollers import insert_transaction_record
 from backend.controllers.selectcontrollers import student_campus
+from backend.utils.extraFunctions import format_phone_number
 from datetime import datetime
 def stk_push(payload):
     phone = payload.get("phone")
@@ -31,6 +32,11 @@ def stk_push(payload):
         except:
             return {"error": "Amount must be numeric"}, 400
 
+        # format phone 
+        phone = format_phone_number(phone)
+
+
+
         # credentials
         consumer_key = os.getenv("MPESA_CONSUMER_KEY")
         consumer_secret = os.getenv("MPESA_CONSUMER_SECRET")
@@ -42,7 +48,7 @@ def stk_push(payload):
             return {"error": "MPESA credentials not configured"}, 500
 
 
-        # 🔐 AUTH
+        # AUTH
         auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
         auth_response = requests.get(
             auth_url,
@@ -52,7 +58,7 @@ def stk_push(payload):
 
         access_token = auth_response.json().get("access_token")
 
-        # 🔐 PASSWORD
+        # PASSWORD
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
         raw = f"{short_code}{passkey}{timestamp}"
         encoded_pwd = base64.b64encode(raw.encode()).decode()
@@ -82,16 +88,16 @@ def stk_push(payload):
         response = requests.post(stk_url, json=payload, headers=headers, timeout=15)
         mpesa_response = response.json()
 
-        # ❌ FAILED
+        #  FAILED
         if mpesa_response.get("ResponseCode") != "0":
             return {"error": "STK push failed", "details": mpesa_response}, 400
 
-        # ✅ SUCCESS
+        #  SUCCESS
         campus_id = student_campus(user_id)
         checkout_request_id = mpesa_response.get("CheckoutRequestID")
 
         record_inserted = insert_transaction_record(
-                transaction_id=1,
+                transaction_id=4,
                 student_id=user_id,
                 campus_id=campus_id,
                 amount=amount,

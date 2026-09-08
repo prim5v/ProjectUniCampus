@@ -457,3 +457,23 @@ def get_imagekit():
 
     return imagekit
 
+
+
+def format_phone_number(phone):
+    # Remove any spaces or accidental hidden characters
+    phone = str(phone).strip()
+    
+    # Handle numbers starting with '+' (e.g., +254113899517)
+    if phone.startswith('+'):
+        phone = phone.replace('+', '')
+        
+    # Handle numbers starting with '0' (e.g., 0113899517)
+    elif phone.startswith('0'):
+        phone = '254' + phone[1:]
+        
+    # Handle numbers that start with '7' or '1' directly (e.g., 113899517)
+    elif phone.startswith('7') or phone.startswith('1'):
+        if len(phone) == 9:
+            phone = '254' + phone
+
+    return phone

@@ -606,6 +606,8 @@ def get_wallet_data(student_id):
 
         WHERE td.student_id = %s
 
+        AND td.status = "COMPLETED"
+
 
         ORDER BY td.createdAt DESC
 
