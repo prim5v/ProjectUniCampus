@@ -750,7 +750,7 @@ def get_wallet_data(student_id):
 
         AND t.category='outgoing'
 
-        AND t.status='COMPLETED'
+        AND td.status='COMPLETED'
 
 
         AND DATE_TRUNC(
