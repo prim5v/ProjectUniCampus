@@ -56,6 +56,8 @@ def stk_push(payload):
             timeout=10
         )
 
+        # in future we consider having business shortcode from specific campus
+
         access_token = auth_response.json().get("access_token")
 
         # PASSWORD

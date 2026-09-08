@@ -1,0 +1,347 @@
+{
+  "version": "3.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "relationshipMode": "All",
+    "tablePositions": [
+      {
+        "name": "campus_data",
+        "schemaName": "public",
+        "x": 341.67236328125,
+        "y": 12
+      },
+      {
+        "name": "reader_data",
+        "schemaName": "public",
+        "x": 917.38623046875,
+        "y": 12
+      },
+      {
+        "name": "location_data",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      },
+      {
+        "name": "students_data",
+        "schemaName": "public",
+        "x": 917.38623046875,
+        "y": 346
+      },
+      {
+        "name": "students_credentials",
+        "schemaName": "public",
+        "x": 1673.94921875,
+        "y": 250
+      },
+      {
+        "name": "campus_credentials",
+        "schemaName": "public",
+        "x": 917.38623046875,
+        "y": 713
+      },
+      {
+        "name": "service_data",
+        "schemaName": "public",
+        "x": 1673.94921875,
+        "y": 12
+      },
+      {
+        "name": "service_sessions",
+        "schemaName": "public",
+        "x": 2353.88916015625,
+        "y": 12
+      },
+      {
+        "name": "transactions_data",
+        "schemaName": "public",
+        "x": 1673.94921875,
+        "y": 1079
+      },
+      {
+        "name": "transactions",
+        "schemaName": "public",
+        "x": 341.67236328125,
+        "y": 250
+      },
+      {
+        "name": "students_devices",
+        "schemaName": "public",
+        "x": 1673.94921875,
+        "y": 649
+      },
+      {
+        "name": "student_login_sessions",
+        "schemaName": "public",
+        "x": 2353.88916015625,
+        "y": 346
+      },
+      {
+        "name": "services",
+        "schemaName": "public",
+        "x": 341.67236328125,
+        "y": 456
+      },
+      {
+        "name": "service_modules",
+        "schemaName": "public",
+        "x": 917.38623046875,
+        "y": 1478
+      },
+      {
+        "name": "campus_services",
+        "schemaName": "public",
+        "x": 917.38623046875,
+        "y": 1112
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "service_id"
+        ],
+        "firstTableName": "service_modules",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "services",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "service_id"
+        ],
+        "firstTableName": "campus_services",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "services",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "campus_id"
+        ],
+        "firstTableName": "campus_services",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "campus_id"
+        ],
+        "secondTableName": "campus_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "campus_id"
+        ],
+        "firstTableName": "reader_data",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "campus_id"
+        ],
+        "secondTableName": "campus_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "device_id"
+        ],
+        "firstTableName": "student_login_sessions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "device_id"
+        ],
+        "secondTableName": "students_devices",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "student_id"
+        ],
+        "firstTableName": "student_login_sessions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "student_id"
+        ],
+        "secondTableName": "students_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "student_id"
+        ],
+        "firstTableName": "students_devices",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "student_id"
+        ],
+        "secondTableName": "students_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "campus_id"
+        ],
+        "firstTableName": "students_data",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "campus_id"
+        ],
+        "secondTableName": "campus_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "student_id"
+        ],
+        "firstTableName": "students_credentials",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "student_id"
+        ],
+        "secondTableName": "students_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "campus_id"
+        ],
+        "firstTableName": "campus_credentials",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "campus_id"
+        ],
+        "secondTableName": "campus_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "reader_id"
+        ],
+        "firstTableName": "service_data",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "reader_id"
+        ],
+        "secondTableName": "reader_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "service_id"
+        ],
+        "firstTableName": "service_sessions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "service_id"
+        ],
+        "secondTableName": "service_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "student_id"
+        ],
+        "firstTableName": "service_sessions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "student_id"
+        ],
+        "secondTableName": "students_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "student_id"
+        ],
+        "firstTableName": "transactions_data",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "student_id"
+        ],
+        "secondTableName": "students_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "transaction_id"
+        ],
+        "firstTableName": "transactions_data",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "transactions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "campus_id"
+        ],
+        "firstTableName": "transactions_data",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "campus_id"
+        ],
+        "secondTableName": "campus_data",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}

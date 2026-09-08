@@ -1,0 +1,205 @@
+Table campus_data {
+  id int [pk]
+  campus_id varchar(100) [unique, not null]
+  campus_name varchar(100) [not null]
+  isActive boolean [not null]
+  joinedWhen timestamp
+}
+
+
+Table reader_data {
+  id int [pk]
+  reader_id varchar(100) [unique, not null]
+  campus_id varchar(100) [not null]
+  reader_name varchar(100) [not null]
+  reader_type enum('QR', 'NFC', 'QR+NFC')
+  service_type enum('Payment', 'Access', 'EventRollCall', 'Attendance') [not null]
+  designation varchar(100)
+  createdAt timestamp
+}
+
+
+Table location_data {
+  id int [pk]
+  varchar_id varchar(100) [not null]
+  Address text [not null]
+  longitude double [not null]
+  latitude double [not null]
+  createdAt timestamp
+}
+
+
+Table students_data {
+  id int [pk]
+  campus_id varchar(100) [not null]
+  student_id varchar(100) [unique, not null]
+  username varchar(100) [not null]
+  pwd_hash varchar(100) [not null]
+  isActive boolean [not null]
+  nfc_status varchar(100) [not null]
+  account_status varchar(100) [not null]
+  onBoardedWhen timestamp
+}
+
+
+Table students_credentials {
+  id int [pk]
+  student_id varchar(100) [not null]
+  student_name varchar(150) [not null]
+  admission_number varchar(100) [not null]
+  student_course varchar(100) [not null]
+  Year_of_study varchar(100) [not null]
+  university_email varchar(100) [not null]
+  faculty varchar(100) [not null]
+  expiry timestamp
+  createdAt timestamp
+}
+
+
+Table campus_credentials {
+  id int [pk]
+  campus_id varchar(100) [not null]
+  security_token varchar(200) [not null]
+  verified boolean [not null]
+  email varchar(100) [not null]
+  role varchar(100) [not null]
+  phone_number varchar(100) [not null]
+  estimated_population varchar(100) [not null]
+  institution_type varchar(100) [not null]
+  createdAt timestamp
+}
+
+
+Table service_data {
+  id int [pk]
+  service_id varchar(100) [unique, not null]
+  reader_id varchar(100) [not null]
+  Designation_name varchar(100) [not null]
+  createdAt timestamp
+}
+
+
+Table service_sessions {
+  id int [pk]
+  session_id varchar(100) [unique, not null]
+  service_id varchar(100) [not null]
+  student_id varchar(100) [not null]
+  nonce varchar(100) [not null]
+  status varchar(100) [not null]
+  reason varchar(100) [not null]
+  createdAt timestamp
+}
+
+
+Table transactions_data{
+  transaction_id int 
+  student_id varchar(100) [not null]
+  campus_id varchar(100) [not null]
+  amount int [not null]
+  createdAt timestamp
+}
+
+Table transactions {
+  id int [pk]
+  icon_name varchar(100) [not null]
+  title varchar(100) [not null]
+  category varchar(100) [not null]
+}
+
+Table students_devices {
+  id int [pk]
+  student_id varchar(100) [not null]
+  device_id  varchar(100) [not null]
+  device_name varchar(100) [not null]
+  platform enum('android','ios','windows','macos','linux','web')
+  app_version varchar(30) [null]
+  ip_address varchar(45) 
+  user_agent varchar(255)
+  is_revoked boolean [not null]
+  last_seen timestamp [null]
+  registered_at timestamp [not null]
+}
+
+Table student_login_sessions {
+  id int [pk]
+  session_id varchar(100) [not null]
+  student_id varchar(100) [not null]
+  device_id varchar(100) [not null]
+  token_hash varchar(100) [not null]
+  expires_at timestamp [not null]
+  created_at timestamp [not null]
+  revoked_at timestamp [null]
+}
+
+Table services {
+  id int [pk, increment]
+  name varchar(100) [not null]
+  slug varchar(100) [unique, not null]
+  description text
+  monthly_price decimal(12,2) [not null, default: 0]
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table service_modules {
+  id int [pk, increment]
+  service_id int [not null]
+  name varchar(100) [not null]
+  slug varchar(100) [not null]
+  description text
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (service_id, slug) [unique]
+  }
+}
+
+Table campus_services {
+  id int [pk, increment]
+  campus_id varchar(100) [not null]
+  service_id int [not null]
+  status varchar(30) [not null, default: 'trialing']
+  trial_started_at timestamp
+  trial_ends_at timestamp
+  activated_at timestamp
+  cancelled_at timestamp
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (campus_id, service_id) [unique]
+  }
+}
+
+Ref: service_modules.service_id > services.id
+Ref: campus_services.service_id > services.id
+Ref: campus_services.campus_id > campus_data.campus_id
+
+
+// Relationships
+
+Ref: reader_data.campus_id > campus_data.campus_id
+
+Ref: student_login_sessions.device_id > students_devices.device_id
+
+Ref: student_login_sessions.student_id > students_data.student_id
+
+Ref: students_devices.student_id > students_data.student_id
+
+Ref: students_data.campus_id > campus_data.campus_id
+
+Ref: students_credentials.student_id > students_data.student_id
+
+Ref: campus_credentials.campus_id > campus_data.campus_id
+
+Ref: service_data.reader_id > reader_data.reader_id
+
+Ref: service_sessions.service_id > service_data.service_id
+
+Ref: service_sessions.student_id > students_data.student_id
+
+Ref: transactions_data.student_id > students_data.student_id
+
+Ref: transactions_data.transaction_id > transactions.id
+
+Ref: transactions_data.campus_id > campus_data.campus_id

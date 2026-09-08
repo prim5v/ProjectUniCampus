@@ -24,7 +24,7 @@ CORS(app,
         ]
     }})
 
-socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173", "https://unicampus-os-ruddy.vercel.app"])
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173", "https://unicampus-os-ruddy.vercel.app", "https://projectunicampus.onrender.com"])
 
 # expose it
 app.extensions["socketio"] = socketio
@@ -63,10 +63,11 @@ def handle_join_room(data):
     room = data.get('room')
     if room:
         join_room(room)
-        print(f"🔌 Client {request.sid} joined room: {room}")
+        print(f" Client {request.sid} joined room: {room}")
 
-
-
+# @socketio.on('join_active_access_token_room')
+# def token_room():
+#     room = 
 # ================= ERROR HANDLERS =================
 @app.errorhandler(429)
 def ratelimit_error(e):
