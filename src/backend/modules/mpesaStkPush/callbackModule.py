@@ -3,13 +3,17 @@ from flask import jsonify, current_app
 
 from backend.controllers.selectcontrollers import transaction_lookup
 from backend.controllers.updatecontrollers import update_transaction_status
+import logging
 
+logger = logging.getLogger(__name__)
 
 def stk_callback(payload):
 
     try:
         socketio = current_app.extensions["socketio"]
         stk = payload.get("Body", {}).get("stkCallback", {})
+
+        logger.info(f"payload received: {payload}")
 
         result_code = stk.get("ResultCode")
         result_desc = stk.get("ResultDesc")
@@ -47,4 +51,5 @@ def stk_callback(payload):
             
             return jsonify({"ResultCode": result_code, "ResultDesc": result_desc}), 200
     except Exception as e:
+        logger.exception("Error processing STK callback")
         return jsonify({"error": str(e)}), 500
