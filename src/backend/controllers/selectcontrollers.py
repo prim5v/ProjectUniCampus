@@ -606,7 +606,7 @@ def get_wallet_data(student_id):
 
         WHERE td.student_id = %s
 
-        AND td.status = "COMPLETED"
+        AND td.status = %s
 
 
         ORDER BY td.createdAt DESC
@@ -617,7 +617,7 @@ def get_wallet_data(student_id):
 
         cursor.execute(
             transaction_query,
-            (student_id,)
+            (student_id, 'COMPLETED')
         )
 
 

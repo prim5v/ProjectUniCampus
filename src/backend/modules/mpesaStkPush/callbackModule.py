@@ -19,7 +19,8 @@ def stk_callback(payload):
         result_desc = stk.get("ResultDesc")
         invoice_id = stk.get("CheckoutRequestID")
         amount = stk.get("CallbackMetadata", {}).get("Item", [{}])[0].get("Value")
-        MpesaReceiptNumber = stk.get("CallbackMetadata", {}).get("Item", [{}])[1].get("Value")
+        # MpesaReceiptNumber = stk.get("CallbackMetadata", {}).get("Item", [{}])[1].get("Value")
+        
 
         # transaction look up
         transaction = transaction_lookup(invoice_id)
@@ -42,6 +43,8 @@ def stk_callback(payload):
             return jsonify({"ResultCode": result_code, "ResultDesc": result_desc}), 400
         
         elif result_code == 0:
+            MpesaReceiptNumber = stk.get("CallbackMetadata", {}).get("Item", [{}])[1].get("Value")
+            
             update_transaction_status(invoice_id, status="COMPLETE", MpesaReceiptNumber=MpesaReceiptNumber)
             socketio.emit(
                 "callback:status", 
