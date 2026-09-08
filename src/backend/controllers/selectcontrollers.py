@@ -688,6 +688,8 @@ def get_wallet_data(student_id):
 
         WHERE td.student_id=%s
 
+        AND td.status = %s
+
 
         """
 
@@ -697,7 +699,7 @@ def get_wallet_data(student_id):
 
             summary_query,
 
-            (student_id,)
+            (student_id, 'COMPLETED')
 
         )
 
@@ -746,8 +748,9 @@ def get_wallet_data(student_id):
 
         WHERE td.student_id=%s
 
-
         AND t.category='outgoing'
+
+        AND t.status='COMPLETED'
 
 
         AND DATE_TRUNC(

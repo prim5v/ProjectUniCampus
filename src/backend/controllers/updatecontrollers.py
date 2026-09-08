@@ -97,7 +97,7 @@ def update_transaction_status(invoice_id, status, MpesaReceiptNumber):
             """
             UPDATE transactions_data
             SET status = %s,
-            SET MpesaReceiptNumber = %s
+            MpesaReceiptNumber = %s
             WHERE invoice_id = %s
             """,
             (status, MpesaReceiptNumber, invoice_id)
