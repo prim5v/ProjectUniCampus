@@ -286,6 +286,7 @@ def get_student_data(student_id):
     try:
         query = """
             SELECT
+                sd.student_id AS student_id,
                 sc.student_name AS name,
                 sc.admission_number AS admission_number,
                 sc.student_course AS course,

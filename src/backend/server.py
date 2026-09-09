@@ -11,7 +11,8 @@ import logging
 print("3 - logging imported", flush=True)
 from backend.middleware.limiter import limiter
 print("4 - limiter imported", flush=True)
-# from backend.utils.cron import start_scheduler
+from backend.utils.cron import start_scheduler
+print("13 - startscheduler imported", flush=True)
 from backend.utils.db import check_db_connection, check_mongo_connection
 print("5 - db imported", flush=True)
 from backend.utils.extraFunctions import generate_rsa_key_pair
@@ -135,12 +136,13 @@ def handle_join_room(data):
 #         join_room(room)
 #         print(f"Client {request.sid} joined access token room: {room}")
 @socketio.on("join_active_access_token_room")
-@access_token_required
-def token_room():
+# @access_token_required
+def token_room(data):
 
     print("🔥 ENDPOINT HIT: join_active_access_token_room")
 
-    room = getattr(g, "user_id", None)
+    # room = getattr(g, "user_id", None)
+    room = data.get('room')
 
     print(f"👤 Authenticated user: {room}")
     print(f"🔌 Socket SID: {request.sid}")
@@ -170,7 +172,7 @@ def ratelimit_error(e):
     }), 429
 
 # start cron job
-# start_scheduler()
+start_scheduler()
 # 
 # import os
 
