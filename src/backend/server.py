@@ -86,13 +86,31 @@ def handle_join_room(data):
         print(f" Client {request.sid} joined room: {room}")
 
 
-@socketio.on('join_active_access_token_room')
+# @socketio.on('join_active_access_token_room')
+# @access_token_required
+# def token_room():
+#     room = getattr(g, "user_id", None)
+#     if room:
+#         join_room(room)
+#         print(f"Client {request.sid} joined access token room: {room}")
+@socketio.on("join_active_access_token_room")
 @access_token_required
 def token_room():
+
+    print("🔥 ENDPOINT HIT: join_active_access_token_room")
+
     room = getattr(g, "user_id", None)
+
     if room:
         join_room(room)
-        print(f"Client {request.sid} joined access token room: {room}")
+
+        print(
+            f"✅ Client {request.sid} joined access token room: {room}"
+        )
+    else:
+        print(
+            f"❌ Endpoint hit, but no user_id found | SID: {request.sid}"
+        )
 
 # @socketio.on('join_active_access_token_room')
 # def token_room():

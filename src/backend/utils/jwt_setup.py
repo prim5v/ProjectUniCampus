@@ -201,6 +201,8 @@ def generate_jwt(user_id, role, device_id, session_id):
 
 #     return decorated
 
+
+
 # @app.route("/api/profile", methods=["GET"])
 # @access_token_required
 # def profile():
