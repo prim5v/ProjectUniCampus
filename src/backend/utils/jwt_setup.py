@@ -125,81 +125,81 @@ def generate_jwt(user_id, role, device_id, session_id):
 
 
 # all comon endpoints have this
-def access_token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
+# def access_token_required(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
 
-        auth_header = request.headers.get("Authorization")
-        socketio = current_app.extensions["socketio"]
+#         auth_header = request.headers.get("Authorization")
+#         socketio = current_app.extensions["socketio"]
 
-        # if not auth_header:
-        #     logger.warning("Authorization header missing in access token request")
-        #     return jsonify({"error": "Authorization header missing"}), 401
+#         # if not auth_header:
+#         #     logger.warning("Authorization header missing in access token request")
+#         #     return jsonify({"error": "Authorization header missing"}), 401
 
-        # if not auth_header.startswith("Bearer "):
-        #     logger.warning("Invalid authorization format in access token request")
-        #     return jsonify({"error": "Invalid authorization format"}), 401
+#         # if not auth_header.startswith("Bearer "):
+#         #     logger.warning("Invalid authorization format in access token request")
+#         #     return jsonify({"error": "Invalid authorization format"}), 401
 
-        token = auth_header.split(" ", 1)[1]
+#         token = auth_header.split(" ", 1)[1]
 
-        try:
-            payload = jwt.decode(
-                token,
-                current_app.config["SECRET_KEY"],
-                algorithms=["HS256"]
-            )
+#         try:
+#             payload = jwt.decode(
+#                 token,
+#                 current_app.config["SECRET_KEY"],
+#                 algorithms=["HS256"]
+#             )
 
-            # Ensure this is an access token
-            if payload.get("type") != "access":
-                logger.warning("Invalid token type in access token request")
-                return jsonify({"error": "Invalid token type"}), 401
+#             # Ensure this is an access token
+#             if payload.get("type") != "access":
+#                 logger.warning("Invalid token type in access token request")
+#                 return jsonify({"error": "Invalid token type"}), 401
 
-            # Store user information for the route
-            g.user_id = payload["sub"]
-            g.role = payload["role"]
-            g.device_id = payload["device_id"]
-            g.session_id = payload["sid"]
-            g.jwt_payload = payload
+#             # Store user information for the route
+#             g.user_id = payload["sub"]
+#             g.role = payload["role"]
+#             g.device_id = payload["device_id"]
+#             g.session_id = payload["sid"]
+#             g.jwt_payload = payload
 
-            if not auth_header:
-                logger.warning("Authorization header missing in access token request")
-                socketio.emit(
-                    "accessToken:status",
-                    {"status": "failed", "ResultCode": 401},
-                    room=payload["sub"]
-                )
-                return jsonify({"error": "Authorization header missing"}), 401
+#             if not auth_header:
+#                 logger.warning("Authorization header missing in access token request")
+#                 socketio.emit(
+#                     "accessToken:status",
+#                     {"status": "failed", "ResultCode": 401},
+#                     room=payload["sub"]
+#                 )
+#                 return jsonify({"error": "Authorization header missing"}), 401
 
-            if not auth_header.startswith("Bearer "):
-                logger.warning("Invalid authorization format in access token request")
-                socketio.emit(
-                    "accessToken:status",
-                    {"status": "failed", "ResultCode": 401},
-                    room=payload["sub"]
-                )
-                return jsonify({"error": "Invalid authorization format"}), 401
+#             if not auth_header.startswith("Bearer "):
+#                 logger.warning("Invalid authorization format in access token request")
+#                 socketio.emit(
+#                     "accessToken:status",
+#                     {"status": "failed", "ResultCode": 401},
+#                     room=payload["sub"]
+#                 )
+#                 return jsonify({"error": "Invalid authorization format"}), 401
 
-        except jwt.ExpiredSignatureError:
-            logger.warning("Access token expired")
-            socketio.emit(
-                    "accessToken:status",
-                    {"status": "failed", "ResultCode": 401},
-                    room=payload["sub"]
-            )
-            return jsonify({"error": "Access token expired"}), 401
+#         except jwt.ExpiredSignatureError:
+#             logger.warning("Access token expired")
+#             socketio.emit(
+#                     "accessToken:status",
+#                     {"status": "failed", "ResultCode": 401},
+#                     room=payload["sub"]
+#             )
+#             return jsonify({"error": "Access token expired"}), 401
 
-        except jwt.InvalidTokenError:
-            logger.warning("Invalid access token")
-            socketio.emit(
-                    "accessToken:status",
-                    {"status": "failed", "ResultCode": 401},
-                    room=payload["sub"]
-            )
-            return jsonify({"error": "Invalid access token"}), 401
+#         except jwt.InvalidTokenError:
+#             logger.warning("Invalid access token")
+#             socketio.emit(
+#                     "accessToken:status",
+#                     {"status": "failed", "ResultCode": 401},
+#                     room=payload["sub"]
+#             )
+#             return jsonify({"error": "Invalid access token"}), 401
 
-        return f(*args, **kwargs)
+#         return f(*args, **kwargs)
 
-    return decorated
+#     return decorated
 
 # @app.route("/api/profile", methods=["GET"])
 # @access_token_required
@@ -211,6 +211,186 @@ def access_token_required(f):
 #     })
 
 
+
+
+
+def access_token_required(f):
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        socketio = current_app.extensions["socketio"]
+
+        # ─────────────────────────────────────────────
+        # 1. Get Authorization header
+        # ─────────────────────────────────────────────
+
+        auth_header = request.headers.get("Authorization")
+
+        if not auth_header:
+            logger.warning(
+                "Authorization header missing in access token request"
+            )
+
+            return jsonify({
+                "error": "Authorization header missing"
+            }), 401
+
+        # ─────────────────────────────────────────────
+        # 2. Validate Bearer format
+        # ─────────────────────────────────────────────
+
+        if not auth_header.startswith("Bearer "):
+            logger.warning(
+                "Invalid authorization format in access token request"
+            )
+
+            return jsonify({
+                "error": "Invalid authorization format"
+            }), 401
+
+        # ─────────────────────────────────────────────
+        # 3. Extract token
+        # ─────────────────────────────────────────────
+
+        token = auth_header.split(" ", 1)[1].strip()
+
+        if not token:
+            logger.warning(
+                "Bearer token is empty"
+            )
+
+            return jsonify({
+                "error": "Invalid access token"
+            }), 401
+
+        # ─────────────────────────────────────────────
+        # 4. Decode and validate token
+        # ─────────────────────────────────────────────
+
+        try:
+
+            payload = jwt.decode(
+                token,
+                current_app.config["SECRET_KEY"],
+                algorithms=["HS256"]
+            )
+
+            # ─────────────────────────────────────────
+            # 5. Ensure this is an access token
+            # ─────────────────────────────────────────
+
+            if payload.get("type") != "access":
+
+                logger.warning(
+                    "Invalid token type in access token request"
+                )
+
+                return jsonify({
+                    "error": "Invalid token type"
+                }), 401
+
+            # ─────────────────────────────────────────
+            # 6. Store user information for route
+            # ─────────────────────────────────────────
+
+            g.user_id = payload["sub"]
+            g.role = payload["role"]
+            g.device_id = payload["device_id"]
+            g.session_id = payload["sid"]
+            g.jwt_payload = payload
+
+            logger.info(
+                "Access token validated successfully | "
+                "user=%s | role=%s | session=%s",
+                g.user_id,
+                g.role,
+                g.session_id
+            )
+
+        # ─────────────────────────────────────────────
+        # 7. EXPIRED TOKEN
+        # ─────────────────────────────────────────────
+
+        except jwt.ExpiredSignatureError:
+
+            logger.warning(
+                "Access token expired"
+            )
+
+            # The normal decode failed because exp is expired.
+            #
+            # We decode AGAIN with expiration verification disabled
+            # ONLY so we can recover the token's subject and notify
+            # the correct Socket.IO room.
+            try:
+
+                expired_payload = jwt.decode(
+                    token,
+                    current_app.config["SECRET_KEY"],
+                    algorithms=["HS256"],
+                    options={
+                        "verify_exp": False
+                    }
+                )
+
+                room = expired_payload.get("sub")
+
+                if room:
+
+                    logger.info(
+                        "Sending expired-token status to socket room | "
+                        "room=%s",
+                        room
+                    )
+
+                    socketio.emit(
+                        "accessToken:status",
+                        {
+                            "status": "failed",
+                            "ResultCode": 401
+                        },
+                        room=room
+                    )
+
+                else:
+
+                    logger.warning(
+                        "Expired token has no sub claim; "
+                        "cannot determine socket room"
+                    )
+
+            except jwt.InvalidTokenError:
+
+                logger.warning(
+                    "Could not decode expired token claims"
+                )
+
+            return jsonify({
+                "error": "Access token expired"
+            }), 401
+
+        # ─────────────────────────────────────────────
+        # 8. INVALID TOKEN
+        # ─────────────────────────────────────────────
+
+        except jwt.InvalidTokenError:
+
+            logger.warning(
+                "Invalid access token"
+            )
+
+            return jsonify({
+                "error": "Invalid access token"
+            }), 401
+
+        # ─────────────────────────────────────────────
+        # 9. Execute protected route
+        # ─────────────────────────────────────────────
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 
