@@ -2,18 +2,33 @@ import eventlet
 eventlet.monkey_patch()
 
 from flask import Flask, jsonify, request
+print("1 - Flask imported", flush=True)
 from flask_cors import CORS
+print("2 - CORS imported", flush=True)
+from flask_socketio import SocketIO, join_room
+print("12 - SocketIO imported", flush=True)
 import logging
+print("3 - logging imported", flush=True)
 from backend.middleware.limiter import limiter
+print("4 - limiter imported", flush=True)
 # from backend.utils.cron import start_scheduler
 from backend.utils.db import check_db_connection, check_mongo_connection
+print("5 - db imported", flush=True)
 from backend.utils.extraFunctions import generate_rsa_key_pair
+print("6 - extraFunctions imported", flush=True)
 from backend.routes.reader import reader_bp
+print("7 - reader imported", flush=True)
 from backend.routes.auth import auth_bp
+print("8 - auth imported", flush=True)
 from backend.routes.student import student_bp
+print("9 - student imported", flush=True)
 from backend.routes.admin import admin_bp
+print("10 - admin imported", flush=True)
 from backend.routes.pay import pay_bp 
-from flask_socketio import SocketIO, join_room
+print("11 - pay imported", flush=True)
+
+print("========== ALL IMPORTS COMPLETE ==========", flush=True)
+
 
 import os
 
