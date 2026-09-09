@@ -99,7 +99,7 @@ def wallet():
 
             json.dumps(result),
 
-            ex=120
+            ex=60
 
         )
 

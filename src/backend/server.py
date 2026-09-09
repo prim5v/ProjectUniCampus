@@ -85,6 +85,47 @@ def handle_join_room(data):
         join_room(room)
         print(f" Client {request.sid} joined room: {room}")
 
+# @socketio.on("connect")
+# def handle_connect(auth):
+#     print("🔥 SOCKET CONNECT")
+
+#     token = None
+
+#     if auth:
+#         token = auth.get("token")
+
+#     if not token:
+#         print("❌ No socket token")
+#         return False
+
+#     try:
+#         payload = jwt.decode(
+#             token,
+#             current_app.config["SECRET_KEY"],
+#             algorithms=["HS256"]
+#         )
+
+#         if payload.get("type") != "access":
+#             print("❌ Invalid socket token type")
+#             return False
+
+#         user_id = payload["sub"]
+
+#         join_room(user_id)
+
+#         print(
+#             f"✅ Socket authenticated | "
+#             f"user={user_id} | SID={request.sid}"
+#         )
+
+#     except jwt.ExpiredSignatureError:
+#         print("❌ Socket token expired")
+#         return False
+
+#     except jwt.InvalidTokenError:
+#         print("❌ Invalid socket token")
+#         return False
+
 
 # @socketio.on('join_active_access_token_room')
 # @access_token_required
@@ -101,15 +142,20 @@ def token_room():
 
     room = getattr(g, "user_id", None)
 
+    print(f"👤 Authenticated user: {room}")
+    print(f"🔌 Socket SID: {request.sid}")
+
     if room:
         join_room(room)
 
         print(
-            f"✅ Client {request.sid} joined access token room: {room}"
+            f"🏠 JOINED ROOM | "
+            f"SID={request.sid} | "
+            f"ROOM={room}"
         )
     else:
         print(
-            f"❌ Endpoint hit, but no user_id found | SID: {request.sid}"
+            f"❌ No user_id found | SID={request.sid}"
         )
 
 # @socketio.on('join_active_access_token_room')
