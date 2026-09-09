@@ -1,7 +1,7 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, g
 print("1 - Flask imported", flush=True)
 from flask_cors import CORS
 print("2 - CORS imported", flush=True)
@@ -26,6 +26,8 @@ from backend.routes.admin import admin_bp
 print("10 - admin imported", flush=True)
 from backend.routes.pay import pay_bp 
 print("11 - pay imported", flush=True)
+from backend.utils.jwt_setup import access_token_required
+print("12 - access_token_required imported", flush=True)
 
 print("========== ALL IMPORTS COMPLETE ==========", flush=True)
 
@@ -82,6 +84,15 @@ def handle_join_room(data):
     if room:
         join_room(room)
         print(f" Client {request.sid} joined room: {room}")
+
+
+@socketio.on('join_active_access_token_room')
+@access_token_required
+def token_room():
+    room = getattr(g, "user_id", None)
+    if room:
+        join_room(room)
+        print(f"Client {request.sid} joined access token room: {room}")
 
 # @socketio.on('join_active_access_token_room')
 # def token_room():
