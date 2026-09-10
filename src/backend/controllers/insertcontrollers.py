@@ -395,3 +395,48 @@ def insert_transaction_record(transaction_id, student_id, campus_id, amount, sta
     finally:
         cursor.close()
         conn.close()
+
+def insert_building(campus_id, name, code, address):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute(
+            """
+             INSERT INTO buildings
+             (campus_id, name, code, address)
+             VALUES(%s, %s, %s, %s)             
+              """,
+              (campus_id, name, code, address)
+        )
+        conn.commit()
+        return True
+
+    except Exception as e:
+        logger.error(f"Error inserting building record: {e}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def insert_reader(reader_id, campus_id, reader_name, reader_type, service_type, designation, building_id):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute(
+            """
+             INSERT INTO reader_data
+             (reader_id, campus_id, reader_name, reader_type, service_type, designation, building_id)
+             VALUES(%s, %s, %s, %s, %s, %s, %s)
+               """,
+               (reader_id, campus_id, reader_name, reader_type, service_type, designation, building_id)
+
+        )
+        conn.commit()
+        return True
+    except Exception as e:
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+        

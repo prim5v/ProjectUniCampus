@@ -885,3 +885,32 @@ def transaction_lookup(invoice_id):
     finally:
         cursor.close()
         conn.close()
+
+def buildings(campus_id):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute("SELECT * FROM buildings WHERE campus_id=%s", (campus_id,))
+        results = cursor.fetchall()
+        return results
+
+    except Exception as e:
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def readers(campus_id):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute("SELECT * FROM reader_data WHERE campus_id=%s", (campus_id,))
+        results = cursor.fetchall()
+        return results
+
+    except Exception as e:
+        return False
+    finally:
+        cursor.close()
+        conn.close()
