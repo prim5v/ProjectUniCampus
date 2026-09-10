@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Switch,
   StyleSheet,
+  RefreshControl,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { router } from "expo-router";
@@ -27,7 +28,8 @@ import { useConn } from '../contexts/ConnContext';
 const WalletScreen = () => {
   const [autoTopUpEnabled, setAutoTopUpEnabled] = useState(true);
   const [balanceHidden, setBalanceHidden] = useState(false);
-  const { walletData } = useConn();
+  const { walletData, fetchWalletData } = useConn();
+  const [refreshing, setRefreshing] = useState(false);
 
   const wallet = {
     balance: walletData?.balance || 0,
@@ -39,43 +41,17 @@ const WalletScreen = () => {
     summaryStats: walletData?.summaryStats || [],
   }
 
-  const transactions = [
-    {
-      icon: 'restaurant-outline',
-      title: 'Cafeteria Payment',
-      time: 'Today, 12:45 PM',
-      amount: 'KSh 120.00',
-      direction: 'outgoing',
-    },
-    {
-      icon: 'bus-outline',
-      title: 'Transport Payment',
-      time: 'Today, 08:10 AM',
-      amount: 'KSh 50.00',
-      direction: 'outgoing',
-    },
-    {
-      icon: 'book-outline',
-      title: 'Library Fine',
-      time: 'Yesterday, 04:30 PM',
-      amount: 'KSh 30.00',
-      direction: 'outgoing',
-    },
-    {
-      icon: 'add-circle-outline',
-      title: 'Funds Top-up',
-      time: 'Yesterday, 09:15 AM',
-      amount: 'KSh 500.00',
-      direction: 'incoming',
-    },
-  ];
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await fetchWalletData();
+    } catch (error) {
+      console.error("Wallet refresh failed:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
-  const summaryStats = [
-    { label: 'Total Top-ups', value: 'KSh 5,600' },
-    { label: 'Total Spent', value: 'KSh 4,350' },
-    { label: 'This Month', value: 'KSh 1,250' },
-    { label: 'Transactions', value: '23' },
-  ];
 
   return (
     <View style={styles.screen}>
@@ -88,6 +64,12 @@ const WalletScreen = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+             refreshing={refreshing}
+             onRefresh={onRefresh}
+             />
+        }
       >
         {/* Balance Card */}
         <View style={styles.balanceCard}>

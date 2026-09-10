@@ -11,6 +11,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { BiometricProvider } from "../contexts/BiometricContext";
 import { ConnProvider } from "../contexts/ConnContext";
+import { NetworkProvider } from "../contexts/NetworkContext";
 
 // WebBrowser.maybeCompleteAuthSession();
 
@@ -47,9 +48,12 @@ export default function RootLayout() {
         <BiometricProvider>
         <AuthProvider>
           <ConnProvider>
+            <NetworkProvider>
           
           {/* <SafeAreaView> */}
           <Slot />
+          
+          </NetworkProvider>
           {/* </SafeAreaView> */}
           </ConnProvider>
         </AuthProvider>

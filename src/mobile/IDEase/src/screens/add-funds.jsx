@@ -16,15 +16,20 @@ import { router } from "expo-router";
 import ScreenHeader from "../components/ScreenHeader";
 import { colors, typography, radii, spacing, shadow } from "../styles/theme";
 import { useConn } from "../contexts/ConnContext";
-
+import screenConfirmationPage from "../app/confirmationScreen";
+// import { router } from "expo-router";
 
 const AddFunds = () => {
 
   const { walletData, stkpush } = useConn();
+  const [loading, setLoading] = useState(false);
 
 
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
+  const [confirmationScreen, setConfirmationScreen] = useState(false);
+
+
 
   const [savedPhone, setSavedPhone] = useState(null);
   const [useSavedPhone, setUseSavedPhone] = useState(true);
@@ -58,45 +63,50 @@ const AddFunds = () => {
 
   };
 
+// useEffect( () =>{
+//   router.push("/confirmationScreen")
+// }, [])
 
 
 
+const handleAddFunds = async () => {
+  setLoading(true);
 
-  const handleAddFunds = async () => {
-
-
-    const payload = {
-
-      amount: amount,
-
-      phone: phone
-
-    };
-
-
-    try {
-
-      const result = await stkpush(payload);
-
-      console.log(
-        "STK Push result:",
-        result?.data
-      );
-
-
-    } catch(error){
-
-
-      console.error(
-        "STK Push error:",
-        error?.response?.data || error.message
-      );
-
-
-    }
-
+  const payload = {
+    amount: amount,
+    phone: phone,
   };
 
+  try {
+    const result = await stkpush(payload);
+
+    console.log("STK Push result:", result?.data);
+
+    const invoiceId = result?.data?.checkout_request_id;
+
+    if (!invoiceId) {
+      console.error("No invoice_id returned from STK push");
+      return;
+    }
+
+    // Send invoice_id to confirmation screen
+    router.push({
+      pathname: "/confirmationScreen",
+      params: {
+        invoice_id: invoiceId,
+      },
+    });
+
+  } catch (error) {
+    console.error(
+      "STK Push error:",
+      error?.response?.data || error.message
+    );
+
+  } finally {
+    setLoading(false);
+  }
+};
 
 
 
@@ -419,7 +429,7 @@ const AddFunds = () => {
 
           <Text style={styles.primaryButtonText}>
 
-            Continue
+            {loading ? "Paying...": "Pay"}
 
           </Text>
 

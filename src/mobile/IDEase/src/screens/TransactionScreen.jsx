@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState}from "react";
 
 import {
   View,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  RefreshControl,
 } from "react-native";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -15,9 +16,19 @@ import ScreenHeader from "../components/ScreenHeader";
 import { colors, typography, radii, spacing, shadow } from "../styles/theme";
 import { useConn } from '../contexts/ConnContext';
 
-
 const TransactionScreen = () => {
 
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await fetchWalletData();
+    } catch (error) {
+      console.error("Wallet refresh failed:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const transactions = [
     {
@@ -49,7 +60,8 @@ const TransactionScreen = () => {
       type: "Outgoing",
     },
   ];
-  const { walletData } = useConn();
+  const { walletData, fetchWalletData } = useConn();
+  const [refreshing, setRefreshing] = useState(false);
 
   const wallet = {
     balance: walletData?.balance || 0,
@@ -75,6 +87,12 @@ const TransactionScreen = () => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            />
+        }
       >
 
 

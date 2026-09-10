@@ -10,7 +10,7 @@ export const ConnProvider = ({ children }) => {
     const { accessToken, setLoading } = useAuth()
     const [walletData, setWalletData] = react.useState(null);
 
-    const wallet = useCallback(async () =>{
+    const fetchWalletData = useCallback(async () =>{
 
         setLoading(true);
         try {
@@ -42,14 +42,14 @@ export const ConnProvider = ({ children }) => {
 
     useEffect(() => {
         if(accessToken) {
-        wallet()
+        fetchWalletData()
     }
-    }, [wallet, accessToken])
+    }, [fetchWalletData, accessToken])
 
 
     return (
         <ConnContext.Provider value={{
-            wallet,
+            fetchWalletData,
             walletData,
             stkpush,
         }}>

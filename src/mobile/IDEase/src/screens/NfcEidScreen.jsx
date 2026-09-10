@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 import {
     View,
     Text,
@@ -52,6 +53,9 @@ export default function NfcEidScreen() {
             showBackButton={true} />
 
             {/* MAIN CONTENT */}
+            {/* later am adding an native module api function that mounts */}
+            {/* each time to return an encrypted data */}
+            {/* nb the encrypted data is new on every mount with expiary of 5 minutes */}
             <View style={styles.content}>
                 {mode === "nfc" ? (
                     <NfcView />
@@ -136,14 +140,49 @@ function NfcView() {
 /* ------------------------------------------------ */
 
 function QrView({ value }) {
+    const [timeLeft, setTimeLeft] = useState(5 * 60);
+
+    useEffect(() => {
+        if (timeLeft <= 0) return;
+
+        const interval = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
+                }
+
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [timeLeft]);
+
+    const minutes = Math.floor(timeLeft / 60)
+        .toString()
+        .padStart(2, "0");
+
+    const seconds = (timeLeft % 60)
+        .toString()
+        .padStart(2, "0");
+
     return (
         <View style={styles.qrView}>
+
             <Text style={styles.qrTitle}>
                 Scan to verify
             </Text>
 
             <Text style={styles.qrSubtitle}>
                 Present this code to a UniCampus reader
+            </Text>
+
+            <Text style={styles.qrExpiry}>
+                Expires in{" "}
+                <Text style={styles.timer}>
+                    {minutes}:{seconds}
+                </Text>
             </Text>
 
             <View style={styles.qrContainer}>
@@ -159,10 +198,10 @@ function QrView({ value }) {
             <Text style={styles.qrHint}>
                 Keep your screen steady while scanning
             </Text>
+
         </View>
     );
 }
-
 /* ------------------------------------------------ */
 /* STYLES */
 /* ------------------------------------------------ */
@@ -293,6 +332,18 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 28,
         paddingHorizontal: 25,
+    },
+    qrExpiry: {
+        fontSize: 14,
+        color: "#777777",
+        textAlign: "center",
+        marginBottom: 28,
+    },
+
+    timer: {
+        fontSize: 14,
+        fontWeight: "10",
+        color: "#E53935",
     },
 
     qrContainer: {
