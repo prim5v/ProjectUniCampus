@@ -60,6 +60,8 @@ type BackendStudent = {
   created_at: string | null;
 };
 
+// type Backend
+
 
 /**
  * Get paginated students from the backend.
@@ -68,6 +70,105 @@ type BackendStudent = {
  *
  * GET /admin/get/students/data?page=1&limit=20
  */
+
+/* -------------------------------- */
+/* Buildings */
+/* -------------------------------- */
+
+type BackendReader = {
+  id: number;
+  reader_id: string;
+  campus_id: string;
+  reader_name: string;
+  reader_type: string;
+  service_type: string;
+  building_id: number;
+  designation: string;
+  status: string;
+}
+
+type BackendBuilding = {
+  id: number;
+  campus_id: string;
+  name: string;
+  code: string;
+  address: string;
+};
+
+export type BuildingsResponse = {
+  success: boolean;
+  message: string;
+  data: Building[];
+};
+
+export type ReadersResponse ={
+  success: boolean;
+  message : string;
+  data: Reader[];
+}
+
+export const getReaders = async(
+  api:any
+): Promise<ReadersResponse> =>{
+  const response = await api.get("/admin/get/readers");
+
+  const backendReaders: BackendReader[] =
+  response.data?.readers ?? [];
+
+  console.log("Readers Payload:", response.data);
+  console.log("Readers:", backendReaders);
+
+  const readerData: Reader[] = backendReaders.map(
+    (reader) => ({
+      id: reader.id,
+      readerId: reader.reader_id,
+      campusId: reader.campus_id,
+      buildingId: reader.building_id,
+      readerName: reader.reader_name,
+      readerType: reader.reader_type,
+      serviceType: reader.service_type,
+      designation: reader.designation,
+      status: "offline",
+    })
+  );
+  return readerData;
+};
+
+
+export const getBuildings = async (
+  api: any
+): Promise<BuildingsResponse> => {
+  const response = await api.get("/admin/get/buildings");
+
+  const backendBuildings: BackendBuilding[] =
+    response.data?.buildings ?? [];
+
+  console.log("Buildings payload:", response.data);
+  console.log("Buildings:", backendBuildings);
+
+  const buildingData: Building[] = backendBuildings.map(
+    (building) => ({
+      id: building.id,
+      campusId: building.campus_id,
+      name: building.name,
+      code: building.code,
+      address: building.address,
+    })
+  );
+
+  return buildingData;
+
+  return {
+    success: response.data?.success ?? true,
+    message:
+      response.data?.message ??
+      "Buildings retrieved successfully.",
+    data: buildingData,
+  };
+};
+
+
+
 export const getStudents = async (
   api: any,
   page = 1,
@@ -165,13 +266,13 @@ export const getDigitalIds =
   (): Promise<DigitalId[]> =>
     EMPTY();
 
-export const getReaders =
-  (): Promise<Reader[]> =>
-    EMPTY();
+// export const getReaders =
+//   (): Promise<Reader[]> =>
+//     EMPTY();
 
-export const getBuildings =
-  (): Promise<Building[]> =>
-    EMPTY();
+// export const getBuildings =
+//   (): Promise<Building[]> =>
+//     EMPTY();
 
 export const getSessions =
   (): Promise<AttendanceSession[]> =>

@@ -231,7 +231,7 @@ export function AddStudentModal({
       // Reset form after successful submission
       setFormData(initialFormData);
       setErrors({});
-      setError({})
+      setError({});
     } catch (error: unknown) {
       console.error("Failed to add student:", error);
 

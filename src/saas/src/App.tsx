@@ -31,6 +31,8 @@ import { CreateAccount } from "./pages/CreateAccount";
 import { LoadingPage } from "./pages/LoadingPage";
 import { GlobalNotification } from "./components/dashboard/GlobalNotification";
 import { CreateDigitalId } from "./pages/CreateDigitalId";
+import { Access } from "./pages/Access";
+import { Payments } from "./pages/Payments";
 
 
 function Router(): JSX.Element {
@@ -142,6 +144,24 @@ function Router(): JSX.Element {
               element={
                 <RoleGuard allowedRoles={["admin"]}>
                   <Attendance />
+                </RoleGuard>
+              }
+            />
+
+             <Route
+              path="/access"
+              element={
+                <RoleGuard allowedRoles={["admin"]}>
+                  <Access />
+                </RoleGuard>
+              }
+            />
+
+              <Route
+              path="/payments"
+              element={
+                <RoleGuard allowedRoles={["admin"]}>
+                  <Payments />
                 </RoleGuard>
               }
             />

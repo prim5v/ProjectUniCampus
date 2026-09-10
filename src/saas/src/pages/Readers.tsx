@@ -6,7 +6,7 @@
 
 
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { PlusIcon, CpuIcon } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { Card } from "../components/ui/Card";
@@ -18,12 +18,41 @@ import { FormField } from "../components/ui/FormField";
 import { Input, Select } from "../components/ui/Input";
 import { ReaderStatusBadge } from "../lib/status";
 import { useCollection } from "../hooks/useCollection";
-import { getReaders } from "../services/data";
+import { getReaders, getBuildings } from "../services/data";
 import type { Reader } from "../types";
+import { useApi } from "../contexts/ApiContext";
+import { useAuthContext } from "../contexts/AuthContext";
 
 export function Readers() {
-  const { data, loading } = useCollection(getReaders);
+  const {api} = useApi();
+  const fetchReaders = useCallback(
+    () => getReaders(api),
+    [api]
+  );
+  const { data, loading, refresh } = useCollection(fetchReaders);
+  const fetchBuildings = useCallback(
+    () => getBuildings(api),
+    [api]
+  );
+
+  const {
+    data: buildings,
+    loading: buildingsLoading
+  } = useCollection(fetchBuildings);
+
   const [open, setOpen] = useState(false);
+
+  const [readerName, setReaderName] = useState("");
+  const [readerId, setReaderId ] = useState("");
+  const [readerType, setReaderType] = useState("");
+  const [serviceType, setServiceType] = useState("");
+  const [buildingId, setBuildingId] = useState("")
+  const [designation, setDesignation] = useState("");
+
+  const { setLoading, setError, setMessage, setSuccessStatus } = useAuthContext();
+
+  const [adding, setAdding] =
+    useState(false);
 
   const columns: Column<Reader>[] = [
   {
@@ -44,6 +73,89 @@ export function Readers() {
     header: "Last connection",
     render: (r) => r.lastConnectionAt ?? <span className="text-ink-muted">Never</span>
   }];
+
+  const addReader = async() =>{
+
+    if(!readerId.trim()){
+      alert("ReaderId required");
+      return;
+    }
+    if(!readerName.trim()){
+      alert("Readername required");
+      return;
+    }
+
+  const payload = {
+    reader_id: readerId.trim(),
+    reader_name: readerName.trim(),
+    reader_type: readerType.trim(),
+    service_type: serviceType.trim(),
+    designation: designation.trim(),
+    building_id: buildingId,
+  }
+
+  console.log("Adding reader:", payload);
+
+  try {
+    setAdding(true);
+
+    const response = await api.post(
+      "/admin/add/reader",
+      payload
+    );
+
+    console.log(
+      "Adding reader response:",
+      response.data
+    );
+
+    if(response.data?.success){
+      setBuildingId("");
+      setDesignation("");
+      setReaderId("");
+      setReaderName("");
+      setServiceType("");
+      setReaderType("");
+      setSuccessStatus("success")
+      setMessage(
+        response.data?.message ||
+        "Reader added successuffly"
+      );
+      setError({});
+
+      setOpen(false);
+
+      refresh();
+    }else{
+      setError(response.data?.message);
+      setSuccessStatus("error")
+    }
+  } catch (error: any) {
+    console.log(
+      "Failed to add reader:",
+      error?.response?.data || error
+    );
+    let message =
+    "Something went wrong";
+
+    const axiosError = error as {
+      response?: {
+        data?:{
+          message?: string;
+        };
+      };
+    };
+    message = axiosError.response?.data?.message || message;
+    setError(message);
+    setSuccessStatus("error")
+    
+  } finally{
+    setLoading(false);
+    setAdding(false);
+  };
+
+};
+
 
 
   return (
@@ -90,34 +202,118 @@ export function Readers() {
             <Button variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => setOpen(false)}>Register</Button>
+            <Button onClick={addReader}>{adding ? "Adding..." : "Add reader"}</Button>
           </>
         }>
         
         <div className="space-y-5">
-          <FormField label="Device name" required>
-            {(p) => <Input placeholder="e.g. Main Gate Reader 01" {...p} />}
+          <FormField
+            label="Device name"
+            required
+          >
+            {() => (
+              <Input
+                placeholder="e.g. Main Gate Reader 01"
+                value={readerName}
+                onChange={(e) => setReaderName(e.target.value)}
+              />
+            )}
           </FormField>
-          <FormField label="Serial number" required hint="Printed on the device label.">
-            {(p) => <Input placeholder="e.g. RDR-000123" {...p} />}
+
+          <FormField
+            label="Serial number"
+            required
+            hint="Printed on the device label."
+          >
+            {() => (
+              <Input
+                placeholder="e.g. RDR-000123"
+                value={readerId}
+                onChange={(e) => setReaderId(e.target.value)}
+              />
+            )}
           </FormField>
+          <FormField
+            label="Designation of the reader"
+            required
+            hint="Where is the reader located?"
+          >
+            {() => (
+              <Input
+                placeholder="e.g. Gate / Door 101"
+                value={designation}
+                onChange={(e) => setDesignation(e.target.value)}
+              />
+            )}
+          </FormField>
+
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField label="Type" required>
-              {(p) =>
-              <Select className="w-full" {...p}>
-                  <option>NFC</option>
-                  <option>QR</option>
-                  <option>NFC + QR</option>
-                </Select>
-              }
-            </FormField>
-            <FormField label="Building">
-              {(p) =>
-              <Select className="w-full" {...p}>
+          <FormField
+            label="Reader Type"
+            value={readerType}
+            required
+          >
+            {(p) => (
+              <Select
+                className="w-full"
+                {...p}
+                value={readerType}
+                onChange={(e) => setReaderType(e.target.value)}
+              >
+                <option value="">Select reader type</option>
+                <option value="NFC">NFC</option>
+                <option value="QR">QR</option>
+                <option value="QR+NFC">NFC + QR</option>
+              </Select>
+            )}
+          </FormField>
+
+            <FormField
+            label="Service Type"
+            value={serviceType}
+            required
+          >
+            {(p) => (
+              <Select
+                className="w-full"
+                {...p}
+                value={serviceType}
+                onChange={(e) => setServiceType(e.target.value)}
+              >
+                <option value="">Select service type</option>
+                <option value="Access">Access</option>
+                <option value="Payment">POS</option>
+                <option value="Attendance">Attendance</option>
+              </Select>
+            )}
+          </FormField>
+
+            <FormField
+              label="Building"
+              value={buildingId}
+            >
+              {(p) => (
+                <Select
+                  className="w-full"
+                  {...p}
+                  value={buildingId}
+                  onChange={(e) => setBuildingId(e.target.value)}
+                >
                   <option value="">Unassigned</option>
+
+                  {buildings.map((building) => (
+                    <option
+                      key={building.id}
+                      value={building.id}
+                    >
+                      {building.code} — {building.name}
+                    </option>
+                  ))}
                 </Select>
-              }
+              )}
             </FormField>
+            
           </div>
         </div>
       </Modal>

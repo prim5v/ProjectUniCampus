@@ -39,6 +39,23 @@ export const navigation: NavGroup[] = [
   { label: "Digital IDs", href: "/digital-ids", icon: IdCardIcon }]
 
 },
+
+{
+  label: "Access",
+  items: [
+  { label: "Sessions", href: "/access", icon: CalendarCheckIcon },
+  { label: "Reports", href: "/reports", icon: FileBarChartIcon }]
+
+},
+
+{
+  label: "Payments",
+  items: [
+  { label: "Sessions", href: "/payments", icon: CalendarCheckIcon },
+  { label: "Reports", href: "/reports", icon: FileBarChartIcon }]
+
+},
+
 {
   label: "Attendance",
   items: [
@@ -46,6 +63,7 @@ export const navigation: NavGroup[] = [
   { label: "Reports", href: "/reports", icon: FileBarChartIcon }]
 
 },
+
 {
   label: "Infrastructure",
   items: [
