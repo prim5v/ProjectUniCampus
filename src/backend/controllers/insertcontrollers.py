@@ -435,6 +435,7 @@ def insert_reader(reader_id, campus_id, reader_name, reader_type, service_type, 
         conn.commit()
         return True
     except Exception as e:
+        logger.error(f"Error insering reader record: {e}")
         return None
     finally:
         cursor.close()
