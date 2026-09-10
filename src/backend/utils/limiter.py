@@ -30,5 +30,5 @@ def user_or_ip():
 # ⚠️ DO NOT bind to app here
 limiter = Limiter(
     key_func=user_or_ip,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=["1000 per day", "200 per hour"],
 )

@@ -5,12 +5,12 @@ def readers_get():
     try:
         campus_id = getattr(g, "user_id", None)
         results = readers(campus_id)
-        if results:
-            return jsonify({
-                "success": True,
-                "message": "readers select success",
-                "readers": results
-            }), 200
+        
+        return jsonify({
+            "success": True,
+            "message": "readers select success",
+            "readers": results or []
+        }), 200
 
     except Exception as e:
         return jsonify(

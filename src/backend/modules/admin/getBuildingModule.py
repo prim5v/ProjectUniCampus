@@ -5,12 +5,11 @@ def buildings_get():
         # get from controller
         campus_id = getattr(g, "user_id", None)
         results = buildings(campus_id)
-        if results:
-            return jsonify({
-                "success":True,
-                "message": "buildings select success",
-                "buildings": results
-            }), 200
+        return jsonify({
+            "success":True,
+            "message": "buildings select success",
+            "buildings": results or []
+        }), 200
 
     except Exception as e:
         return jsonify(
