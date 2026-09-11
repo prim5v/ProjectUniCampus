@@ -37,12 +37,14 @@ def send_expo_notification(
     expo_push_token,
     title,
     body,
+    channelId,
     data=None
 ):
     payload = {
         "to": expo_push_token,
         "title": title,
         "body": body,
+        "channelId": channelId,
         "sound": "default",
         "data": data or {}
     }
@@ -164,7 +166,7 @@ def send_notification_to_all_students(title, body, data=None):
 
 
 
-def send_expo_notification_to_one(student_id, title, body, data=None):
+def send_expo_notification_to_one(student_id, title, body, channelId, data=None):
     conn, cursor = get_db_cursor()
 
     student_token = None
@@ -198,6 +200,7 @@ def send_expo_notification_to_one(student_id, title, body, data=None):
             expo_push_token=student_token,
             title=title,
             body=body,
+            channelId=channelId,
             data=data or {}
         )
 
