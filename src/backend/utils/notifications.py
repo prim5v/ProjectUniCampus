@@ -45,7 +45,7 @@ def send_expo_notification(
         "title": title,
         "body": body,
         "channelId": channelId,
-        "sound": "default",
+        # "sound": "default",
         "data": data or {}
     }
 
