@@ -6,6 +6,33 @@ logger = logging.getLogger(__name__)
 EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send"
 
 
+# def send_expo_notification(
+#     expo_push_token,
+#     title,
+#     body,
+#     data=None
+# ):
+#     payload = {
+#         "to": expo_push_token,
+#         "title": title,
+#         "body": body,
+#         "sound": "default",
+#         "data": data or {}
+#     }
+
+#     response = requests.post(
+#         EXPO_PUSH_URL,
+#         json=payload,
+#         headers={
+#             "Content-Type": "application/json"
+#         },
+#         timeout=10
+#     )
+
+#     response.raise_for_status()
+
+#     return response.json()
+
 def send_expo_notification(
     expo_push_token,
     title,
@@ -20,18 +47,56 @@ def send_expo_notification(
         "data": data or {}
     }
 
-    response = requests.post(
-        EXPO_PUSH_URL,
-        json=payload,
-        headers={
-            "Content-Type": "application/json"
-        },
-        timeout=10
-    )
+    try:
+        response = requests.post(
+            EXPO_PUSH_URL,
+            json=payload,
+            headers={
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
 
-    response.raise_for_status()
+        logger.info(
+            f"📨 Expo HTTP status: {response.status_code}"
+        )
 
-    return response.json()
+        logger.info(
+            f"📨 Expo response: {response.text}"
+        )
+
+        response.raise_for_status()
+
+        result = response.json()
+
+        # Check Expo's actual ticket
+        ticket = result.get("data")
+
+        if isinstance(ticket, dict):
+            if ticket.get("status") == "error":
+                logger.error(
+                    f"❌ Expo rejected notification: {ticket}"
+                )
+                return False
+
+            if ticket.get("status") == "ok":
+                logger.info(
+                    f"✅ Expo accepted notification: "
+                    f"{ticket}"
+                )
+                return True
+
+        logger.warning(
+            f"⚠️ Unexpected Expo response: {result}"
+        )
+
+        return False
+
+    except Exception as e:
+        logger.exception(
+            f"❌ Expo notification request failed: {e}"
+        )
+        return False
 
 
 
@@ -129,16 +194,19 @@ def send_expo_notification_to_one(student_id, title, body, data=None):
 
         print(f"📱 Push token found | {student_token}")
 
-        send_expo_notification(
+        expo_success = send_expo_notification(
             expo_push_token=student_token,
             title=title,
             body=body,
             data=data or {}
         )
 
-        print(f"✅ Expo notification sent to {student_id}")
+        if expo_success:
+            print(f"✅ Expo accepted notification for {student_id}")
+            return True
 
-        return True
+        print(f"❌ Expo rejected notification for {student_id}")
+        return False
 
     except Exception as e:
         logger.exception(
@@ -149,7 +217,7 @@ def send_expo_notification_to_one(student_id, title, body, data=None):
     finally:
         cursor.close()
         conn.close()
-        
+
 
 
 # def send_expo_notification_to_one(student_id, title, body, data=None):
