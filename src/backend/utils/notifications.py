@@ -98,6 +98,7 @@ def send_notification_to_all_students(title, body, data=None):
 
 
 
+
 def send_expo_notification_to_one(student_id, title, body, data=None):
     conn, cursor = get_db_cursor()
 
@@ -117,13 +118,16 @@ def send_expo_notification_to_one(student_id, title, body, data=None):
 
         student = cursor.fetchone()
 
+        print(f"🔎 Notification lookup | student={student_id}")
+        print(f"🔎 Session result | {student}")
+
         if not student:
-            logger.warning(
-                f"No login session found for student {student_id}"
-            )
+            print(f"❌ No push token/session found for {student_id}")
             return False
 
         student_token = student["push_token"]
+
+        print(f"📱 Push token found | {student_token}")
 
         send_expo_notification(
             expo_push_token=student_token,
@@ -132,17 +136,67 @@ def send_expo_notification_to_one(student_id, title, body, data=None):
             data=data or {}
         )
 
+        print(f"✅ Expo notification sent to {student_id}")
+
         return True
 
     except Exception as e:
-        logger.error(
-            f"Failed to send notification to student {student_id}: {e}"
+        logger.exception(
+            f"❌ Failed to send notification to student {student_id}"
         )
         return False
 
     finally:
         cursor.close()
         conn.close()
+        
+
+
+# def send_expo_notification_to_one(student_id, title, body, data=None):
+#     conn, cursor = get_db_cursor()
+
+#     student_token = None
+
+#     try:
+#         cursor.execute(
+#             """
+#             SELECT push_token
+#             FROM student_login_sessions
+#             WHERE student_id = %s
+#             AND push_token IS NOT NULL
+#             AND push_token != ''
+#             """,
+#             (student_id,)
+#         )
+
+#         student = cursor.fetchone()
+
+#         if not student:
+#             logger.warning(
+#                 f"No login session found for student {student_id}"
+#             )
+#             return False
+
+#         student_token = student["push_token"]
+
+#         send_expo_notification(
+#             expo_push_token=student_token,
+#             title=title,
+#             body=body,
+#             data=data or {}
+#         )
+
+#         return True
+
+#     except Exception as e:
+#         logger.error(
+#             f"Failed to send notification to student {student_id}: {e}"
+#         )
+#         return False
+
+#     finally:
+#         cursor.close()
+#         conn.close()
 
 
 

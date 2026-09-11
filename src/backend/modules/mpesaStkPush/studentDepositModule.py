@@ -115,9 +115,13 @@ def stk_push(payload):
             body = f"Ksh {amount} has been initiated enter pin to complete"
             data = {
                 "type": "payment",
-                "invoice id": checkout_request_id
+                "invoice_id": checkout_request_id
             }
-            send_expo_notification_to_one(user_id, title, body, data)
+            if send_expo_notification_to_one(user_id, title, body, data):
+                print("notification sent")
+            else:
+                print("notification failed")
+
             return jsonify({
                 "message": "STK push initiated successfully",
                 "checkout_request_id": checkout_request_id,
