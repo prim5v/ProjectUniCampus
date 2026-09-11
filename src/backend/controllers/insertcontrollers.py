@@ -65,7 +65,7 @@ def insert_expense_transaction(student_id, amount, session_id):
 
 
 
-def insert_into_student_login_sessions(session_id, student_id, device_id, token_hash, expires_at):
+def insert_into_student_login_sessions(session_id, student_id, device_id, token_hash, expires_at, push_token):
     conn, cursor = get_db_cursor()
     
     if conn is None:
@@ -75,8 +75,8 @@ def insert_into_student_login_sessions(session_id, student_id, device_id, token_
         cursor.execute(
             """
             INSERT INTO student_login_sessions
-            (session_id, student_id, device_id, token_hash, expires_at)
-            VALUES(%s, %s, %s, %s, %s)
+            (session_id, student_id, device_id, token_hash, expires_at, push_token)
+            VALUES(%s, %s, %s, %s, %s, %s)
             """, 
             (session_id, student_id, device_id, token_hash, expires_at))
         conn.commit()
@@ -440,4 +440,3 @@ def insert_reader(reader_id, campus_id, reader_name, reader_type, service_type, 
     finally:
         cursor.close()
         conn.close()
-        

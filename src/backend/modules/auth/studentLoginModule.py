@@ -9,9 +9,14 @@ def student_login(data):
     try:
         username = data.get("username")
         pwd = data.get("pwd")
+        push_token  = data.get("push_token")
 
         if not username or not pwd:
             return jsonify({"error": "Missing required fields"}), 400
+
+        # if not push_token:
+        #     return jsonify({"error": "push token required"}), 400
+        print(f"push token received: {push_token}")
 
         username = username.strip()
         pwd = pwd.strip().lower()
@@ -49,7 +54,7 @@ def student_login(data):
         # only one device_id record for the whole table
 
         # insert into login sessions
-        insert_into_student_login_sessions(session_id, student_id, device_info["device_id"], token_hash, token_expiry)
+        insert_into_student_login_sessions(session_id, student_id, device_info["device_id"], token_hash, token_expiry, push_token)
 
 
         # device info:

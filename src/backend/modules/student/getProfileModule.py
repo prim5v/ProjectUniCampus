@@ -9,6 +9,8 @@ def get_profile_module(student_id):
             "success": False,
             "error": "Student ID is required"
         }), 400
+    
+    
 
     user = get_student_data(student_id)
 
