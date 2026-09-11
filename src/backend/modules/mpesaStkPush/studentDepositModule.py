@@ -7,6 +7,7 @@ import base64
 from backend.controllers.insertcontrollers import insert_transaction_record
 from backend.controllers.selectcontrollers import student_campus
 from backend.utils.extraFunctions import format_phone_number
+from backend.utils.notifications import send_expo_notification_to_one
 from datetime import datetime
 def stk_push(payload):
     phone = payload.get("phone")
@@ -110,6 +111,13 @@ def stk_push(payload):
             )
 
         if record_inserted:
+            title = "Payment initiated"
+            body = f"Ksh {amount} has been initiated enter pin to complete"
+            data = {
+                "type": "payment",
+                "invoice id": checkout_request_id
+            }
+            send_expo_notification_to_one(user_id, title, body, data)
             return jsonify({
                 "message": "STK push initiated successfully",
                 "checkout_request_id": checkout_request_id,
