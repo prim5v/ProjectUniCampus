@@ -78,7 +78,7 @@ def insert_into_student_login_sessions(session_id, student_id, device_id, token_
             (session_id, student_id, device_id, token_hash, expires_at, push_token)
             VALUES(%s, %s, %s, %s, %s, %s)
             """, 
-            (session_id, student_id, device_id, token_hash, expires_at))
+            (session_id, student_id, device_id, token_hash, expires_at, push_token))
         conn.commit()
         return cursor.lastrowid
     finally:
