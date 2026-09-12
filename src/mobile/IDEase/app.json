@@ -2,7 +2,7 @@
   "expo": {
     "name": "IDEase",
     "slug": "IDEase",
-    "version": "1.1.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "idease",
@@ -11,31 +11,44 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundImage": "./assets/images/icon.png",
+        "monochromeImage": "./assets/images/icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.prim5v.IDEase"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/notifications/payment.wav",
+            "./assets/notifications/access.wav"
+          ],
+          "icon": "./assets/images/icon.png",
+          "color": "#2E7D32"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/icon.png",
           "imageWidth": 76
         }
       ],
       "expo-secure-store",
-      "expo-image"
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

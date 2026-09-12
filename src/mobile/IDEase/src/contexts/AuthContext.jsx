@@ -14,7 +14,13 @@ import { jwtDecode } from "jwt-decode";
 
 import { useApi } from "./ApiContext";
 import { useBiometric } from "./BiometricContext";
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
+
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import Constants from "expo-constants";
+
+import { NativeModules } from "react-native";
 
 const AuthContext = createContext(null);
 
@@ -27,16 +33,107 @@ const LOCAL_ACCESS_TOKEN_KEY = "local_access_token";
 const USER_KEY = "auth_user";
 const DEVICE_ID_KEY = "device_id";
 const IS_LOGGED_IN_KEY = "is_logged_in";
+// import { Platform } from "react-native";
 
 
 // ================================================================
 // AUTH PROVIDER
 // ================================================================
 
+
+
+// // PUSH TOKEN
+// export async function getPushToken() {
+//   if (!Device.isDevice) return null;
+
+//   const { status: existingStatus } =
+//     await Notifications.getPermissionsAsync();
+
+//   let finalStatus = existingStatus;
+
+//   if (existingStatus !== "granted") {
+//     const { status } =
+//       await Notifications.requestPermissionsAsync();
+//     finalStatus = status;
+//   }
+
+//   if (finalStatus !== "granted") {
+//     return null;
+//   }
+
+//   const projectId =
+//     Constants?.expoConfig?.extra?.eas?.projectId;
+
+//   if (!projectId) {
+//     throw new Error("Missing Expo projectId");
+//   }
+
+//   const token = await Notifications.getExpoPushTokenAsync({
+//     projectId,
+//   });
+
+//   return token.data;
+// }
+
+
+
+
+
+export async function getPushToken() {
+  if (!Device.isDevice) return null;
+
+  const { status: existingStatus } =
+    await Notifications.getPermissionsAsync();
+
+  let finalStatus = existingStatus;
+
+  if (existingStatus !== "granted") {
+    const { status } =
+      await Notifications.requestPermissionsAsync();
+
+    finalStatus = status;
+  }
+
+  if (finalStatus !== "granted") {
+    console.log("❌ Notification permission denied");
+    return null;
+  }
+
+  console.log("✅ Notification permission granted");
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      sound: "default",
+    });
+  }
+
+  const projectId =
+    Constants?.expoConfig?.extra?.eas?.projectId;
+
+  if (!projectId) {
+    throw new Error("Missing Expo projectId");
+  }
+
+  const token = await Notifications.getExpoPushTokenAsync({
+    projectId,
+  });
+
+  console.log("📱 Expo Push Token:", token.data);
+
+  return token.data;
+}
+
+
+
+
 export const AuthProvider = ({ children }) => {
 
     const { api } = useApi();
     const { authenticate, isAuthenticated } = useBiometric();
+    const { UniCampusHCE } = NativeModules;
 
     // ============================================================
     // STATE
@@ -788,6 +885,15 @@ const logout = useCallback(async () => {
             setUser(data);
             console.log("[Auth] User profile retrieved:", data);
 
+                        // set users id to the unicampus api storage
+            const student_id = data?.user?.student_id;
+            console.log("Heres my student id...");
+            console.log(student_id);
+            if (student_id){
+                 UniCampusHCE.setStudentId(data?.user?.student_id);
+                 console.log("student id inserted")
+            }
+
             // setAuthStatus(true);
 
             /*
@@ -830,6 +936,9 @@ const logout = useCallback(async () => {
     const login = async (username, pwd) => {
 
         try {
+            const pushToken = await getPushToken();
+
+            console.log("🔔 PUSH TOKEN RESULT:", pushToken);
 
             setError(null);
 
@@ -837,6 +946,7 @@ const logout = useCallback(async () => {
             const payload = {
                 username,
                 pwd,
+                push_token: pushToken,
             };
 
 

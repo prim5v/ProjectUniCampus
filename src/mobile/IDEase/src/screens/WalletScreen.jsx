@@ -27,8 +27,8 @@ import { useConn } from '../contexts/ConnContext';
  */
 const WalletScreen = () => {
   const [autoTopUpEnabled, setAutoTopUpEnabled] = useState(true);
-  const [balanceHidden, setBalanceHidden] = useState(false);
-  const { walletData, fetchWalletData } = useConn();
+  // const [balanceHidden, setBalanceHidden] = useState(false);
+  const { walletData, fetchWalletData , balanceHidden, setBalanceHidden, toggleBalanceVisibility} = useConn();
   const [refreshing, setRefreshing] = useState(false);
 
   const wallet = {
@@ -98,7 +98,7 @@ const WalletScreen = () => {
             <TouchableOpacity
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               activeOpacity={0.6}
-              onPress={() => setBalanceHidden(!balanceHidden)}
+              onPress={toggleBalanceVisibility}
             >
             <Ionicons
               name={balanceHidden ? "eye-off-outline" : "eye-outline"}

@@ -1,15 +1,5 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import ActivityScreen from "../../screens/activityScreen";  
 
-const activity = () => {
-  return (
-    <SafeAreaView>
-    <View>
-      <Text>activity</Text>
-    </View>
-    </SafeAreaView>
-  )
+export default function MyActivity(){
+  return <ActivityScreen/>
 }
-
-export default activity

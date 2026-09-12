@@ -62,7 +62,7 @@ export const NetworkProvider = ({ children }) => {
             console.log("[Socket] Socket ID:", socket.id);
             console.log("════════════════════════════════════");
             console.log(user);
-            console.log(user.user.student_id);
+            console.log(user?.user?.student_id);
 
             // --------------------------------------------------
             // Join authenticated user's token room
