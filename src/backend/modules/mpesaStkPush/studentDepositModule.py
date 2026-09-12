@@ -114,11 +114,12 @@ def stk_push(payload):
             title = "Payment initiated"
             body = f"Ksh {amount} has been initiated enter pin to complete"
             channelId = "payments"
+            priority="high"
             data = {
                 "type": "payment",
                 "invoice_id": checkout_request_id
             }
-            if send_expo_notification_to_one(user_id, title, body, channelId, data):
+            if send_expo_notification_to_one(user_id, title, body, channelId, priority, data):
                 print("notification sent")
             else:
                 print("notification failed")
