@@ -28,40 +28,8 @@ def create_service_session(service_id, student_id, nonce, timestamp):
     finally:
         cursor.close()
         conn.close()
+        
 
-def insert_expense_transaction(student_id, amount, session_id):
-    conn, cursor = get_db_cursor()
-
-    if conn is None:
-        return False
-
-    try:
-        title = "Student Purchase"
-        category = "Purchase"
-
-        # Store expenses as negative amounts
-        amount = -abs(amount)
-
-        cursor.execute(
-            """
-            INSERT INTO transactions
-            (student_id, session_id, title, amount, category)
-            VALUES (%s, %s, %s, %s, %s)
-            """,
-            (student_id, session_id, title, amount, category)
-        )
-
-        conn.commit()
-
-        return cursor.lastrowid
-
-    except Exception:
-        conn.rollback()
-        raise
-
-    finally:
-        cursor.close()
-        conn.close()
 
 
 
@@ -371,6 +339,44 @@ def insert_digital_id(
     finally:
         cursor.close()
         conn.close()
+
+
+# needs update 
+def insert_expense_transaction(transaction_id, student_id, campus_id, amount, status, payment_method, session_id):
+    # requirements --transactionType ie transaction_id, serviceType, status, Payment_method=NFC , campus_id
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return False
+
+    try:
+        title = "Student Purchase"
+        category = "Purchase"
+
+        # Store expenses as negative amounts
+        amount = -abs(amount)
+# added campus_id, payment_method
+        cursor.execute(
+            """
+            INSERT INTO transactions_data
+            (transaction_id, student_id, campus_id, amount, status, payment_method, session_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (transaction_id, student_id, campus_id, amount, status, payment_method, session_id)
+        )
+
+        conn.commit()
+
+        return cursor.lastrowid
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        cursor.close()
+        conn.close()
+
 
 def insert_transaction_record(transaction_id, student_id, campus_id, amount, status, payment_method, invoice_id, phone):
     conn, cursor = get_db_cursor()

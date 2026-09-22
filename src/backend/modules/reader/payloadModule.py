@@ -1,6 +1,6 @@
 import logging
 from backend.utils.extraFunctions import decrypt_with_private_key
-from backend.controllers.selectcontrollers import check_reader, get_service_id, check_student, check_nonce
+from backend.controllers.selectcontrollers import check_reader, get_service_id, check_student, check_nonce, student_campus, get_wallet_data
 from backend.controllers.insertcontrollers import create_service_session, insert_expense_transaction
 from backend.controllers.updatecontrollers import update_service_session
 import time
@@ -20,9 +20,11 @@ import os
 
 # Render mounts secret files at /etc/secrets/
 PRIVATE_KEY_PATH = Path("/etc/secrets/private_key.pem")
+logging.info("checking default private key...")
 
 # Fallback to a local workspace path for your local development 
 if not PRIVATE_KEY_PATH.exists():
+    logging.info("Private key does not exist going for fallback")
     BACKEND_ROOT = Path(__file__).resolve().parent.parent
     PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
 
@@ -49,14 +51,14 @@ def get_payload(data):
 
 
         # check if reader is authorized and get readtype = serviceType
-        # serviceType= check_reader(reader_id) #ie Payment, Auth, RollCall
-        # if not serviceType:
-        #     logging.error("Unauthorized")
-        #     return {"error": "Unauthorized"}, 403
+        serviceType, transactionType = check_reader(reader_id) #ie Payment, Auth, RollCall
+        if not serviceType:
+            logging.error("Unauthorized reader")
+            return {"error": "Unauthorized"}, 403
             
         
-        # logging.info(f"Reader {reader_id} authorized for {serviceType}")
-        serviceType="Payment"  # hardcoded for now, we can use check_reader to get the serviceType
+        logging.info(f"Reader {reader_id} authorized for {serviceType}")
+        # serviceType="Payment"  # hardcoded for now, we can use check_reader to get the serviceType
 
         # decrypt data_in_bytes
         # private_key="string"
@@ -111,7 +113,7 @@ def get_payload(data):
         nonce = base64.b64encode(nonce).decode("utf-8")
         if check_nonce(nonce):
             logging.warning(
-                f"Replay attack detected. reader={reader_id}, student={student_id}"
+                f"token used. reader={reader_id}, student={student_id}"
             )
             return {"error": "Payload used"}, 403
         
@@ -139,7 +141,7 @@ def get_payload(data):
         # add device_id check this is mobile deviceid check added it today date 31/7/2026
         student = student_check["student"]
         
-        check_device = check_device_id(student["device_id"])
+        check_device = check_device_id(student["student_id"])
         if not check_device:
             return {"error": "Unauthorized"}, 403
         
@@ -158,10 +160,24 @@ def get_payload(data):
 
             if amount <= 0:
                 return {"error": "Invalid amount"}, 400
-            insert_expense_transaction(student_id, amount, session_id)
-            logging.info(
-                f"Payment of {amount} recorded for {student_id}"
-            )
+
+            transaction_id =1
+            payment_method = "NFC"
+            campus_id = student_campus(student_id)
+
+            wallet_data = get_wallet_data(student_id)
+            balance = wallet_data["balance"]
+            if balance >= amount:
+                insert_expense_transaction(transaction_id, student_id, campus_id, amount, "COMPLETED", payment_method, session_id)
+                logging.info(f"Payment of {amount} recorded for {student_id}")
+
+            elif balance < amount:
+                logging.info("Not sufficient funds")
+                return {
+                    "success": False,
+                    "error": "Insufficient funds"
+                }, 200
+            
         # all records in transaction with service_id != null are considered student expenses(the campuses legal money), ==null this are students active money
         logging.info(
             f"Session {session_id} completed successfully."

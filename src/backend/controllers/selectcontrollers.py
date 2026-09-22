@@ -18,7 +18,7 @@ def check_reader(reader_id):
     try:
         cursor.execute(
             """
-            SELECT service_type
+            SELECT *
             FROM reader_data
             WHERE reader_id = %s
             """,
@@ -29,8 +29,10 @@ def check_reader(reader_id):
 
         if reader is None:
             return None
+        serviceType = reader["service_type"]
+        transactionType = reader["transactionType"]
 
-        return reader["service_type"]
+        return serviceType, transactionType
 
     finally:
         cursor.close()
@@ -257,14 +259,14 @@ def get_session_by_id(session_id):
         conn.close()
 
 
-def check_device_id(device_id):
+def check_device_id(student_id):
     conn, cursor = get_db_cursor()
     
     if conn is None:
         return None
 
     try:
-        cursor.execute("SELECT * FROM students_devices WHERE device_id = %s", (device_id,))
+        cursor.execute("SELECT * FROM students_devices WHERE student_id = %s", (student_id,))
         record = cursor.fetchone()
         if not record:
             return None
