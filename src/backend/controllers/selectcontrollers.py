@@ -30,9 +30,9 @@ def check_reader(reader_id):
         if reader is None:
             return None
         serviceType = reader["service_type"]
-        transactionType = reader["transactionType"]
+        # transactionType = reader["transactionType"]
 
-        return serviceType, transactionType
+        return serviceType
 
     finally:
         cursor.close()

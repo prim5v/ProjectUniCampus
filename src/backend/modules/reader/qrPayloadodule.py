@@ -35,7 +35,7 @@ def payload(data):
 
         # check if reader is authorized and get serviceType
 
-        serviceType, transactionType = check_reader(reader_id) 
+        serviceType = check_reader(reader_id) 
         if not serviceType:
             logger.error("Unauthorized reader")
             return jsonify({
