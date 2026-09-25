@@ -30,6 +30,10 @@ from dotenv import load_dotenv
 import secrets
 import string
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 load_dotenv()
 
 
@@ -159,7 +163,21 @@ def decrypt_with_private_key(ciphertext_b64: str, private_key_pem) -> bytes:
     )
 
     # Decode Base64 ciphertext
-    ciphertext = base64.b64decode(ciphertext_b64)
+    # ciphertext = base64.b64decode(ciphertext_b64)
+    try:
+        ciphertext = base64.b64decode(ciphertext_b64, validate=True)
+
+        logger.info(
+            f"Base64 decode successful: {len(ciphertext)} bytes"
+        )
+
+    except Exception as e:
+        logger.error(
+            f"Base64 decode failed: "
+            f"length={len(ciphertext_b64)}, "
+            f"error={e}"
+        )
+        raise
 
     # Decrypt
     plaintext = private_key.decrypt(
