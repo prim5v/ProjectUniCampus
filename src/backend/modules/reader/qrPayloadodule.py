@@ -23,17 +23,19 @@ with open(PRIVATE_KEY_PATH, "rb") as f:
 
 def payload(data):
     try:
-        ciphertext = data.get("ciphertext")
+        base64ciphertext = data.get("ciphertext")
         reader_id = data.get("reader_id")
         amount = data.get("amount")
 
-        if not ciphertext or not reader_id:
+        if not base64ciphertext or not reader_id:
             return jsonify({
                 "success": False,
                 "message": "Missing required fields"}
                 ), 400
 
         # check if reader is authorized and get serviceType
+        # debug print
+        print(base64ciphertext)
 
         serviceType = check_reader(reader_id) 
         if not serviceType:
@@ -46,7 +48,7 @@ def payload(data):
         logger.info(f"Reader {reader_id} authorized for {serviceType}")
 
         # decode ciphertext
-        data_inHexBytes = decrypt_with_private_key(ciphertext, private_key)
+        data_inHexBytes = decrypt_with_private_key(base64ciphertext, private_key)
         logger.info(f"Decrypted payload data: {data_inHexBytes}")
         if not data_inHexBytes:
             logger.error("Invalid Payload")
