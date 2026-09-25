@@ -48,22 +48,37 @@ def get_redis():
 
 
 
+# def generate_student_id():
+#     """
+#     Generate a 12-character student ID.
+
+#     Example:
+#         STU-A7K92PX4
+#     """
+
+#     alphabet = string.ascii_uppercase + string.digits
+
+#     random_part = ''.join(
+#         secrets.choice(alphabet)
+#         for _ in range(8)
+#     )
+
+#     return f"STU-{random_part}"
+
+# import secrets
+
 def generate_student_id():
     """
-    Generate a 12-character student ID.
+    Generate a 12-digit numeric student ID.
 
     Example:
-        STU-A7K92PX4
+        583920174621
     """
-
-    alphabet = string.ascii_uppercase + string.digits
-
-    random_part = ''.join(
-        secrets.choice(alphabet)
-        for _ in range(8)
+    return ''.join(
+        secrets.choice("0123456789")
+        for _ in range(12)
     )
 
-    return f"STU-{random_part}"
 
 def haversine_distance(lat1, lon1, lat2, lon2):
     """
