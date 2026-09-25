@@ -64,7 +64,7 @@ def payload(data):
         student_id = data_inHexBytes[:separator].decode("utf-8")
         logger.info(f"Extracted student_id: {student_id}")
 
-        remaining = data_inHexBytes[:separator + 1:]
+        remaining = data_inHexBytes[separator + 1:]
 
         if len(remaining) != 29:
             logger.error(f"Malformed Payload: expected 29 bytes, got {len(remaining)}")
