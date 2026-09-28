@@ -312,7 +312,7 @@ const TabsLayout = () => {
 
 
 
-
+{/* 
         {
           loading && (
 
@@ -325,7 +325,7 @@ const TabsLayout = () => {
             />
 
           )
-        }
+        } */}
 
 
 

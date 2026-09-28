@@ -7,6 +7,8 @@ import {
   Switch,
   StyleSheet,
   RefreshControl,
+  Alert,
+  NativeModules,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { router } from "expo-router";
@@ -30,14 +32,15 @@ const WalletScreen = () => {
   // const [balanceHidden, setBalanceHidden] = useState(false);
   const { walletData, fetchWalletData , balanceHidden, setBalanceHidden, toggleBalanceVisibility} = useConn();
   const [refreshing, setRefreshing] = useState(false);
+  const {UniCampus} = NativeModules;
 
   const wallet = {
-    balance: walletData?.balance || 0,
+    balance: walletData?.balance || "KSh N/A",
     transactions: walletData?.transactions || [],
-    totalTopUpsValue: walletData?.summaryStats?.[0]?.value || "KSh 0",
-    totalSpentValue: walletData?.summaryStats?.[1]?.value || "KSh 0",
-    thisMonthValue: walletData?.summaryStats?.[2]?.value || "KSh 0",
-    transactionsCount: walletData?.summaryStats?.[3]?.value || 0,
+    totalTopUpsValue: walletData?.summaryStats?.[0]?.value || "KSh N/A",
+    totalSpentValue: walletData?.summaryStats?.[1]?.value || "KSh N/A",
+    thisMonthValue: walletData?.summaryStats?.[2]?.value || "KSh N/A",
+    transactionsCount: walletData?.summaryStats?.[3]?.value || "N/A",
     summaryStats: walletData?.summaryStats || [],
   }
 
@@ -46,6 +49,7 @@ const WalletScreen = () => {
       setRefreshing(true);
       await fetchWalletData();
     } catch (error) {
+      // Alert.alert()
       console.error("Wallet refresh failed:", error);
     } finally {
       setRefreshing(false);

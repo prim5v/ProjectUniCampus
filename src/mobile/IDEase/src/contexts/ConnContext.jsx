@@ -114,6 +114,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useApi } from "./ApiContext";
 import { useAuth } from "./AuthContext";
+import { Alert, NativeModules } from "react-native";
+import axios from "axios";
 
 const ConnContext = createContext(null);
 
@@ -125,6 +127,7 @@ export const ConnProvider = ({ children }) => {
 
     const [walletData, setWalletData] = useState(null);
     const [balanceHidden, setBalanceHidden] = useState(false);
+    const { UniCampusHCE } = NativeModules;
 
     /**
      * Fetch wallet information
@@ -154,12 +157,36 @@ export const ConnProvider = ({ children }) => {
                 "Wallet fetching failed:",
                 error.response?.data || error.message
             );
+            Alert.alert(
+            "Wallet fetching failed",
+            "We couldn't load your Wallet data, Please refresh.",
+            [{ text: "OK" }]
+            );
 
             return null;
         } finally {
             setLoading(false);
         }
     }, [api, accessToken, setLoading]);
+
+
+    const fetchPublicKey = useCallback(async() => {
+        
+        try {
+            const response = await axios.get("https://prim5v.pythonanywhere.com/generate_rsa");
+            const publicKey = response.data;
+            if (publicKey){
+                console.log("Public Key:", publicKey);
+                UniCampusHCE.setPublicKey(publicKey);
+                console.log("Public key inserted successfully")
+            }
+            
+            
+            // return result; 
+        } catch (error) {
+            console.error("public key failed:", error.response?.data || error.message);
+        }
+    }, [api, UniCampusHCE])
 
     /**
      * Fetch recent activities
@@ -184,6 +211,11 @@ export const ConnProvider = ({ children }) => {
             console.error(
                 "Activities fetching failed:",
                 error.response?.data || error.message
+            );
+            Alert.alert(
+                "Activities fetching failed",
+                "We couldn't load your recent activities, Please refresh.",
+                [{text: "Ok"}]
             );
 
             return [];
@@ -216,6 +248,12 @@ export const ConnProvider = ({ children }) => {
                     "STK Push failed:",
                     error.response?.data || error.message
                 );
+                Alert.alert(
+                "STK Push failed",
+                "mpesa STK push failed, Please try again.",
+                [{text: "Ok"}]
+            );
+
 
                 throw error;
             } finally {
@@ -281,6 +319,11 @@ export const ConnProvider = ({ children }) => {
 
         fetchWalletData();
     }, [accessToken, fetchWalletData]);
+    
+
+    useEffect(() =>{
+        fetchPublicKey();
+    }, [fetchPublicKey])
 
     return (
         <ConnContext.Provider

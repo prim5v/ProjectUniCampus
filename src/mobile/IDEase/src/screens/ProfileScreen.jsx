@@ -9,6 +9,8 @@ import {
   Animated,
   Modal,
   Pressable,
+  NativeModules,
+  ImageBackground,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -21,6 +23,8 @@ import { colors, typography, radii, spacing, shadow } from '../styles/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { router } from "expo-router";
 import StudentIDCard from '../components/StudentIDCard';
+
+const {UniCampusHCE} = NativeModules;
 /**
  * ProfileScreen
  * UI only — no navigation, no state, no NFC logic.
@@ -29,6 +33,8 @@ import StudentIDCard from '../components/StudentIDCard';
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
   const [showIDPreview, setShowIDPreview] = React.useState(false);
+  const [nfcActive, setNfcActive] = React.useState(false);
+
   const features = [
     { icon: 'person-outline',
       label: 'Personal Info',
@@ -70,6 +76,41 @@ const ProfileScreen = () => {
     //   available: false,
     // },
   ];
+
+
+  React.useEffect(() => {
+  checkNfcStatus();
+}, []);
+
+const checkNfcStatus = async () => {
+  try {
+    if (!UniCampusHCE) {
+      console.log('❌ UniCampusHCE native module unavailable');
+      setNfcActive(false);
+      return;
+    }
+
+    const hasHce = await UniCampusHCE.hasHce();
+
+    if (!hasHce) {
+      console.log('❌ Device does not support HCE');
+      setNfcActive(false);
+      return;
+    }
+
+    const enabled = await UniCampusHCE.isNfcEnabled();
+
+    console.log('📡 NFC enabled:', enabled);
+
+    setNfcActive(enabled);
+  } catch (error) {
+    console.error('❌ Failed to check NFC status:', error);
+    setNfcActive(false);
+  }
+};
+
+
+
 
   const copyAdmissionNumber = async () => {
   if (!user?.user?.admission_number) {
@@ -119,7 +160,13 @@ const handleLogout = async () => {
           activeOpacity={0.9}
           onPress={() => setShowIDPreview(true)}
         >
-          <View style={styles.idCard}>
+          {/* <View style={styles.idCard}> */}
+          <ImageBackground
+            source={require("../../assets/images/files/img7.png")}
+            style={styles.idCard}
+            imageStyle={styles.idCardBackground}
+            resizeMode="cover"
+          >
             <View style={styles.idCardTopRow}>
             {/* <View style={styles.avatar}>
               <Ionicons name="person" size={50} color={colors.textSecondary} />
@@ -178,7 +225,11 @@ const handleLogout = async () => {
                 color={colors.primary}
                 style={styles.nfcBadgeIcon}
               />
-              <Text style={styles.nfcBadgeText}>NFC e-ID{'\n'}Active</Text>
+              {/* <Text style={styles.nfcBadgeText}>NFC e-ID{'\n'}Active</Text> */}
+              <Text style={styles.nfcBadgeText}>
+                NFC e-ID{'\n'}
+                {nfcActive ? 'Active' : 'Inactive'}
+              </Text>
             </View>
           </View>
 
@@ -189,7 +240,9 @@ const handleLogout = async () => {
             {/* <Text style={styles.yearText}>3rd Year</Text> */}
           </View>
           {/* <Text style={styles.universityText}>Kenyatta University</Text> */}
-        </View>
+        {/* </View> */}
+        </ImageBackground>
+
         </TouchableOpacity>
 
         {/* NFC Status Card */}
@@ -205,7 +258,10 @@ const handleLogout = async () => {
           </View>
 
           <View style={styles.nfcStatusTextGroup}>
-            <Text style={styles.nfcStatusTitle}>NFC e-ID Active</Text>
+            {/* <Text style={styles.nfcStatusTitle}>NFC e-ID Active</Text> */}
+            <Text style={styles.nfcStatusTitle}>
+              NFC e-ID {nfcActive ? 'Active': 'Inactive'}
+            </Text>
             <Text style={styles.nfcStatusSubtitle}>Tap to view or use</Text>
           </View>
 
@@ -313,26 +369,41 @@ const styles = StyleSheet.create({
   },
 
   /* Student ID Card */
+  // idCard: {
+  //   backgroundColor: colors.card,
+  //   borderRadius: radii.lg,
+  //   borderWidth: 1,
+  //   borderColor: colors.border,
+  //   padding: spacing.xl,
+  //   minHeight: 240,
+  //   marginTop: spacing.md,
+  //   ...shadow.soft,
+  //   // was at 210
+  //   // flexDirection: 'row',
+  //   // flexWrap: 'wrap',
+  //   // gap: 12,
+  // },
+  idCardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    // flex: 1,
+    // gap: spacing.md,
+  },
+
   idCard: {
-    backgroundColor: colors.card,
     borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.xl,
-    minHeight: 210,
+    minHeight: 240,
     marginTop: spacing.md,
+    overflow: 'hidden',
     ...shadow.soft,
-
-    // flexDirection: 'row',
-    // flexWrap: 'wrap',
-    // gap: 12,
   },
- idCardTopRow: {
-  flexDirection: 'row',
-  alignItems: 'flex-start',
-  // flex: 1,
-  // gap: spacing.md,
-},
+
+  idCardBackground: {
+    borderRadius: radii.lg,
+  },
 
 avatar: {
   width: 120,
