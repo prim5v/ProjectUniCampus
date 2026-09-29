@@ -39,7 +39,7 @@ def service_create(service_id, reader_id, designation_name):
         cursor.execute(
             """
             INSERT INTO service_data
-            (service_id, reader_id, Designation_name)
+            (service_id, reader_id, "Designation_name")
             VALUES(%s, %s, %s)""",
             (service_id, reader_id, designation_name)
         )
