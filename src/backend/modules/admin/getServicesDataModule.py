@@ -4,12 +4,12 @@ def get_services_data(data):
     service_id = data.get("service_id")
 
     try:
-        services_data = services_data(service_id)
-        if services_data:
+        services = services_data(service_id)
+        if services:
             return jsonify({
                 "success": True,
                 "message": "services data found",
-                "services_data": services_data or []
+                "services_data": services or []
             }), 200
         else:
             return jsonify({
