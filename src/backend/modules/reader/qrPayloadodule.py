@@ -172,6 +172,7 @@ def payload(data):
                 }), 200
 
         logger.info(f"Session {session_id} completed successfully")
+        # here add the notification pop up logic
 
         return jsonify({
             "success": True,

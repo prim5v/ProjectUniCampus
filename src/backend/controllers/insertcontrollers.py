@@ -28,6 +28,27 @@ def create_service_session(service_id, student_id, nonce, timestamp):
     finally:
         cursor.close()
         conn.close()
+
+
+def service_create(service_id, reader_id, designation_name):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return None
+    try:
+        cursor.execute(
+            """
+            INSERT INTO service_data
+            (service_id, reader_id, designation_name)
+            VALUES(%s, %s, %s)""",
+            (service_id, reader_id, designation_name)
+        )
+        conn.commit()
+        return True
+
+    finally:
+        cursor.close()
+        conn.close()
         
 
 

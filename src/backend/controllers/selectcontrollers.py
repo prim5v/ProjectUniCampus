@@ -916,3 +916,35 @@ def readers(campus_id):
     finally:
         cursor.close()
         conn.close()
+
+
+def services_get():
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute("SELECT * FROM services")
+        results = cursor.fetchall()
+        return results
+
+    except Exception as e:
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
+def services_data(service_id):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute("SELECT * FROM service_data WHERE service_id=%s", (service_id,))
+        results = cursor.fetchall()
+        if results:
+            return results
+        else:
+            return None
+
+    except Exception as e:
+        return None
+    finally:
+        cursor.close()
+        conn.close()
