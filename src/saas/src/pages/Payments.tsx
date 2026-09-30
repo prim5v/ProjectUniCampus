@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import {
   CreditCardIcon,
@@ -8,21 +8,26 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "../components/PageHeader";
-
+import { useApi } from "../contexts/ApiContext";
 import {
   Card,
   CardHeader,
   CardBody,
 } from "../components/ui/Card";
 
+import { Modal } from "../components/ui/Modal";
 import { Button } from "../components/ui/Button";
-
+import { FormField } from "../components/ui/FormField";
 import { EmptyState } from "../components/ui/EmptyState";
 
 import {
   DataTable,
   type Column,
 } from "../components/ui/DataTable";
+import { useCollection } from "../hooks/useCollection";
+import { getServicesData, getReaders } from "../services/data";
+import { read } from "fs";
+import { useAuthContext } from "../contexts/AuthContext";
 
 type Payment = {
   id: string;
@@ -67,8 +72,15 @@ export function Payments() {
    *
    * once getPayments() is connected to your backend.
    */
-  const data: Payment[] = [];
-  const loading = false;
+  // const data: Payment[] = [];
+  const [serviceId, setServiceId] = useState("5");
+  const [readerId, setReaderId] = useState("");
+  const [designationName, setDesignationName] = useState("");
+  // const loading = false;
+  const [open, setOpen] = useState(false);
+  const [adding, setAdding]= useState(false);
+  const {api} = useApi();
+  const { setLoading, setError, setMessage, setSuccessStatus } = useAuthContext
 
   const columns: Column<Payment>[] = [
     {
@@ -151,6 +163,84 @@ export function Payments() {
     },
   ];
 
+  const fetchServices = useCallback(
+    () => getServicesData(api, serviceId),
+    [api, serviceId]
+  );
+
+  const fetchReaders = useCallback(
+    () => getReaders(api),
+    [api]
+  )
+
+  const {
+    data,
+    loading,
+    refresh,
+  } = useCollection(fetchServices);
+
+  const {
+    data: readers,
+    loading: readersLoading,
+  } = useCollection(fetchReaders);
+
+
+  const createTransacctionService = async () =>{
+    const payload = {
+      service_id:serviceId,
+      reader_id: readerId,
+      designation_name: designationName
+    }
+
+    try {
+      setAdding(true);
+      const response = await api.post(
+        "/admin/create/service",
+        payload
+      );
+
+      console.log(
+        "creating transaction service",
+        response.data
+      );
+      if(response.data?.success){
+        // setServiceId("")
+        setDesignationName("");
+        setReaderId("");
+        setSuccessStatus("success");
+        setMessage(
+          response.data?.message ||
+          "Service created successfully"
+        );
+        setError({});
+        setOpen(false);
+        refresh();
+      }else{
+        setError(response.data?.message);
+        setSuccessStatus("error");
+      }
+    } catch (error) {
+      let message = "Something went wrong";
+      const axiosError = error as {
+        response?:{
+          data?:{
+            message?: string;
+          };
+        };
+      };
+      message = axiosError.response?.data?.message || message;
+      setError(message);
+      setSuccessStatus("error");
+    }finally{
+      setAdding(false);
+    }
+  }
+
+  console.log("READERS USED BY UI:", readers);
+  console.log("FIRST READER:", readers?.[0]);
+  console.log("READER NAME:", readers?.[0]?.readerName);
+  // console.log("payload:", payload);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -162,8 +252,9 @@ export function Payments() {
               leftIcon={
                 <CreditCardIcon className="h-4 w-4" />
               }
+              onClick={()=> setOpen(true)}
             >
-              New transaction
+              New transaction service
             </Button>
           ) : undefined
         }
@@ -213,6 +304,7 @@ export function Payments() {
                     leftIcon={
                       <CreditCardIcon className="h-4 w-4" />
                     }
+                    onClick={()=> setOpen(true)}
                   >
                     New transaction
                   </Button>
@@ -297,6 +389,101 @@ export function Payments() {
           </ul>
         </Card>
       )}
+
+    {/* ```jsx */}
+<Modal
+  open={open}
+  onClose={() => {
+    if (!adding) {
+      setOpen(false);
+    }
+  }}
+  title="Create Transaction Service"
+  description="Create a new transaction service for session records"
+  footer={
+    <div className="flex items-center justify-end gap-3">
+      <Button
+        variant="secondary"
+        onClick={() => setOpen(false)}
+        disabled={adding}
+      >
+        Cancel
+      </Button>
+
+      <Button
+        onClick={createTransacctionService}
+        disabled={adding || !designationName || !readerId}
+      >
+        {adding ? "Creating..." : "Create service"}
+      </Button>
+    </div>
+  }
+>
+  <div className="space-y-5">
+    {/* Service ID */}
+    <FormField
+      label="Service ID"
+      value={serviceId}
+    >
+      {(p) => (
+        <input
+          {...p}
+          value={serviceId}
+          disabled
+          className="w-full rounded-md border border-line bg-gray-50 px-3 py-2 text-sm text-ink"
+        />
+      )}
+    </FormField>
+
+    {/* Designation Name */}
+    <FormField
+      label="Designation name"
+      value={designationName}
+    >
+      {(p) => (
+        <input
+          {...p}
+          value={designationName}
+          onChange={(e) => setDesignationName(e.target.value)}
+          placeholder="e.g. Main Gate"
+          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+        />
+      )}
+    </FormField>
+
+    {/* Reader */}
+    <FormField
+      label="Reader"
+      value={readerId}
+    >
+      {(p) => (
+        <select
+          {...p}
+          value={readerId}
+          onChange={(e) => setReaderId(e.target.value)}
+          disabled={readersLoading}
+          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-gray-50"
+        >
+          <option value="">
+            {readersLoading
+              ? "Loading readers..."
+              : "Select a reader"}
+          </option>
+
+          {readers?.map((reader) => (
+            <option
+              key={reader.readerId}
+              value={reader.readerId}
+            >
+              {reader.readerName}
+            </option>
+          ))}
+        </select>
+      )}
+    </FormField>
+  </div>
+</Modal>
+
     </div>
   );
 }

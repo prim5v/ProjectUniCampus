@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import {
   ShieldCheckIcon,
@@ -16,13 +16,18 @@ import {
 } from "../components/ui/Card";
 
 import { Button } from "../components/ui/Button";
-
+import { useApi } from "../contexts/ApiContext";
 import { EmptyState } from "../components/ui/EmptyState";
+import { Modal } from "../components/ui/Modal";
 
 import {
   DataTable,
   type Column,
 } from "../components/ui/DataTable";
+import { FormField } from "../components/ui/FormField";
+import { useAuthContext } from "../contexts/AuthContext";
+import { useCollection } from "../hooks/useCollection";
+import {getServicesData, getReaders} from "../services/data";
 
 type AccessRecord = {
   id: string;
@@ -65,8 +70,39 @@ export function Access() {
    *
    * const { data, loading } = useCollection(getAccessRecords);
    */
-  const data: AccessRecord[] = [];
-  const loading = false;
+  // const data: AccessRecord[] = [];
+  // const loading = false;
+  const [open, setOpen] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [addServiceModule, setAddserviceModule] = useState(false);
+  const [serviceId, setServiceId] = useState("1");
+  // service id will be hardcoded to the id the page gives 
+  const [readerId, setReaderId] = useState("");
+  const [designationName, setDesignationName] = useState("");
+  const {api} = useApi();
+  const { setLoading, setError, setMessage, setSuccessStatus } = useAuthContext();
+
+  const fetchServices = useCallback(
+    ()=> getServicesData(api, serviceId),
+    [api, serviceId]
+  );
+
+  const fetchReaders = useCallback(
+    ()=> getReaders(api),
+    [api]
+  );
+
+
+  const {
+    data,
+    loading,
+    refresh,
+  } = useCollection(fetchServices);
+
+  const {
+    data: readers,
+    loading: readersLoading,
+  } = useCollection(fetchReaders);
 
   const columns: Column<AccessRecord>[] = [
     {
@@ -144,6 +180,79 @@ export function Access() {
     },
   ];
 
+
+  // if(addServiceModule){
+  //   return(
+  //     <div>
+  //       <form>
+  //         <FormField>
+  //           <Input/>
+  //         </FormField>
+  //       </form>
+  //     </div>
+  //   )
+  // }
+  const createService = async () =>{
+
+    const payload = {
+      service_id: serviceId,
+      reader_id: readerId,
+      designation_name : designationName
+    }
+    // console.log("payload", payload);
+
+    try {
+      setAdding(true);
+      const response = await api.post(
+        "/admin/create/service",
+        payload
+      );
+
+      console.log(
+        "Creating service:",
+        response.data
+      );
+      if(response.data?.success){
+        // setServiceId("");
+        setReaderId("");
+        setDesignationName("");
+        setSuccessStatus("success");
+        setMessage(
+          response.data?.message ||
+          "Service created successfully"
+        );
+        setError({});
+        setOpen(false);
+        refresh();
+      }else{
+        setError(response.data?.message);
+        setSuccessStatus("error");
+      }
+     
+
+    } catch (error) {
+      let message = "Something went wrong.";
+      const axiosError = error as {
+        response?:{
+          data?:{
+            message?: string;
+          };
+        };
+      };
+      message = axiosError.response?.data?.message || message;
+      setError(message);
+      setSuccessStatus("error");
+    }finally{
+      setLoading(false);
+      setAdding(false);
+    }
+  };
+  
+// console.log("READERS USED BY UI:", readers);
+// console.log("FIRST READER:", readers?.[0]);
+// console.log("READER NAME:", readers?.[0]?.reader_name);
+// console.log("payload:", payload);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -158,9 +267,13 @@ export function Access() {
             >
               Add access zone
             </Button>
+          ) : tab === "activity" ?(
+            <Button onClick={ () =>setOpen(true)}>
+              Add access service
+            </Button>
           ) : undefined
         }
-      />
+      /> 
 
       {/* Tabs */}
       <div className="border-b border-line">
@@ -290,6 +403,106 @@ export function Access() {
           </ul>
         </Card>
       )}
+
+<Modal
+  open={open}
+  onClose={() => {
+    if (!adding) {
+      setOpen(false);
+    }
+  }}
+  title="Create Access Service"
+  description="Create a new Access Service for session records."
+  footer={
+    <>
+      <Button
+        variant="secondary"
+        onClick={() => setOpen(false)}
+        disabled={adding}
+      >
+        Cancel
+      </Button>
+
+      <Button
+        onClick={createService}
+        disabled={
+          adding ||
+          !designationName.trim() ||
+          !readerId
+        }
+      >
+        {adding ? "Creating..." : "Create Service"}
+      </Button>
+    </>
+  }
+>
+  <div className="space-y-5">
+
+    {/* Service ID */}
+    <FormField
+      label="Service ID"
+      value={serviceId}
+    >
+      {(p) => (
+        <input
+          {...p}
+          value={serviceId}
+          disabled
+          className="w-full rounded-md border border-line bg-gray-50 px-3 py-2 text-sm text-ink"
+        />
+      )}
+    </FormField>
+
+    {/* Designation Name */}
+    <FormField
+      label="Designation name"
+      value={designationName}
+    >
+      {(p) => (
+        <input
+          {...p}
+          className="w-full"
+          value={designationName}
+          onChange={(e) => setDesignationName(e.target.value)}
+          placeholder="e.g. Main Gate"
+        />
+      )}
+    </FormField>
+
+    {/* Reader */}
+    <FormField
+      label="Reader"
+      value={readerId}
+    >
+      {(p) => (
+        <select
+          className="w-full"
+          {...p}
+          value={readerId}
+          onChange={(e) => setReaderId(e.target.value)}
+          disabled={readersLoading}
+        >
+          <option value="">
+            {readersLoading
+              ? "Loading readers..."
+              : "Select a reader"}
+          </option>
+
+          {readers?.map((reader) => (
+            <option
+              key={reader.readerId}
+              value={reader.readerId}
+            >
+              {reader.readerName}
+            </option>
+          ))}
+        </select>
+      )}
+    </FormField>
+
+  </div>
+</Modal>
+      
     </div>
   );
 }

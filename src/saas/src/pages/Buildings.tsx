@@ -21,7 +21,6 @@ import { useAuthContext } from "../contexts/AuthContext";
 import { useCollection } from "../hooks/useCollection";
 import { getBuildings } from "../services/data";
 import { useApi } from "../contexts/ApiContext";
-import axios from "axios";
 
 export function Buildings() {
   const { api } = useApi();
@@ -156,6 +155,7 @@ export function Buildings() {
 
       message = axiosError.response?.data?.message || message;
       setError(message);
+      setSuccessStatus("error");
 
       alert(
         error?.response?.data?.message ??

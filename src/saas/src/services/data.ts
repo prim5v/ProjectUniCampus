@@ -8,6 +8,7 @@ import type {
   ActivityItem,
   SetupStep,
   SystemService,
+  ServicesData,
 } from "../types";
 
 /**
@@ -101,6 +102,18 @@ export type BuildingsResponse = {
   data: Building[];
 };
 
+// export type ServicesResponse = {
+//   success: boolean;
+//   message: string;
+//   data: Services[];
+// };
+
+export type ServicesDataResponse = {
+  success: boolean;
+  message: string;
+  data: ServicesData[];
+};
+
 export type ReadersResponse ={
   success: boolean;
   message : string;
@@ -166,6 +179,32 @@ export const getBuildings = async (
     data: buildingData,
   };
 };
+
+export const getServicesData =  async (
+  api: any,
+  serviceId
+): Promise<ServicesResponse> => {
+  const response = await api.post("/admin/get/services/data", {
+    service_id: serviceId
+  });
+
+  const servicesDataResponse : ServicesDataResponse[] =
+    response.data?.services_data ?? [];
+
+  console.log("Services data:", response.data);
+  console.log("Services:", servicesDataResponse);
+
+  const servicesData : ServicesData[] = servicesDataResponse.map(
+    (services) =>({
+      id: services.id,
+      serverId: services.service_id,
+      readerId: services.reader_id,
+      designationName: services.Designation_name,
+    })
+  );
+  return servicesData;
+
+}
 
 
 

@@ -53,6 +53,21 @@ export interface Building {
   accessGroups: number;
 }
 
+// export interface Services {
+//   id: number;
+//   name: string;
+//   slug: string;
+//   description: string;
+//   monthlyPrice: number;
+//   isActive: boolean;
+// }
+
+export interface ServicesData{
+  id: number;
+  serverId: number;
+  readerId: string;
+  designationName: string;
+}
 export type SessionStatus = "scheduled" | "live" | "completed";
 
 export interface AttendanceSession {
