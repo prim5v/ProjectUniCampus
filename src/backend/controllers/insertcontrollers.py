@@ -17,7 +17,7 @@ def create_service_session(service_id, student_id, nonce, timestamp):
         cursor.execute(
             """
             INSERT INTO service_sessions
-            (service_id, session_id, student_id, timestamp, nonce, status)
+            (service_id, session_id, student_id, timestamp_data, nonce, status)
             VALUES(%s, %s, %s, %s, %s, %s)
             """,
             (service_id, session_id, student_id, timestamp, nonce, "pending")
