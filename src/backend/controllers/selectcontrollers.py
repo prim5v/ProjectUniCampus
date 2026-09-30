@@ -126,7 +126,7 @@ def check_student(student_id, serviceType):
             """
             SELECT 
                 student_id,
-                isActive,
+                "isActive",
                 nfc_status,
                 account_status
             FROM students_data
