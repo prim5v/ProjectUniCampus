@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 def get_services_data(data):
     service_id = data.get("service_id")
-    logger.info("Recived serviceId is:", service_id)
+    logger.info(f"Recived serviceId is:{service_id}")
 
     try:
         services = services_data(service_id)
