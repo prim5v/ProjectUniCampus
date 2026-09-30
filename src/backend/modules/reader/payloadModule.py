@@ -8,6 +8,8 @@ import base64
 from pathlib import Path
 from backend.controllers.selectcontrollers import check_device_id
 
+from flask import jsonify
+
 # BACKEND_ROOT = Path(__file__).resolve().parent.parent
 # PRIVATE_KEY_PATH = BACKEND_ROOT / "private_key.pem"
 
@@ -51,7 +53,7 @@ def get_payload(data):
 
 
         # check if reader is authorized and get readtype = serviceType
-        serviceType, transactionType = check_reader(reader_id) #ie Payment, Auth, RollCall
+        serviceType = check_reader(reader_id) #ie Payment, Auth, RollCall
         if not serviceType:
             logging.error("Unauthorized reader")
             return {"error": "Unauthorized"}, 403
@@ -59,6 +61,12 @@ def get_payload(data):
         
         logging.info(f"Reader {reader_id} authorized for {serviceType}")
         # serviceType="Payment"  # hardcoded for now, we can use check_reader to get the serviceType
+
+        if amount and serviceType != "Payment":
+            return jsonify({
+                "success": False,
+                "message": "Reader not authorized to process payments"
+            }), 403
 
         # decrypt data_in_bytes
         # private_key="string"

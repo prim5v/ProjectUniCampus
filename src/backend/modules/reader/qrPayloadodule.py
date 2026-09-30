@@ -47,6 +47,12 @@ def payload(data):
 
         logger.info(f"Reader {reader_id} authorized for {serviceType}")
 
+        if amount and serviceType != "Payment":
+            return jsonify({
+                "success": False,
+                "message": "Reader not authorized to process payments"
+            }), 403
+
         # decode ciphertext
         data_inHexBytes = decrypt_with_private_key(base64ciphertext, private_key)
         logger.info(f"Decrypted payload data: {data_inHexBytes}")
@@ -102,6 +108,7 @@ def payload(data):
                 ), 403
 
         service_id = get_service_id(reader_id)
+        # one reader can only have 1 service_id or perfom one service  eg either payments or access
 
         if not service_id:
             logger.info("No service for this reader")
