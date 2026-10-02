@@ -120,9 +120,10 @@ def payload(data):
         session_id = create_service_session(service_id, student_id, nonce, timestamp)
 
         student_check = check_student(student_id, serviceType)
+        reason = student_check["reason"]
+        status = student_check["status"]
         if not student_check["authorized"]:
-            reason = student_check["reason"]
-            update_service_session(session_id, reason)
+            update_service_session(session_id, reason, status)
             logger.warning(f"student auth failed: {reason}")
             return jsonify({
                 "success": False,
@@ -137,8 +138,7 @@ def payload(data):
                 "message": "Unauthorized"}
                 ), 403
 
-        reason = student_check["reason"]
-        update_service_session(session_id, reason)
+        update_service_session(session_id, reason, status)
 
         if serviceType == "Payment":
             if amount is None:

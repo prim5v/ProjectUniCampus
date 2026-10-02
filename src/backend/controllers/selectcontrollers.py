@@ -118,7 +118,8 @@ def check_student(student_id, serviceType):
     if conn is None:
         return {
             "authorized": False,
-            "reason": "Database connection failed"
+            "reason": "Database connection failed",
+            "status": "Failed"
         }
 
     try:
@@ -140,21 +141,24 @@ def check_student(student_id, serviceType):
         if student is None:
             return {
                 "authorized": False,
-                "reason": "Student not found"
+                "reason": "Student not found",
+                "status": "Failed"
             }
 
         # Global check - applies to every service
         if not student["isActive"]:
             return {
                 "authorized": False,
-                "reason": "Student account inactive"
+                "reason": "Student account inactive",
+                "status": "Failed"
             }
 
         # NFC check - applies to every NFC service
         if student["nfc_status"].lower() != "active":
             return {
                 "authorized": False,
-                "reason": f"NFC status is {student['nfc_status']}"
+                "reason": f"NFC status is {student['nfc_status']}",
+                "status": "Failed"
             }
 
         # Financial account check - Payment only
@@ -162,13 +166,15 @@ def check_student(student_id, serviceType):
             if student["account_status"].lower() != "active":
                 return {
                     "authorized": False,
-                    "reason": f"Account status is {student['account_status']}"
+                    "reason": f"Account status is {student['account_status']}",
+                    "status": "Failed"
                 }
 
         return {
             "authorized": True,
             "reason": "Student authorized",
-            "student": student
+            "student": student,
+            "status": "Success"
         }
 
     finally:

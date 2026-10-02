@@ -1,7 +1,7 @@
 from backend.utils.db import get_db_cursor
 import logging
 
-def update_service_session(session_id, reason):
+def update_service_session(session_id, reason, status):
     conn, cursor = get_db_cursor()
 
     if conn is None:
@@ -15,7 +15,7 @@ def update_service_session(session_id, reason):
                 reason = %s
             WHERE session_id = %s
             """,
-            ("Failed", reason, session_id)
+            (status, reason, session_id)
         )
 
         conn.commit()
