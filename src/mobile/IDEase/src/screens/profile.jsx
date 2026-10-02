@@ -18,7 +18,7 @@ import { colors, typography, radii, spacing, shadow } from '../styles/theme';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const student = user?.user;
 
@@ -82,6 +82,14 @@ const Profile = () => {
     );
   };
 
+  const handleLogout = async () =>{
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
   // --------------------------------------------------
   // PROFILE ROW
   // --------------------------------------------------
@@ -134,6 +142,8 @@ const Profile = () => {
         title="Profile Details"
         rightIcon="ellipsis-horizontal"
         onBackPress={() => router.back()}
+        // onSettingsPress={() => router.push('/settings')}
+        onLogoutPress={handleLogout}
       />
 
       <ScrollView

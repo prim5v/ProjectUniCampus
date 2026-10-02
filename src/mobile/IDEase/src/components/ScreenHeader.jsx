@@ -135,7 +135,7 @@ const ScreenHeader = ({
                   styles.dangerText,
                 ]}
               >
-                Logoutt
+                Logout
               </Text>
             </TouchableOpacity>
 

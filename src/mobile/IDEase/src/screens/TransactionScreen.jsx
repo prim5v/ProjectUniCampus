@@ -72,6 +72,7 @@ const TransactionScreen = () => {
     transactionsCount: walletData?.summaryStats?.[3]?.value || 0,
     summaryStats: walletData?.summaryStats || [],
   }
+  
 
   return (
 
@@ -203,12 +204,12 @@ const TransactionScreen = () => {
           <Text
             style={[
               styles.amount,
-              transaction.type === "Incoming"
+              transaction.direction === "incoming"
                 ? styles.income
                 : styles.expense
             ]}
           >
-            {transaction.type === "Incoming" ? "+" : "-"}
+            {transaction.direction === "incoming" ? "+" : "-"}
             {transaction.amount}
           </Text>
 

@@ -19,7 +19,7 @@ import TransactionRow from '../components/TransactionRow';
 import { colors, typography, radii, spacing, shadow } from '../styles/theme';
 import { BlurView } from 'expo-blur';
 import { useConn } from '../contexts/ConnContext';
-
+import { useAuth } from '../contexts/AuthContext';
 /**
  * WalletScreen
  * UI only — no navigation, no state persistence, no wallet logic.
@@ -33,6 +33,7 @@ const WalletScreen = () => {
   const { walletData, fetchWalletData , balanceHidden, setBalanceHidden, toggleBalanceVisibility} = useConn();
   const [refreshing, setRefreshing] = useState(false);
   const {UniCampus} = NativeModules;
+  const {logout} = useAuth();
 
   const wallet = {
     balance: walletData?.balance || "KSh N/A",
@@ -56,6 +57,13 @@ const WalletScreen = () => {
     }
   };
 
+  const handleLogout = async () =>{
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  }
 
   return (
     <View style={styles.screen}>
@@ -63,6 +71,8 @@ const WalletScreen = () => {
       title="Wallet" 
       rightIcon="ellipsis-horizontal" 
       onBackPress={() => router.back()}
+      // onSettingsPress={() => router.push('/settings')}
+      onLogoutPress={handleLogout}
       />
 
       <ScrollView
@@ -224,7 +234,7 @@ const WalletScreen = () => {
 
           <View style={styles.minBalanceRow}>
             <Text style={styles.minBalanceLabel}>Minimum Balance</Text>
-            <Text style={styles.minBalanceValue}>KSh 300.00</Text>
+            <Text style={styles.minBalanceValue}>KSh 50.00</Text>
           </View>
         </View>
       </ScrollView>

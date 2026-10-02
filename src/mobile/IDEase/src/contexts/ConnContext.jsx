@@ -123,7 +123,7 @@ const BALANCE_HIDDEN_KEY = "balance_hidden";
 
 export const ConnProvider = ({ children }) => {
     const { api } = useApi();
-    const { accessToken, setLoading } = useAuth();
+    const { accessToken, setLoading, authStatus } = useAuth();
 
     const [walletData, setWalletData] = useState(null);
     const [balanceHidden, setBalanceHidden] = useState(false);
@@ -312,13 +312,13 @@ export const ConnProvider = ({ children }) => {
      * Fetch wallet whenever authenticated
      */
     useEffect(() => {
-        if (!accessToken) {
+        if (!accessToken || !authStatus) {
             setWalletData(null);
             return;
         }
 
         fetchWalletData();
-    }, [accessToken, fetchWalletData]);
+    }, [accessToken, fetchWalletData, authStatus]);
     
 
     useEffect(() =>{

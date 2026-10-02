@@ -144,9 +144,10 @@ const handleLogout = async () => {
       {/* <ScreenHeader title="My Profile" rightIcon="settings-outline" /> */}
       <ScreenHeader
       title="My ID"
-      rightIcon="settings-outline"
+      // rightIcon="settings-outline"
+      rightIcon="ellipsis-horizontal"
       onBackPress={() => router.back()}
-      onSettingsPress={() => router.push('/settings')}
+      // onSettingsPress={() => router.push('/settings')}
       onLogoutPress={handleLogout}
     />
 
