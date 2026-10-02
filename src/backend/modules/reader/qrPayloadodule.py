@@ -154,6 +154,8 @@ def payload(data):
         channelId = None
         priority = "high"
 
+        # intentionally making a payment reader to be multipurpose
+
         if serviceType == "Payment" and is_payment:
             if amount is None:
                 return jsonify({
