@@ -185,7 +185,7 @@ def payload(data):
         # here add the notification pop up logic
 
         title = "Access Granted"
-        body = ""
+        body = f"User {student_id} authorized"
         channelId = "access"
         priority = "high"
         data = {
