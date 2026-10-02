@@ -47,12 +47,20 @@ def payload(data):
                 ), 403
 
         logger.info(f"Reader {reader_id} authorized for {serviceType}")
-
+        
         if amount and serviceType != "Payment":
             return jsonify({
                 "success": False,
                 "message": "Reader not authorized to process payments"
             }), 403
+
+        is_payment = amount is not None
+        # if serviceType == "Payment" and amount is None:
+        #     return jsonify({
+        #         "success": False,
+        #         "message": "Reader not authorized for access"
+        #     })
+        
 
         # decode ciphertext
         data_inHexBytes = decrypt_with_private_key(base64ciphertext, private_key)
@@ -146,7 +154,7 @@ def payload(data):
         channelId = None
         priority = "high"
 
-        if serviceType == "Payment":
+        if serviceType == "Payment" and is_payment:
             if amount is None:
                 return jsonify({
                     "success": False,
