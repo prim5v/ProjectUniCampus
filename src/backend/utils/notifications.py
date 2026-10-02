@@ -181,6 +181,8 @@ def send_expo_notification_to_one(student_id, title, body, channelId, priority, 
             WHERE student_id = %s
             AND push_token IS NOT NULL
             AND push_token != ''
+            ORDER BY id DESC
+            LIMIT 1
             """,
             (student_id,)
         )
