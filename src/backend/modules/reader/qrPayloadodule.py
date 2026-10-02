@@ -184,7 +184,7 @@ def payload(data):
             wallet_data = get_wallet_data(student_id)
             balance = float(wallet_data["balance2"])
             if balance >= amount:
-                insert_expense_transaction(transaction_id, student_id, campus_id, amount, "COMPLETED", payment_method, session_id)
+                insert_expense_transaction(transaction_id, student_id, campus_id, amount, "COMPLETE", payment_method, session_id)
                 logger.info(f"Payment of {amount} recorded for {student_id}")
 
             elif balance < amount:

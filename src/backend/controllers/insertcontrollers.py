@@ -375,7 +375,8 @@ def insert_expense_transaction(transaction_id, student_id, campus_id, amount, st
         category = "Purchase"
 
         # Store expenses as negative amounts
-        amount = -abs(amount)
+        # amount = -abs(amount)
+        # intentionally have amount appended as it is
 # added campus_id, payment_method
         cursor.execute(
             """
