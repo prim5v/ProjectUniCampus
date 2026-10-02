@@ -141,6 +141,10 @@ def payload(data):
 
         update_service_session(session_id, reason, status)
 
+        title = None
+        body = None
+        channelId = None
+        priority = "high"
 
         if serviceType == "Payment":
             if amount is None:
@@ -168,7 +172,7 @@ def payload(data):
             # we need to check students balance must be more than requested amount
             # for now ill reuse get wallet data
             wallet_data = get_wallet_data(student_id)
-            balance = wallet_data["balance"]
+            balance = float(wallet_data["balance"])
             if balance >= amount:
                 insert_expense_transaction(transaction_id, student_id, campus_id, amount, "COMPLETED", payment_method, session_id)
                 logger.info(f"Payment of {amount} recorded for {student_id}")
@@ -180,18 +184,30 @@ def payload(data):
                     "message": "Insufficient funds"
                 }), 200
 
+            title = "QR Payment Successful"
+            body = f"Your payment of KES {amount:.2f} was successfully processed."
+            channelId = "payments"
+            priority = "high"
+            data = {
+                "type": "payment",
+                "id": session_id,
+                "amount": amount
+            }
+        else:
+            title = "Access Granted"
+            body = f"User {student_id} authorized"
+            channelId = "access"
+            priority = "high"
+            data = {
+                "type": "access",
+                "id": session_id
+            }
+
         logger.info(f"Session {session_id} completed successfully")
         # lets notify the user that he successfully scanned qr code
         # here add the notification pop up logic
 
-        title = "Access Granted"
-        body = f"User {student_id} authorized"
-        channelId = "access"
-        priority = "high"
-        data = {
-            "type": "access",
-            "id": session_id
-        }
+
         if send_expo_notification_to_one(student_id, title, body, channelId, priority, data):
             print("notification sent")
         else:

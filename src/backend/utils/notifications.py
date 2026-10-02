@@ -79,26 +79,26 @@ def send_expo_notification(
         if isinstance(ticket, dict):
             if ticket.get("status") == "error":
                 logger.error(
-                    f"❌ Expo rejected notification: {ticket}"
+                    f"Expo rejected notification: {ticket}"
                 )
                 return False
 
             if ticket.get("status") == "ok":
                 logger.info(
-                    f"✅ Expo accepted notification: "
+                    f"Expo accepted notification: "
                     f"{ticket}"
                 )
                 return True
 
         logger.warning(
-            f"⚠️ Unexpected Expo response: {result}"
+            f"Unexpected Expo response: {result}"
         )
 
         return False
 
     except Exception as e:
         logger.exception(
-            f"❌ Expo notification request failed: {e}"
+            f"Expo notification request failed: {e}"
         )
         return False
 
@@ -189,16 +189,16 @@ def send_expo_notification_to_one(student_id, title, body, channelId, priority, 
 
         student = cursor.fetchone()
 
-        print(f"🔎 Notification lookup | student={student_id}")
-        print(f"🔎 Session result | {student}")
+        print(f" Notification lookup | student={student_id}")
+        print(f" Session result | {student}")
 
         if not student:
-            print(f"❌ No push token/session found for {student_id}")
+            print(f" No push token/session found for {student_id}")
             return False
 
         student_token = student["push_token"]
 
-        print(f"📱 Push token found | {student_token}")
+        print(f"Push token found | {student_token}")
 
         expo_success = send_expo_notification(
             expo_push_token=student_token,
@@ -210,15 +210,15 @@ def send_expo_notification_to_one(student_id, title, body, channelId, priority, 
         )
 
         if expo_success:
-            print(f"✅ Expo accepted notification for {student_id}")
+            print(f" Expo accepted notification for {student_id}")
             return True
 
-        print(f"❌ Expo rejected notification for {student_id}")
+        print(f" Expo rejected notification for {student_id}")
         return False
 
     except Exception as e:
         logger.exception(
-            f"❌ Failed to send notification to student {student_id}"
+            f" Failed to send notification to student {student_id}"
         )
         return False
 
