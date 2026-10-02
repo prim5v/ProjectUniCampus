@@ -801,7 +801,8 @@ def get_wallet_data(student_id):
         return {
 
 
-            "balance": balance,
+            "balance": f"KSh {balance}",
+            "balance2": balance,
 
 
             "transactions": transactions,
