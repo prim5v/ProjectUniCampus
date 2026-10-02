@@ -7,6 +7,7 @@ from backend.controllers.insertcontrollers import create_service_session, insert
 from backend.controllers.updatecontrollers import update_service_session
 import time
 import base64
+from backend.utils.notifications import send_expo_notification_to_one
 
 logger = logging.getLogger(__name__)
 
@@ -130,8 +131,8 @@ def payload(data):
                 "message": "Student Unauthorized"}
                 ), 403
 
-        student = student_check["student"]
-        check_device = check_device_id(student["student_id"])
+        # student = student_check["student"]
+        check_device = check_device_id(student_id)
         if not check_device:
             return jsonify({
                 "success": False,
@@ -139,6 +140,7 @@ def payload(data):
                 ), 403
 
         update_service_session(session_id, reason, status)
+
 
         if serviceType == "Payment":
             if amount is None:
@@ -179,7 +181,21 @@ def payload(data):
                 }), 200
 
         logger.info(f"Session {session_id} completed successfully")
+        # lets notify the user that he successfully scanned qr code
         # here add the notification pop up logic
+
+        title = "Access Granted"
+        body = ""
+        channelId = "access"
+        priority = "high"
+        data = {
+            "type": "access",
+            "id": session_id
+        }
+        if send_expo_notification_to_one(student_id, title, body, channelId, priority, data):
+            print("notification sent")
+        else:
+            print("notification failed")
 
         return jsonify({
             "success": True,
