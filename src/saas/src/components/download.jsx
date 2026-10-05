@@ -29,7 +29,7 @@ const IDEaseDownload = () => {
             {/* Download */}
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <a
-                href="https://github.com/prim5v/ProjectUniCampus/releases/download/v2.0.4/IDEase.apk"
+                href="https://github.com/prim5v/ProjectUniCampus/releases/latest/download/IDEase.apk"
                 download
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700 active:scale-[0.98]"
               >
@@ -44,7 +44,7 @@ const IDEaseDownload = () => {
               <span className="hidden h-1 w-1 rounded-full bg-gray-300 sm:block" />
               <span>Android APK</span>
               <span className="hidden h-1 w-1 rounded-full bg-gray-300 sm:block" />
-              <span>25 MB</span>
+              <span>116 MB</span>
             </div>
           </div>
 
