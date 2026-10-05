@@ -9,6 +9,7 @@ import {
 
 import {
   useUser,
+  useClerk,
   useAuth as useClerkAuth,
 } from "@clerk/clerk-react";
 
@@ -106,9 +107,17 @@ export function AuthProvider({
 
   const { api } = useApi();
 
+  const {signOut} = useClerk();
+
   /*
    * Sync Clerk user with our backend
    */
+
+  const handleLogout = async () => {
+    // Optional: Pass a redirectUrl to send the user to a specific page after logging out
+    await signOut({ redirectUrl: '/' });
+  };
+
   const authSync = async (): Promise<AuthSyncResponse> => {
     if (!isSignedIn || !user) {
       throw new Error("User is not signed in");
@@ -203,6 +212,7 @@ export function AuthProvider({
       user,
 
       successStatus,
+      handleLogout,
 
       setDbUser,
       setLoading,

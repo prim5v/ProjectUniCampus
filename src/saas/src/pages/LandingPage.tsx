@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRightIcon, GraduationCapIcon } from "lucide-react";
+// import { ImportStudentsModal } from "../components/students/ImportStudentsModal";
+import IDEaseDownload from "../components/download"
 
 export function LandingPage() {
   return (
@@ -95,6 +97,8 @@ export function LandingPage() {
           </div>
         </div>
       </main>
+
+      <IDEaseDownload/>
     </div>
   );
 }
