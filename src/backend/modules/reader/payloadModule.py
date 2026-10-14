@@ -43,6 +43,7 @@ def get_payload(data):
         amount = data.get("amount") # we use amount if serviceType is Payment
 
         logging.info(f"Received payload data: {data}")
+        print(f"Received payload data: {data}")
 
         if not ciphertext or not reader_id:
             logging.error("Missing required fields")
