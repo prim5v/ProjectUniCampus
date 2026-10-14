@@ -1,6 +1,6 @@
 import logging
 from backend.utils.extraFunctions import decrypt_with_private_key
-from backend.controllers.selectcontrollers import check_reader, get_service_id, check_student, check_nonce, student_campus, get_wallet_data
+from backend.controllers.selectcontrollers import check_reader, get_service_id, check_student, check_nonce, student_campus, get_wallet_data, get_student_by_id
 from backend.controllers.insertcontrollers import create_service_session, insert_expense_transaction
 from backend.controllers.updatecontrollers import update_service_session
 import time
@@ -160,6 +160,18 @@ def get_payload(data):
                 "success": False,
                 "message": "No service for this reader"
             }), 400
+
+        student = get_student_by_id(student_id)
+
+        if not student:
+            logging.warning(
+                "Rejected service session: unknown student_id=%r",
+                student_id,
+            )
+            return {
+                "success": False,
+                "message": "Student not registered",
+            }, 404
             
         # create service session service_id, student_id, timestamp, nonce, status=pending
         session_id = create_service_session(service_id, student_id, nonce, timestamp)

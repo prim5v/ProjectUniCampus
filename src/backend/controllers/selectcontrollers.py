@@ -955,3 +955,19 @@ def services_data(service_id):
     finally:
         cursor.close()
         conn.close()
+
+def get_student_by_id(student_id):
+    conn, cursor = get_db_cursor()
+
+    try:
+        cursor.execute("SELECT * FROM students_data WHERE student_id =%s", (student_id,))
+        student = cursor.fetchone()
+        if student:
+            return True
+        else:
+            return None
+    except Exception as e:
+        return None
+    finally:
+        cursor.close()
+        conn.close()
