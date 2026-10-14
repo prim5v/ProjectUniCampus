@@ -1,3 +1,4 @@
+// App.tsx
 import React from "react";
 import {
   BrowserRouter,
@@ -33,6 +34,7 @@ import { GlobalNotification } from "./components/dashboard/GlobalNotification";
 import { CreateDigitalId } from "./pages/CreateDigitalId";
 import { Access } from "./pages/Access";
 import { Payments } from "./pages/Payments";
+import { publicRoutes } from "./public/routes";
 
 
 function Router(): JSX.Element {
@@ -46,8 +48,8 @@ function Router(): JSX.Element {
     return(
       <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-
+        {/* <Route path="/" element={<LandingPage />} /> */}
+        {publicRoutes}
         <Route
           path="/signin"
           element={<LoginPage />}

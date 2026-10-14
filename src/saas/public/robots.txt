@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://unicampus-os-ruddy.vercel.app/sitemap.xml
