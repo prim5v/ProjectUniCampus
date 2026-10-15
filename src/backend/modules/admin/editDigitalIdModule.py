@@ -19,7 +19,7 @@ def edit_digital_id(data):
             "message": "student reference required"
         }), 400
 
-    if not isActive or not account_status or not security_clearance_level:
+    if not account_status or not security_clearance_level:
         return jsonify({
             "success": False,
             "message": "missing required fields"
