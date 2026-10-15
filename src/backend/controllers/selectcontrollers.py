@@ -497,6 +497,7 @@ def get_ids(campus_id, page=1, limit=20):
                 sd.nfc_status,
                 sd.account_status,
                 sd."onBoardedWhen",
+                sd."security_clearance_level",
                 sc.image_url
             FROM students_data sd
             LEFT JOIN students_credentials sc

@@ -110,3 +110,27 @@ def update_transaction_status(invoice_id, status, MpesaReceiptNumber):
     finally:
         cursor.close()
         conn.close()
+
+def admin_update_digital_id(isActive, account_status, security_clearance_level,student_id):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return False
+
+    try:
+        cursor.execute(
+            """
+            UPDATE students_data
+            SET "isActive" = %s,
+            account_status = %s,
+            security_clearance_level = %s,
+            WHERE student_id = %s        
+            """,
+            (isActive, account_status, security_clearance_level,student_id)
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+    finally:
+        cursor.close()
+        conn.close()
+        
