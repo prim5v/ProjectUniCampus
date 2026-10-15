@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   CalendarDays,
@@ -7,11 +7,13 @@ import {
   Hash,
   Radio,
   UserRound,
+  Pencil, 
+  LoaderCircle,
   XCircle,
 } from "lucide-react";
 
 import { Modal } from "../ui/Modal";
-
+import { EditDigitalIdModal } from "./EditDigitalIdModal";
 /* -------------------------------- */
 /* Types */
 /* -------------------------------- */
@@ -25,13 +27,30 @@ type DigitalIdRecord = {
   image_url: string | null;
   nfc_status: string | null;
   account_status: string | null;
+  security_clearance_level: number | 5;
   onBoardedWhen: string | null;
+};
+
+// type DigitalIdModalProps = {
+//   open: boolean;
+//   digitalId: DigitalIdRecord | null;
+//   onClose: () => void;
+// };
+type DigitalIdUpdatePayload = {
+  isActive: boolean;
+  account_status: string | null;
+  security_clearance_level: number | null;
+  student_id: string | null;
 };
 
 type DigitalIdModalProps = {
   open: boolean;
   digitalId: DigitalIdRecord | null;
   onClose: () => void;
+  onUpdate: (
+    id: number,
+    data: DigitalIdUpdatePayload
+  ) => Promise<void>;
 };
 
 /* -------------------------------- */
@@ -44,6 +63,7 @@ const formatDate = (date: string | null) => {
   }
 
   const parsed = new Date(date);
+  
 
   if (Number.isNaN(parsed.getTime())) {
     return date;
@@ -106,10 +126,13 @@ export function DigitalIdModal({
   open,
   digitalId,
   onClose,
+  onUpdate,
 }: DigitalIdModalProps) {
   if (!digitalId) {
     return null;
   }
+
+  const [editOpen, setEditOpen] = useState(false);
 
   const initials = digitalId.username
     ? digitalId.username
@@ -124,16 +147,44 @@ export function DigitalIdModal({
       title="Digital ID"
       description="Preview the digital identity assigned to this student."
       size="lg"
+      // footer={
+      //   <button
+      //     type="button"
+      //     onClick={onClose}
+      //     className="rounded-lg border border-line px-4 py-2 text-sm font-medium hover:bg-gray-50"
+      //   >
+      //     Close
+      //   </button>
+      // }
       footer={
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-lg border border-line px-4 py-2 text-sm font-medium hover:bg-gray-50"
-        >
-          Close
-        </button>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-line px-4 py-2 text-sm font-medium hover:bg-gray-50"
+          >
+            Close
+          </button>
+
+          <button
+        type="button"
+        onClick={() => setEditOpen(true)}
+        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-dark hover:opacity-90"
+      >
+        <Pencil className="h-4 w-4" />
+        Edit
+      </button>
+          </div>
       }
     >
+
+      <EditDigitalIdModal
+        open={editOpen}
+        digitalId={digitalId}
+        onClose={() => setEditOpen(false)}
+        onSubmit={onUpdate}
+      />
+
       <div className="space-y-6">
         {/* -------------------------------- */}
         {/* Digital ID Card */}
@@ -304,6 +355,20 @@ export function DigitalIdModal({
                 </p>
               </div>
 
+              {/* security clearance level */}
+              <div className="rounded-xl border border-line p-4">
+                <div className="flex items-center gap-2 text-muted">
+                  <UserRound className="h-4 w-4" />
+                  <span className="text-xs font-medium">
+                    Security clearance level
+                  </span>
+                </div>
+
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  {digitalId.security_clearance_level}
+                </p>
+              </div>
+
               {/* Onboarded */}
 
               <div className="rounded-xl border border-line p-4 sm:col-span-2">
@@ -352,27 +417,6 @@ export function DigitalIdModal({
             </div>
           </div>
         </div>
-
-        {/* -------------------------------- */}
-        {/* Future photo note */}
-        {/* -------------------------------- */}
-
-        {/* <div className="flex items-start gap-3 rounded-xl border border-dashed border-line p-4">
-          <UserRound className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
-
-          <div>
-            <p className="text-sm font-medium text-foreground">
-              Student photo
-            </p>
-
-            <p className="mt-1 text-xs leading-5 text-muted">
-              This currently uses a generated avatar
-              placeholder. You can replace the avatar
-              with the student's real profile photo once
-              the backend exposes a photo URL.
-            </p>
-          </div>
-        </div> */}
       </div>
     </Modal>
   );

@@ -42,6 +42,7 @@ type DigitalIdRecord = {
   image_url: string | null;
   nfc_status: string | null;
   account_status: string | null;
+  security_clearance_level: number | 5;
   onBoardedWhen: string | null;
 };
 
@@ -168,6 +169,43 @@ export function DigitalIds() {
     [api, page, limit]
   );
 
+
+  const handleDigitalIdUpdate = useCallback(
+    async (
+      // id: number,
+      data: {
+        isActive: boolean;
+        account_status: string | null;
+        security_clearance_level: number | null;
+        student_id: string | null;
+      }
+    ) => {
+      try {
+        const response = await api.post(
+          "/admin/edit/digitalId",
+          data,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log(
+          "DIGITAL ID UPDATE RESPONSE:",
+          response.data
+        );
+
+        // Refresh the current page after a successful update.
+        await fetchDigitalIds(true);
+
+      } catch (error) {
+        console.error("Failed to update digital ID:", error);
+        throw error;
+      }
+    },
+    [api, fetchDigitalIds]
+  );
   /* -------------------------------- */
   /* Load whenever page changes */
   /* -------------------------------- */
@@ -653,6 +691,7 @@ export function DigitalIds() {
           setModalOpen(false);
           setSelectedDigitalId(null);
         }}
+        onUpdate={handleDigitalIdUpdate}
       />
     </div>
   );
