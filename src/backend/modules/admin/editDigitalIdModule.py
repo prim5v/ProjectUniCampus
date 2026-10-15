@@ -1,6 +1,7 @@
-from flask import jsonify
+from flask import jsonify, g
 from backend.controllers.updatecontrollers import admin_update_digital_id
 import logging
+from backend.utils.extraFunctions import get_redis
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +24,32 @@ def edit_digital_id(data):
         }), 400
 
     try:
-
+        campus_id = getattr(g, "user_id", None)
         # call controller
         if admin_update_digital_id(isActive, account_status, security_clearance_level,student_id):
+                    # Invalidate student cache
+            try:
+                pattern = f"students_data:{campus_id}:*"
+                redis_client = get_redis()
+
+                for key in redis_client.scan_iter(match=pattern):
+                    redis_client.delete(key)
+
+                logger.info(
+                    f"Student cache invalidated for campus {campus_id}"
+                )
+
+            except Exception as redis_error:
+                logger.error(
+                    f"FAILED TO INVALIDATE STUDENT CACHE: {redis_error}"
+                )
+
             return jsonify({
                 "success": True,
                 "message": "admin edit was a success"
             }), 200
+
+        
 
     except Exception as e:
         logger.exception(e)
