@@ -9,5 +9,5 @@ from backend.middleware.auth import require_auth
 @limiter.limit("10 per minute")
 @require_auth
 def adminEdit():
-    data =  request.get_json()
+    data = request.get_json()
     return edit_digital_id(data)
