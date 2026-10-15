@@ -11,6 +11,8 @@ def edit_digital_id(data):
     security_clearance_level = data.get("security_clearance_level")
     student_id = data.get("student_id")
 
+    print(f"Recived Data: {student_id}, {security_clearance_level}, {account_status}, {isActive}")
+
     if not student_id:
         return jsonify({
             "success": False,
