@@ -123,7 +123,7 @@ def admin_update_digital_id(isActive, account_status, security_clearance_level,s
             UPDATE students_data
             SET "isActive" = %s,
             account_status = %s,
-            security_clearance_level = %s,
+            security_clearance_level = %s
             WHERE student_id = %s        
             """,
             (isActive, account_status, security_clearance_level,student_id)
