@@ -142,6 +142,7 @@ def get_digital_ids():
             "image_url": student.get("image_url"),
             "nfc_status": student.get("nfc_status"),
             "account_status": student.get("account_status"),
+            "security_clearance_level": student.get("security_clearance_level"),
             "onBoardedWhen": (
                 serialize_datetime( student["onBoardedWhen"])
                 if student.get("onBoardedWhen")
