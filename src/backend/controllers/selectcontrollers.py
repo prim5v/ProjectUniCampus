@@ -47,7 +47,7 @@ def get_service_id(reader_id):
     try:
         cursor.execute(
             """
-            SELECT service_id 
+            SELECT * 
             FROM service_data
             WHERE reader_id=%s
             """,
@@ -58,7 +58,7 @@ def get_service_id(reader_id):
         if service is None:
             return None
         
-        return service["service_id"]
+        return service["service_id"], service["id"]
     
     finally:
         cursor.close()
