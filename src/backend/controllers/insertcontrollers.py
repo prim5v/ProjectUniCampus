@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-def create_service_session(service_id, student_id, nonce, timestamp):
+def create_service_session(service_id, student_id, nonce, timestamp, service_data_id):
     conn, cursor = get_db_cursor()
 
     if conn is None:
@@ -17,10 +17,10 @@ def create_service_session(service_id, student_id, nonce, timestamp):
         cursor.execute(
             """
             INSERT INTO service_sessions
-            (service_id, session_id, student_id, timestamp_data, nonce, status)
-            VALUES(%s, %s, %s, %s, %s, %s)
+            (service_id, session_id, student_id, timestamp_data, nonce, status, service_data_id)
+            VALUES(%s, %s, %s, %s, %s, %s, %s)
             """,
-            (service_id, session_id, student_id, timestamp, nonce, "pending")
+            (service_id, session_id, student_id, timestamp, nonce, "pending", service_data_id)
         )
         conn.commit()
         return session_id
