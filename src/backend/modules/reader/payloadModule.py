@@ -152,7 +152,7 @@ def get_payload(data):
         # create session, student_id, nonce, timestamp ie status, reason and get session_id
         # if serviceType == "Payment":
             # get service_id using the reader_id
-        service_id = get_service_id(reader_id)
+        service_id, service_data_id = get_service_id(reader_id)
 
         if not service_id:
             logging.error("No service for this reader")
@@ -174,7 +174,7 @@ def get_payload(data):
             }, 404
             
         # create service session service_id, student_id, timestamp, nonce, status=pending
-        session_id = create_service_session(service_id, student_id, nonce, timestamp)
+        session_id = create_service_session(service_id, student_id, nonce, timestamp, service_data_id)
         # use student_id check if student is authorized for the serviceType and also return student info
         student_check = check_student(student_id, serviceType)
         reason = student_check["reason"]
