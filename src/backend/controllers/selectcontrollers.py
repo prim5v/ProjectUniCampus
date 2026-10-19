@@ -58,7 +58,7 @@ def get_service_id(reader_id):
         if service is None:
             return None
         
-        return service["service_id"], service["id"]
+        return service["service_id"], service["id"], service["security_clearance_level"]
     
     finally:
         cursor.close()
@@ -112,7 +112,7 @@ def check_nonce(nonce):
         cursor.close()
         conn.close()
 
-def check_student(student_id, serviceType):
+def check_student(student_id, serviceType, required_security_clearance_level):
     conn, cursor = get_db_cursor()
 
     if conn is None:
@@ -130,6 +130,7 @@ def check_student(student_id, serviceType):
                 "isActive",
                 nfc_status,
                 account_status
+                security_clearance_level
             FROM students_data
             WHERE student_id=%s
             """,
@@ -153,13 +154,20 @@ def check_student(student_id, serviceType):
                 "status": "Failed"
             }
 
-        # NFC check - applies to every NFC service
-        if student["nfc_status"].lower() != "active":
-            return {
+        if student["security_clearance_level"] < required_security_clearance_level:
+            return{
                 "authorized": False,
-                "reason": f"NFC status is {student['nfc_status']}",
+                "reason": "required security clearance level not reached",
                 "status": "Failed"
             }
+
+        # NFC check - applies to every NFC service
+        # if student["nfc_status"].lower() != "active":
+        #     return {
+        #         "authorized": False,
+        #         "reason": f"NFC status is {student['nfc_status']}",
+        #         "status": "Failed"
+        #     }
 
         # Financial account check - Payment only
         if serviceType == "Payment":

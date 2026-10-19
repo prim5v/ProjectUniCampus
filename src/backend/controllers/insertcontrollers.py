@@ -88,12 +88,32 @@ def insert_into_student_devices(student_id, device_id, device_name, platform, ap
             VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (student_id, device_id, device_name, platform, app_version, ip_address, user_agent, False)
-            )
+        )
         conn.commit()
         return cursor.lastrowid
     finally:
         cursor.close()
         conn.close()
+
+def insert_info(name, institution, email, interest, message):
+    conn, cursor = get_db_cursor()
+    if conn is None:
+        return False
+    try:
+        cursor.execute(
+            """
+             INSERT INTO pilot_info
+             (name, institution, email, interest, message)
+             VALUES(%s, %s, %s, %s, %s)
+            """,
+            (name, institution, email, interest, message)
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        cursor.close()
+        conn.close()
+
 
 
 
