@@ -5,7 +5,8 @@ import { router } from "expo-router";
 
 const ApiContext = createContext(null);
 
-const API_URL = "https://projectunicampus.onrender.com";
+const API_URL = "https://projectunicampus-gpcw.onrender.com";
+// https://projectunicampus.onrender.com
 
 export const ApiProvider = ({ children }) => {
 
@@ -107,7 +108,7 @@ export const ApiProvider = ({ children }) => {
     }, []);
 
     return (
-        <ApiContext.Provider value={{ api }}>
+        <ApiContext.Provider value={{ api, API_URL, }}>
             {children}
         </ApiContext.Provider>
     );

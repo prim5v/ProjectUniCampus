@@ -1,112 +1,9 @@
-// import { createContext, useContext, useCallback } from "react";
-// import { useApi } from "./ApiContext";
-// import { useAuth } from "./AuthContext";
-// import react, { useEffect } from "react";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-// const ConnContext = createContext(null);
-
-// const BALANCE_HIDDEN_KEY = "balance_hidden";
-
-// export const ConnProvider = ({ children }) => {
-
-//     const { api } = useApi()
-//     const { accessToken, setLoading } = useAuth()
-//     const [walletData, setWalletData] = react.useState(null);
-//     const [balanceHidden, setBalanceHidden] = react.useState(false);
-
-//     const fetchWalletData = useCallback(async () =>{
-
-//         setLoading(true);
-//         try {
-//             const response = await api.get("/student/get/wallet")
-//             console.log("Wallet response:", response.data?.data);
-//             setWalletData(response.data?.data);
-//         } catch (error) {
-//             console.error("Wallet fetching failed:", error.response?.data || error.message);
-//             setLoading(false);
-//         }finally{
-//             setLoading(false);
-//         }
-//     },[])
-
-//     const fetchActivities = useCallback(async () =>{
-//         setLoading(true);
-//         try {
-//             const response = await api.get("/students/get/recents");
-//             console.log("Activities Response:", response.data?.data);
-//             return response
-//         } catch (error) {
-//             console.error("Error fetching activities:", error.response?.data || error.message);
-//         }finally{
-//             setLoading(false);
-//         }
-//     })
-
-//     const stkpush = async (payload) =>{
-//         setLoading(true);
-//         try {
-//             const response = await api.post("/pay/student/deposit", payload)
-//             return response;
-//         } catch (error) {
-//             console.error("STK Push failed:", error.response?.data || error.message);
-//             setLoading(false);
-//             throw error;
-//         }finally{
-//             setLoading(false);
-//         }
-//     }
-
-
-//     useEffect(() => {
-//         if(accessToken) {
-//         fetchWalletData()
-//     }
-//     }, [fetchWalletData, accessToken])
-
-//     useEffect(()=>{
-//         const loadbalancestate = async () =>{
-//             try {
-//                 AsyncStorage.getItem()
-//             } catch (error) {
-                
-//             }
-//         }
-//     },[])
-
-
-//     return (
-//         <ConnContext.Provider value={{
-//             fetchWalletData,
-//             fetchActivities,
-//             walletData,
-//             stkpush,
-//         }}>
-//             {children}
-//         </ConnContext.Provider>
-//     );
-// };
-
-// export const useConn = () => {
-
-//     const context = useContext(ConnContext);
-
-//     if(!context){
-
-//         throw new Error(
-//             "useConn must be used inside ConnProvider"
-//         );
-//     }
-
-//     return context;
-// }
-
-
-// ```jsx
 import React, {
     createContext,
     useCallback,
     useContext,
     useEffect,
+    useRef,
     useState,
 } from "react";
 
@@ -123,11 +20,13 @@ const BALANCE_HIDDEN_KEY = "balance_hidden";
 
 export const ConnProvider = ({ children }) => {
     const { api } = useApi();
-    const { accessToken, setLoading, authStatus } = useAuth();
+    const { accessToken, setLoading, authStatus, user } = useAuth();
+    const [publicKey, setPublicKey] = useState("");
 
     const [walletData, setWalletData] = useState(null);
     const [balanceHidden, setBalanceHidden] = useState(false);
     const { UniCampusHCE } = NativeModules;
+    const hasInserted = useRef(false);
 
     /**
      * Fetch wallet information
@@ -169,7 +68,7 @@ export const ConnProvider = ({ children }) => {
         }
     }, [api, accessToken, setLoading]);
 
-
+// having issues with public key insert, should i insert it once on user loggin?
     const fetchPublicKey = useCallback(async() => {
         
         try {
@@ -177,7 +76,8 @@ export const ConnProvider = ({ children }) => {
             const publicKey = response.data;
             if (publicKey){
                 console.log("Public Key:", publicKey);
-                UniCampusHCE.setPublicKey(publicKey);
+                // UniCampusHCE.setPublicKey(publicKey);
+                setPublicKey(publicKey);
                 console.log("Public key inserted successfully")
             }
             
@@ -287,6 +187,8 @@ export const ConnProvider = ({ children }) => {
         loadBalanceState();
     }, []);
 
+
+
     /**
      * Save balance visibility state
      */
@@ -307,6 +209,41 @@ export const ConnProvider = ({ children }) => {
             );
         }
     }, [balanceHidden]);
+
+
+    
+    
+
+    const insertOnModule = useCallback(async () => {
+        const studentId = user?.user?.student_id;
+
+        if (!publicKey || !studentId || hasInserted.current) {
+            return;
+        }
+
+        try {
+            const alreadyStored =
+                await UniCampusHCE.hasStoredCredentials();
+
+            if (alreadyStored) {
+                hasInserted.current = true;
+                console.log("HCE credentials already stored");
+                return;
+            }
+
+            await UniCampusHCE.setPublicKey(publicKey);
+            await UniCampusHCE.setStudentId(studentId);
+
+            hasInserted.current = true;
+            console.log("HCE credentials stored successfully");
+        } catch (error) {
+            console.error("HCE credential check/insertion failed:", error);
+        }
+    }, [publicKey, user, UniCampusHCE]);
+
+    useEffect(() => {
+        insertOnModule();
+    }, [insertOnModule]);
 
     /**
      * Fetch wallet whenever authenticated

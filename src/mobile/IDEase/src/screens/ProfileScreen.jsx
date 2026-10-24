@@ -192,7 +192,7 @@ const handleLogout = async () => {
               <Text style={styles.studentName}>{user?.user?.name || 'Unknown'}</Text>
 
               <View style={styles.admissionRow}>
-                <Text style={styles.programmeText}>{user?.user?.admission_number || 'Nulll'}</Text>
+                <Text style={styles.programmeText}>{user?.user?.admission_number || 'Null'}</Text>
                 <TouchableOpacity
                   onPress={copyAdmissionNumber}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}

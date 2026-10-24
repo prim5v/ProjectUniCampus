@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     Dimensions,
     NativeModules,
+    AppState,
 } from "react-native";
 
 import { router } from "expo-router";
@@ -393,47 +394,279 @@ function NfcView() {
 /* QR VIEW */
 /* ------------------------------------------------ */
 
+// function QrView({ value, loading, onRegenerate }) {
+//     const [timeLeft, setTimeLeft] = useState(1 * 60);
+
+//     /**
+//      * Countdown timer.
+//      *
+//      * The QR is valid for 5 minutes.
+//      */
+//     useEffect(() => {
+//         if (timeLeft <= 0) {
+//             return;
+//         }
+
+//         const interval = setInterval(() => {
+//             setTimeLeft((prev) => {
+//                 if (prev <= 1) {
+//                     clearInterval(interval);
+//                     return 0;
+//                 }
+
+//                 return prev - 1;
+//             });
+//         }, 1000);
+
+//         return () => clearInterval(interval);
+//     }, [timeLeft]);
+
+//     /**
+//      * When the QR expires, generate a new one.
+//      */
+//     useEffect(() => {
+//         if (timeLeft === 0 && !loading) {
+//             console.log("⏰ QR expired");
+
+//             onRegenerate();
+
+//             // Reset countdown
+//             setTimeLeft(1 * 60);
+//         }
+//     }, [timeLeft, loading]);
+
+//     const minutes = Math.floor(timeLeft / 60)
+//         .toString()
+//         .padStart(2, "0");
+
+//     const seconds = (timeLeft % 60)
+//         .toString()
+//         .padStart(2, "0");
+
+//     return (
+//         <View style={styles.qrView}>
+//             {/* TITLE */}
+//             <Text style={styles.qrTitle}>
+//                 Scan to verify
+//             </Text>
+
+//             {/* DESCRIPTION */}
+//             <Text style={styles.qrSubtitle}>
+//                 Present this code to a UniCampus reader
+//             </Text>
+
+//             {/* EXPIRY */}
+//             <Text style={styles.qrExpiry}>
+//                 Expires in{" "}
+//                 <Text style={styles.timer}>
+//                     {minutes}:{seconds}
+//                 </Text>
+//             </Text>
+
+//             {/* QR CONTAINER */}
+//             <View style={styles.qrContainer}>
+//                 {loading ? (
+//                     <View style={styles.qrPlaceholder}>
+//                         <Text style={styles.qrLoading}>
+//                             Generating secure QR...
+//                         </Text>
+//                     </View>
+//                 ) : value ? (
+//                     <QRCode
+//                         value={value}
+//                         size={width * 0.62}
+//                         color="#000000"
+//                         backgroundColor="#FFFFFF"
+//                         quietZone={18}
+//                     />
+//                 ) : (
+//                     <View style={styles.qrPlaceholder}>
+//                         <Text style={styles.qrLoading}>
+//                             Unable to generate QR
+//                         </Text>
+
+//                         <TouchableOpacity
+//                             style={styles.retryButton}
+//                             activeOpacity={0.8}
+//                             onPress={onRegenerate}
+//                         >
+//                             <Text style={styles.retryText}>
+//                                 Try again
+//                             </Text>
+//                         </TouchableOpacity>
+//                     </View>
+//                 )}
+//             </View>
+
+//             {/* HINT */}
+//             <Text style={styles.qrHint}>
+//                 Keep your screen steady while scanning
+//             </Text>
+//         </View>
+//     );
+// }
+
+
+// ```jsx
+const QR_VALIDITY = 60 * 1000; // 1 minute
+
 function QrView({ value, loading, onRegenerate }) {
-    const [timeLeft, setTimeLeft] = useState(1 * 60);
+    const [expiresAt, setExpiresAt] = useState(null);
+    const [timeLeft, setTimeLeft] = useState(0);
 
     /**
-     * Countdown timer.
+     * ------------------------------------------------
+     * START TIMER
+     * ------------------------------------------------
      *
-     * The QR is valid for 5 minutes.
+     * The timer starts ONLY when:
+     *
+     * 1. QR generation is finished
+     * 2. A valid QR value exists
+     * 3. We don't already have an expiry time
+     *
+     * Loading time does NOT count toward QR validity.
      */
     useEffect(() => {
-        if (timeLeft <= 0) {
+        if (!loading && value && expiresAt === null) {
+            console.log("⏱️ QR generated — starting 60 second timer");
+
+            const expiry = Date.now() + QR_VALIDITY;
+
+            setExpiresAt(expiry);
+            setTimeLeft(Math.ceil(QR_VALIDITY / 1000));
+        }
+    }, [value, loading, expiresAt]);
+
+    /**
+     * ------------------------------------------------
+     * COUNTDOWN
+     * ------------------------------------------------
+     *
+     * setInterval() is ONLY used to refresh the UI.
+     *
+     * Date.now() is the actual source of truth.
+     *
+     * This means the timer continues correctly even
+     * when the app is backgrounded/suspended.
+     */
+    useEffect(() => {
+        if (!expiresAt) {
             return;
         }
 
-        const interval = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    return 0;
-                }
+        const updateTimer = () => {
+            const remaining = Math.max(
+                0,
+                Math.ceil((expiresAt - Date.now()) / 1000)
+            );
 
-                return prev - 1;
-            });
-        }, 1000);
+            setTimeLeft(remaining);
 
-        return () => clearInterval(interval);
-    }, [timeLeft]);
+            /**
+             * QR expired.
+             */
+            if (remaining <= 0 && !loading) {
+                console.log("⏰ QR expired");
+
+                /**
+                 * Clear the old timer first.
+                 *
+                 * This prevents the old QR from
+                 * triggering regeneration repeatedly.
+                 */
+                setExpiresAt(null);
+                setTimeLeft(0);
+
+                /**
+                 * Generate a completely new QR.
+                 */
+                onRegenerate();
+            }
+        };
+
+        /**
+         * Update immediately.
+         */
+        updateTimer();
+
+        /**
+         * Refresh the displayed countdown every second.
+         *
+         * IMPORTANT:
+         * This interval does NOT keep time.
+         * Date.now() does.
+         */
+        const interval = setInterval(updateTimer, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [expiresAt, loading, onRegenerate]);
 
     /**
-     * When the QR expires, generate a new one.
+     * ------------------------------------------------
+     * APP RESUME
+     * ------------------------------------------------
+     *
+     * When the user leaves the app, React Native may
+     * pause JavaScript execution.
+     *
+     * When they come back, immediately calculate the
+     * real remaining time from Date.now().
      */
     useEffect(() => {
-        if (timeLeft === 0 && !loading) {
-            console.log("⏰ QR expired");
+        const subscription = AppState.addEventListener(
+            "change",
+            nextState => {
+                if (nextState === "active") {
+                    console.log("📱 App resumed");
 
-            onRegenerate();
+                    if (!expiresAt) {
+                        return;
+                    }
 
-            // Reset countdown
-            setTimeLeft(1 * 60);
-        }
-    }, [timeLeft, loading]);
+                    const remaining = Math.max(
+                        0,
+                        Math.ceil(
+                            (expiresAt - Date.now()) / 1000
+                        )
+                    );
 
+                    console.log(
+                        `⏱️ QR remaining: ${remaining}s`
+                    );
+
+                    setTimeLeft(remaining);
+
+                    /**
+                     * If the QR expired while the app
+                     * was in the background, regenerate it.
+                     */
+                    if (remaining <= 0 && !loading) {
+                        console.log(
+                            "⏰ QR expired while app was in background"
+                        );
+
+                        setExpiresAt(null);
+                        setTimeLeft(0);
+
+                        onRegenerate();
+                    }
+                }
+            }
+        );
+
+        return () => {
+            subscription.remove();
+        };
+    }, [expiresAt, loading, onRegenerate]);
+
+    /**
+     * ------------------------------------------------
+     * FORMAT TIMER
+     * ------------------------------------------------
+     */
     const minutes = Math.floor(timeLeft / 60)
         .toString()
         .padStart(2, "0");
@@ -442,8 +675,14 @@ function QrView({ value, loading, onRegenerate }) {
         .toString()
         .padStart(2, "0");
 
+    /**
+     * ------------------------------------------------
+     * UI
+     * ------------------------------------------------
+     */
     return (
         <View style={styles.qrView}>
+
             {/* TITLE */}
             <Text style={styles.qrTitle}>
                 Scan to verify
@@ -456,19 +695,28 @@ function QrView({ value, loading, onRegenerate }) {
 
             {/* EXPIRY */}
             <Text style={styles.qrExpiry}>
-                Expires in{" "}
-                <Text style={styles.timer}>
-                    {minutes}:{seconds}
-                </Text>
+                {loading || !value ? (
+                    "Preparing secure QR..."
+                ) : (
+                    <>
+                        Expires in{" "}
+                        <Text style={styles.timer}>
+                            {minutes}:{seconds}
+                        </Text>
+                    </>
+                )}
             </Text>
 
             {/* QR CONTAINER */}
             <View style={styles.qrContainer}>
+
                 {loading ? (
                     <View style={styles.qrPlaceholder}>
+
                         <Text style={styles.qrLoading}>
                             Generating secure QR...
                         </Text>
+
                     </View>
                 ) : value ? (
                     <QRCode
@@ -480,6 +728,7 @@ function QrView({ value, loading, onRegenerate }) {
                     />
                 ) : (
                     <View style={styles.qrPlaceholder}>
+
                         <Text style={styles.qrLoading}>
                             Unable to generate QR
                         </Text>
@@ -493,17 +742,21 @@ function QrView({ value, loading, onRegenerate }) {
                                 Try again
                             </Text>
                         </TouchableOpacity>
+
                     </View>
                 )}
+
             </View>
 
             {/* HINT */}
             <Text style={styles.qrHint}>
                 Keep your screen steady while scanning
             </Text>
+
         </View>
     );
 }
+// ```
 
 /* ------------------------------------------------ */
 /* STYLES */

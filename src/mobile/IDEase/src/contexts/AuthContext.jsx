@@ -24,7 +24,7 @@ import { NativeModules } from "react-native";
 
 const AuthContext = createContext(null);
 
-const API_URL = "https://projectunicampus.onrender.com";
+// const API_URL = "https://projectunicampus-gpcw.onrender.com";
 
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
@@ -131,7 +131,7 @@ export async function getPushToken() {
 
 export const AuthProvider = ({ children }) => {
 
-    const { api } = useApi();
+    const { api, API_URL } = useApi();
     const { authenticate, isAuthenticated } = useBiometric();
     const { UniCampusHCE } = NativeModules;
 
@@ -867,7 +867,7 @@ const logout = useCallback(async () => {
     // ============================================================
     // GET USER PROFILE
     // ============================================================
-
+    // having issue with inserting student id, should i do the insert only once when user logges in
     const getProfile = useCallback(async () => {
 
         try {
@@ -885,14 +885,22 @@ const logout = useCallback(async () => {
             setUser(data);
             console.log("[Auth] User profile retrieved:", data);
 
-                        // set users id to the unicampus api storage
+            // set users id to the unicampus api storage
+            // this code instance is unreliable since response is from backend
+            // and user object is hence null 
+            // have an else control
             const student_id = data?.user?.student_id;
             console.log("Heres my student id...");
             console.log(student_id);
-            if (student_id){
-                 UniCampusHCE.setStudentId(data?.user?.student_id);
-                 console.log("student id inserted")
-            }
+            // if (student_id){
+            //      UniCampusHCE.setStudentId(data?.user?.student_id);
+            //      console.log("student id inserted")
+            // }else{
+            //     UniCampusHCE.setStudentId(user?.user?.student_id)
+            //     console.log("student id inserted 2")
+            // }
+ 
+            
 
             // setAuthStatus(true);
 
