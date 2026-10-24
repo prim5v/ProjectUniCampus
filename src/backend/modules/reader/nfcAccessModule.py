@@ -61,6 +61,7 @@ def access_payload(data):
         separator = data_inHexBytes.index(b'|')
 
         student_id = data_inHexBytes[:separator].decode("utf-8")
+        print(f"Decoded student id:{student_id}")
         remaining = data_inHexBytes[separator + 1:]
         if len(remaining) != 29:
             return jsonify({
@@ -68,8 +69,11 @@ def access_payload(data):
                 "message": "Malformed Payload"
             }), 400
         nonce = remaining[:16]
+        print(f"nonce: {nonce}")
         timestamp_ms = int(remaining[16:].decode("utf-8"))
         timestamp = timestamp_ms // 1000
+        print(f"Timestamp_ms: {timestamp_ms}")
+        print(f"Timestamp: {timestamp}")
         MAX_TIME_DIFF = 20
         current_timestamp = int(time.time())
         if abs(current_timestamp - timestamp) > MAX_TIME_DIFF:
