@@ -45,7 +45,7 @@ CORS(app,
         ]
     }})
 
-socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173", "https://unicampus-os-ruddy.vercel.app", "https://projectunicampus.onrender.com"])
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173", "https://unicampus-os-ruddy.vercel.app", "https://projectunicampus.onrender.com", "https://projectunicampus-gpcw.onrender.com"])
 
 # expose it
 app.extensions["socketio"] = socketio
