@@ -129,7 +129,7 @@ def check_student(student_id, serviceType, required_security_clearance_level):
                 student_id,
                 "isActive",
                 nfc_status,
-                account_status
+                account_status,
                 security_clearance_level
             FROM students_data
             WHERE student_id=%s
@@ -153,8 +153,10 @@ def check_student(student_id, serviceType, required_security_clearance_level):
                 "reason": "Student account inactive",
                 "status": "Failed"
             }
+        required_security_clearance_level = int(required_security_clearance_level)
+        security_clearance_level = int(student["security_clearance_level"])
 
-        if student["security_clearance_level"] < required_security_clearance_level:
+        if security_clearance_level < required_security_clearance_level:
             return{
                 "authorized": False,
                 "reason": "required security clearance level not reached",
