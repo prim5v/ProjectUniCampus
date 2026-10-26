@@ -32,7 +32,7 @@ print("12 - access_token_required imported", flush=True)
 
 print("========== ALL IMPORTS COMPLETE ==========", flush=True)
 
-
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 
 
