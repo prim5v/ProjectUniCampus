@@ -745,6 +745,8 @@ const logout = useCallback(async () => {
                                 },
                             }
                         );
+                        // logout from shared preferences
+                        await UniCampusHCE.logout();
 
                         setUser(null);
                         setAccessToken(null);

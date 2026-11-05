@@ -11,7 +11,8 @@
 import { io } from "socket.io-client";
 import * as SecureStore from "expo-secure-store";
 
-const SOCKET_URL = "https://projectunicampus.onrender.com";
+const SOCKET_URL = "https://projectunicampus-gpcw.onrender.com";
+// https://projectunicampus.onrender.com
 
 export const socket = io(SOCKET_URL, {
   transports: ["polling", "websocket"],

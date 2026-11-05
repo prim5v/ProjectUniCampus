@@ -34,6 +34,8 @@ const ProfileScreen = () => {
   const { user, logout } = useAuth();
   const [showIDPreview, setShowIDPreview] = React.useState(false);
   const [nfcActive, setNfcActive] = React.useState(false);
+  // const [isTransactionReady, setIsTransactionReady] = React.useState(false);
+  const isReady = UniCampusHCE.hasStoredCredentials();
 
   const features = [
     { icon: 'person-outline',
@@ -85,7 +87,7 @@ const ProfileScreen = () => {
 const checkNfcStatus = async () => {
   try {
     if (!UniCampusHCE) {
-      console.log('❌ UniCampusHCE native module unavailable');
+      console.log('UniCampusHCE native module unavailable');
       setNfcActive(false);
       return;
     }
@@ -93,21 +95,42 @@ const checkNfcStatus = async () => {
     const hasHce = await UniCampusHCE.hasHce();
 
     if (!hasHce) {
-      console.log('❌ Device does not support HCE');
+      console.log('Device does not support HCE');
       setNfcActive(false);
       return;
     }
 
     const enabled = await UniCampusHCE.isNfcEnabled();
 
-    console.log('📡 NFC enabled:', enabled);
+    console.log(' NFC enabled:', enabled);
 
     setNfcActive(enabled);
   } catch (error) {
-    console.error('❌ Failed to check NFC status:', error);
+    console.error('Failed to check NFC status:', error);
     setNfcActive(false);
   }
 };
+
+
+// const checkisTransactionReady = async () =>{
+//   try {
+//     if(!UniCampusHCE){
+//       console.log("UniCampusHCE native module unavailable")
+//       return;
+//     }
+//     const isReady = await UniCampusHCE.hasStoredCredentials();
+//     if(!isReady){
+//       setIsTransactionReady(false);
+//       console.log("Device not ready for transaction");
+//       return;
+//     }
+//     setIsTransactionReady(true);
+//     console.log("Device is ready for transaction");
+//   } catch (error) {
+//     setIsTransactionReady(false);
+//     console.log("Device not ready")
+//   }
+// }
 
 
 
@@ -229,7 +252,7 @@ const handleLogout = async () => {
               {/* <Text style={styles.nfcBadgeText}>NFC e-ID{'\n'}Active</Text> */}
               <Text style={styles.nfcBadgeText}>
                 NFC e-ID{'\n'}
-                {nfcActive ? 'Active' : 'Inactive'}
+                {isReady ? 'Ready' : ''}
               </Text>
             </View>
           </View>
