@@ -8,7 +8,7 @@ from backend.utils.limiter import limiter
 @student_bp.route("/edit/profile", methods=["POST"])
 @limiter.limit("10 per minute")
 @access_token_required
-def get_profile():
+def profile_edit():
     # student_id = g.user_id
     data = request.get_json()
     return profileEdit(data)
