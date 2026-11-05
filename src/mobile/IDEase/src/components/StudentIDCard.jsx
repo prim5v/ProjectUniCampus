@@ -301,7 +301,8 @@ const StudentIDCard = ({ user, expanded = false }) => {
           </Text>
 
 
-          <Text style={styles.year}>
+          <Text style={styles.year}> Year
+            {"\u00A0"}
             {user?.user?.year || ""}
           </Text>
 

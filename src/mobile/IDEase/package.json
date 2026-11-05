@@ -1,7 +1,7 @@
 {
   "name": "idease",
   "main": "expo-router/entry",
-  "version": "2.0.8",
+  "version": "2.1.0",
   "dependencies": {
     "@expo/ui": "~57.0.26",
     "@expo/vector-icons": "^15.0.2",

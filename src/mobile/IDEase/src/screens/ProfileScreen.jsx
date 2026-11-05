@@ -232,7 +232,7 @@ const handleLogout = async () => {
               </View>
               {/* add here */}
               <Text style={styles.admissionNumber}> {user?.user?.course || 'Not Available'}</Text>
-              <Text style={styles.yearText}>{user?.user?.year || ''}</Text>
+              <Text style={styles.yearText}>Year {user?.user?.year || ''}</Text>
 
               <View style={styles.idCardDivider} />
 

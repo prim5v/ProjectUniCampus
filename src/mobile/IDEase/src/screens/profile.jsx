@@ -235,7 +235,7 @@ const Profile = () => {
         <TouchableOpacity
           style={styles.editButton}
           activeOpacity={0.75}
-        //   onPress={handleEditProfile}
+          onPress={handleEditProfile}
         >
           <Text style={styles.editButtonText}>
             Edit Profile
