@@ -32,10 +32,16 @@ print("12 - access_token_required imported", flush=True)
 
 print("========== ALL IMPORTS COMPLETE ==========", flush=True)
 
-
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 
+
+
 app = Flask(__name__)
+
+# Tell Flask it is behind a Render proxy
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
 CORS(app,
     supports_credentials=True,
     resources={r"/*": {
