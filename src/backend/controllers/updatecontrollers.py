@@ -133,4 +133,45 @@ def admin_update_digital_id(isActive, account_status, security_clearance_level,s
     finally:
         cursor.close()
         conn.close()
-        
+
+def update_profile_pwd(new_pwd_hash, student_id):
+    conn,cursor = get_db_cursor()
+
+    if conn is None:
+        return False
+
+    try:
+        cursor.execute(
+            """
+            UPDATE students_data
+            SET pwd_hash = %s
+            WHERE student_id = %s
+            """,
+            (new_pwd_hash, student_id)
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+    finally:
+        cursor.close()
+        conn.close()
+
+def update_profile_year_of_study(year_of_study, student_id):
+    conn, cursor = get_db_cursor()
+
+    if conn is None:
+        return False
+
+    try:
+        cursor.execute(
+            """
+             UPDATE students_credentials
+             SET year_of_study = %s
+             WHERE student_id = %s
+            """,
+            (year_of_study, student_id)
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+    finally:
+        cursor.close()
+        conn.close()
