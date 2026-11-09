@@ -309,6 +309,8 @@ def get_student_data(student_id):
                 sc.admission_number AS admission_number,
                 sc.student_course AS course,
                 sc.Year_of_study AS year,
+                sc.expiry AS expiry_date,
+                sc.faculty AS faculty_department,
                 sc.image_url AS image_url,
                 c.campus_name AS university_name
             FROM students_data sd
