@@ -16,6 +16,7 @@ import QRCode from "react-native-qrcode-svg";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ScreenHeader from "../components/ScreenHeader";
+import { ZETECH } from "../styles/theme";
 
 const { width } = Dimensions.get("window");
 
@@ -980,7 +981,8 @@ const styles = StyleSheet.create({
     },
 
     activeMode: {
-        backgroundColor: "#2E8B3A",
+        // backgroundColor: "#2E8B3A",
+        backgroundColor: ZETECH.navyLight,
     },
 
     modeText: {

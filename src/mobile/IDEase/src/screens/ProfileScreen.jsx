@@ -1,4 +1,6 @@
+
 import React from 'react';
+
 import {
   View,
   Text,
@@ -6,638 +8,554 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Animated,
   Modal,
   Pressable,
   NativeModules,
   ImageBackground,
 } from 'react-native';
+
 import { BlurView } from 'expo-blur';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import * as Clipboard from 'expo-clipboard';
 
 import ScreenHeader from '../components/ScreenHeader';
 import FeatureCard from '../components/FeatureCard';
-import { colors, typography, radii, spacing, shadow } from '../styles/theme';
+
+import {
+  colors,
+  typography,
+  radii,
+  spacing,
+  shadow,
+} from '../styles/theme';
+
 import { useAuth } from '@/contexts/AuthContext';
-import { router } from "expo-router";
+import { router } from 'expo-router';
+
 import StudentIDCard from '../components/StudentIDCard';
 
-const {UniCampusHCE} = NativeModules;
-/**
- * ProfileScreen
- * UI only — no navigation, no state, no NFC logic.
- * Bottom navigation bar intentionally omitted (handled elsewhere).
- */
+const { UniCampusHCE } = NativeModules;
+
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
+
+  const student = user?.user;
+
   const [showIDPreview, setShowIDPreview] = React.useState(false);
   const [nfcActive, setNfcActive] = React.useState(false);
-  // const [isTransactionReady, setIsTransactionReady] = React.useState(false);
+  const [credentialsReady, setCredentialsReady] = React.useState(false);
+
+  // Both conditions must be satisfied before showing NFC as ready.
+  // const nfcReady = nfcActive && credentialsReady;
+  const nfcReady = true;
   const isReady = UniCampusHCE.hasStoredCredentials();
 
+  // --------------------------------------------------
+  // FEATURES
+  // --------------------------------------------------
+
   const features = [
-    { icon: 'person-outline',
+    {
+      icon: 'person-outline',
       label: 'Personal Info',
       available: true,
-      route: "/more"
+      route: '/more',
     },
-    // { icon: 'call-outline',
-    //   label: 'Contact',
-    //   available: false,
-    // },
-    { icon: 'time-outline', 
+    {
+      icon: 'time-outline',
       label: 'Recents',
       available: true,
-      route: "/activity",
+      route: '/activity',
     },
-    { icon: 'card-outline',
+    {
+      icon: 'card-outline',
       label: 'Payments',
       available: true,
-      route: "/wallet",
+      route: '/wallet',
     },
-    // { icon: 'key-outline', 
-    //   label: 'Access',
-    //   available: false,
-    // },
-    // { icon: 'checkmark-done-outline', 
-    //   label: 'Attendance',
-    //   available: false,
-    // },
-    // { icon: 'book-outline', 
-    //   label: 'Library',
-    //   available: false,
-    // },
-    // { icon: 'bed-outline', 
-    //   label: 'Hostels',
-    //   available: false,
-    // },
-    // { icon: 'bus-outline', 
-    //   label: 'Transport',
-    //   available: false,
-    // },
   ];
 
+  // --------------------------------------------------
+  // NFC STATUS
+  // --------------------------------------------------
+
+  const checkNfcStatus = async () => {
+    try {
+      if (!UniCampusHCE) {
+        console.log('UniCampusHCE native module unavailable');
+
+        setNfcActive(false);
+        setCredentialsReady(false);
+        return;
+      }
+
+      const hasHce = await UniCampusHCE.hasHce();
+
+      if (!hasHce) {
+        console.log('Device does not support HCE');
+
+        setNfcActive(false);
+        setCredentialsReady(false);
+        return;
+      }
+
+      const enabled = await UniCampusHCE.isNfcEnabled();
+
+      // This follows the synchronous API usage in your original code.
+      const credentials = UniCampusHCE.hasStoredCredentials();
+
+      setNfcActive(Boolean(enabled));
+      setCredentialsReady(Boolean(credentials));
+
+      console.log('NFC enabled:', enabled);
+      console.log('Credentials ready:', credentials);
+
+    } catch (error) {
+      console.error('Failed to check NFC status:', error);
+
+      setNfcActive(false);
+      setCredentialsReady(false);
+    }
+  };
 
   React.useEffect(() => {
-  checkNfcStatus();
-}, []);
+    checkNfcStatus();
+  }, []);
 
-const checkNfcStatus = async () => {
-  try {
-    if (!UniCampusHCE) {
-      console.log('UniCampusHCE native module unavailable');
-      setNfcActive(false);
-      return;
+  // --------------------------------------------------
+  // NAVIGATION
+  // --------------------------------------------------
+
+  const handleFeaturePress = (feature) => {
+    if (feature.available && feature.route) {
+      router.push(feature.route);
+    } else {
+      alert(`${feature.label} feature is coming soon`);
     }
+  };
 
-    const hasHce = await UniCampusHCE.hasHce();
+  // --------------------------------------------------
+  // LOGOUT
+  // --------------------------------------------------
 
-    if (!hasHce) {
-      console.log('Device does not support HCE');
-      setNfcActive(false);
-      return;
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
+  };
 
-    const enabled = await UniCampusHCE.isNfcEnabled();
-
-    console.log(' NFC enabled:', enabled);
-
-    setNfcActive(enabled);
-  } catch (error) {
-    console.error('Failed to check NFC status:', error);
-    setNfcActive(false);
-  }
-};
-
-
-// const checkisTransactionReady = async () =>{
-//   try {
-//     if(!UniCampusHCE){
-//       console.log("UniCampusHCE native module unavailable")
-//       return;
-//     }
-//     const isReady = await UniCampusHCE.hasStoredCredentials();
-//     if(!isReady){
-//       setIsTransactionReady(false);
-//       console.log("Device not ready for transaction");
-//       return;
-//     }
-//     setIsTransactionReady(true);
-//     console.log("Device is ready for transaction");
-//   } catch (error) {
-//     setIsTransactionReady(false);
-//     console.log("Device not ready")
-//   }
-// }
-
-
-
-
-  const copyAdmissionNumber = async () => {
-  if (!user?.user?.admission_number) {
-    return;
-  }
-
-  await Clipboard.setStringAsync(user.user.admission_number);
-
-  console.log('[Profile] Admission number copied.');
-};
-
-const handleFeaturePress = (feature) => {
-  if (feature.available) {
-    router.push(feature.route);
-  } else {
-    alert(`${feature.label} feature is coming soon `);
-  }
-};
-
-const handleLogout = async () => {
-  try {
-    await logout();
-    // router.replace("/(auth)");
-  } catch (error) {
-    console.error('Logout failed:', error);
-  }
-}
+  // --------------------------------------------------
+  // ID CARD
+  // --------------------------------------------------
 
   return (
     <View style={styles.screen}>
-      {/* <ScreenHeader title="My Profile" rightIcon="settings-outline" /> */}
+
       <ScreenHeader
-      title="My ID"
-      // rightIcon="settings-outline"
-      rightIcon="ellipsis-horizontal"
-      onBackPress={() => router.back()}
-      // onSettingsPress={() => router.push('/settings')}
-      onLogoutPress={handleLogout}
-    />
+        title="My ID"
+        rightIcon="ellipsis-horizontal"
+        onBackPress={() => router.back()}
+        onLogoutPress={handleLogout}
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Student ID Card */}
-        {/* <View style={styles.idCard}> */}
+
+        {/* ==========================================
+            PHYSICAL ZETECH STUDENT ID
+        ========================================== */}
+
         <TouchableOpacity
-          activeOpacity={0.9}
+          style={styles.idCardWrapper}
+          activeOpacity={0.95}
           onPress={() => setShowIDPreview(true)}
         >
-          {/* <View style={styles.idCard}> */}
+
           <ImageBackground
-            source={require("../../assets/images/files/img7.png")}
+            source={require('../../assets/images/files/zetech_id.png')}
             style={styles.idCard}
             imageStyle={styles.idCardBackground}
-            resizeMode="cover"
+            resizeMode="stretch"
           >
-            <View style={styles.idCardTopRow}>
-            {/* <View style={styles.avatar}>
-              <Ionicons name="person" size={50} color={colors.textSecondary} />
-            </View> */}
-            <View style={styles.avatar}>
-            {user?.user?.image_url ? (
-              <Image
-                source={{ uri: user.user.image_url }}
-                style={styles.avatarImage}
-                resizeMode="cover"
-              />
-            ) : (
-              <Ionicons
-                name="person"
-                size={50}
-                color={colors.textSecondary}
-              />
-            )}
-          </View>
 
-            <View style={styles.idCardInfo}>
-              <Text style={styles.studentName}>{user?.user?.name || 'Unknown'}</Text>
+            {/* STUDENT PHOTO AND DETAILS */}
 
-              <View style={styles.admissionRow}>
-                <Text style={styles.programmeText}>{user?.user?.admission_number || 'Null'}</Text>
-                <TouchableOpacity
-                  onPress={copyAdmissionNumber}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  activeOpacity={0.6}
-                >
-                  <Ionicons
-                    name="copy-outline"
-                    size={15}
-                    color={colors.textSecondary}
-                    style={styles.copyIcon}
+            <View style={styles.idCardContent}>
+
+              {/* Student photograph */}
+
+              <View style={styles.avatar}>
+
+                {student?.image_url ? (
+
+                  <Image
+                    source={{ uri: student.image_url }}
+                    style={styles.avatarImage}
+                    resizeMode="cover"
                   />
-                </TouchableOpacity>
-                
+
+                ) : (
+
+                  <Ionicons
+                    name="person"
+                    size={50}
+                    color={colors.textSecondary}
+                  />
+
+                )}
+
               </View>
-              {/* add here */}
-              <Text style={styles.admissionNumber}> {user?.user?.course || 'Not Available'}</Text>
-              <Text style={styles.yearText}>Year {user?.user?.year || ''}</Text>
 
-              <View style={styles.idCardDivider} />
+              {/* Student information */}
 
-              <Text style={styles.universityText}>{user?.user?.university_name || 'Not Available'}</Text>
-              
+              <View style={styles.idCardInfo}>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    Name:
+                  </Text>
+                <Text
+                  // style={styles.studentName}
+                  style={styles.detailValue}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {student?.name || 'Student Name'}
+                </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    Faculty/Dept:
+                  </Text>
+
+                  <Text
+                    style={styles.detailValue}
+                    numberOfLines={1}
+                  >
+                    {student?.faculty_department || '—'}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    Course:
+                  </Text>
+
+                  <Text
+                    style={styles.detailValue}
+                    numberOfLines={1}
+                  >
+                    {student?.course || '—'}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    Adm No:
+                  </Text>
+
+                  <Text
+                    style={styles.detailValue}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {student?.admission_number || '—'}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    Expiry:
+                  </Text>
+
+                  <Text style={styles.detailValue}>
+                    {student?.expiry_date || '—'}
+                  </Text>
+                </View>
+
+              </View>
+
             </View>
 
-            {/* divider here */}
+            {/* ==================================
+                NFC DIGITAL SECURITY MARK
+            ================================== */}
 
-            <View style={styles.nfcBadge}>
+            <View style={styles.nfcMark}>
+
               <Ionicons
                 name="wifi"
-                size={28}
-                color={colors.primary}
-                style={styles.nfcBadgeIcon}
+                size={23}
+                color={isReady ? '#55B8E8' : '#B9BBC5'}
+                style={styles.nfcIcon}
               />
-              {/* <Text style={styles.nfcBadgeText}>NFC e-ID{'\n'}Active</Text> */}
-              <Text style={styles.nfcBadgeText}>
-                NFC e-ID{'\n'}
-                {isReady ? 'Ready' : ''}
-              </Text>
+
             </View>
-          </View>
 
-          {/* <View style={styles.idCardDivider} /> */}
-
-          <View style={styles.idCardDetails}>
-            {/* <Text style={styles.programmeText}>BSc. Computer Science</Text> */}
-            {/* <Text style={styles.yearText}>3rd Year</Text> */}
-          </View>
-          {/* <Text style={styles.universityText}>Kenyatta University</Text> */}
-        {/* </View> */}
-        </ImageBackground>
+          </ImageBackground>
 
         </TouchableOpacity>
 
-        {/* NFC Status Card */}
-        <TouchableOpacity style={styles.nfcStatusCard} activeOpacity={0.7}
-          onPress={() => router.push("/nfc-eid")}
-        >
-          <View style={styles.nfcStatusIconWrapper}>
-            <MaterialCommunityIcons
-              name="wifi"
-              size={20}
-              color={colors.primary}
-            />
-          </View>
 
-          <View style={styles.nfcStatusTextGroup}>
-            {/* <Text style={styles.nfcStatusTitle}>NFC e-ID Active</Text> */}
-            <Text style={styles.nfcStatusTitle}>
-              NFC e-ID {nfcActive ? 'Active': 'Inactive'}
-            </Text>
-            <Text style={styles.nfcStatusSubtitle}>Tap to view or use</Text>
-          </View>
+        {/* ==========================================
+            FEATURE GRID
+        ========================================== */}
 
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={colors.textSecondary}
-          />
-        </TouchableOpacity>
-
-        {/* Feature Grid */}
         <View style={styles.featureGrid}>
+
           {features.map((feature) => (
+
             <FeatureCard
               key={feature.label}
               icon={feature.icon}
               label={feature.label}
-              // onPress={feature.onPress}
               onPress={() => handleFeaturePress(feature)}
             />
+
           ))}
+
         </View>
 
-
-{/* ============================================================
-    STUDENT WELCOME HERO
-    Temporary replacement for the feature grid.
-    ============================================================ */}
-
-{/* <View style={styles.welcomeHero}>
-  <View style={styles.welcomeHeroContent}>
-    <Text style={styles.welcomeEyebrow}>
-      Welcome back
-    </Text>
-
-    <Text style={styles.welcomeName}>
-      {user?.user?.name?.split(' ')[0] || 'Student'}
-    </Text>
-
-    <Text style={styles.welcomeDescription}>
-      Your campus, your identity, your experience.
-    </Text>
-  </View>
-
-  <Image
-    source={require('../../assets/images/student-welcome.png')}
-    style={styles.welcomeHeroImage}
-    resizeMode="contain"
-  />
-</View> */}
-
-
       </ScrollView>
-<Modal
-  visible={showIDPreview}
-  transparent
-  animationType="fade"
-  onRequestClose={() => setShowIDPreview(false)}
->
-
-  <Pressable
-    style={styles.previewBackground}
-    onPress={() => setShowIDPreview(false)}
-  >
 
 
-    <BlurView
-      intensity={100}
-      tint="dark"
-      style={StyleSheet.absoluteFill}
-    />
+      {/* ==========================================
+          EXPANDED ID PREVIEW
+      ========================================== */}
 
+      <Modal
+        visible={showIDPreview}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowIDPreview(false)}
+      >
 
-    <Pressable
-      style={styles.previewContainer}
-      onPress={(e)=>e.stopPropagation()}
-    >
+        <Pressable
+          style={styles.previewBackground}
+          onPress={() => setShowIDPreview(false)}
+        >
 
-      <StudentIDCard
-        user={user}
-        expanded={true}
-      />
+          <BlurView
+            intensity={100}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+          />
 
+          <Pressable
+            style={styles.previewContainer}
+            onPress={(e) => e.stopPropagation()}
+          >
 
-    </Pressable>
+            <StudentIDCard
+              user={user}
+              expanded={true}
+            />
 
+          </Pressable>
 
-  </Pressable>
+        </Pressable>
 
+      </Modal>
 
-</Modal>
     </View>
   );
 };
 
+
+// ======================================================
+// STYLES
+// ======================================================
+
 const styles = StyleSheet.create({
+
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop:50,
+    paddingTop: 50,
   },
+
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxxl,
   },
 
-  /* Student ID Card */
-  // idCard: {
-  //   backgroundColor: colors.card,
-  //   borderRadius: radii.lg,
-  //   borderWidth: 1,
-  //   borderColor: colors.border,
-  //   padding: spacing.xl,
-  //   minHeight: 240,
-  //   marginTop: spacing.md,
-  //   ...shadow.soft,
-  //   // was at 210
-  //   // flexDirection: 'row',
-  //   // flexWrap: 'wrap',
-  //   // gap: 12,
-  // },
-  idCardTopRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    // flex: 1,
-    // gap: spacing.md,
-  },
+
+  // ==========================================
+  // STUDENT ID CARD
+  // ==========================================
 
   idCard: {
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
-    minHeight: 240,
+    width: '100%',
+    // height:240,
+    aspectRatio: 1.586,
+
     marginTop: spacing.md,
+
+    borderRadius: radii.lg,
     overflow: 'hidden',
+    minHeight:240,  
+
+    position: 'relative',
+
     ...shadow.soft,
   },
+
+  idCardWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  
 
   idCardBackground: {
     borderRadius: radii.lg,
   },
 
-avatar: {
-  width: 120,
-  height: 170,
-  borderRadius: radii.lg,
-  backgroundColor: colors.background,
-  borderWidth: 1,
-  borderColor: colors.border,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
 
-idCardInfo: {
-  flex: 1,
-  marginLeft: spacing.md,
-  marginRight: spacing.sm,
-  minWidth: 0,
-},
+  // Main content positioning
 
-studentName: {
-    ...typography.largeTitle,
-    fontSize: 15,
-    marginBottom: 4,
-  },
-  admissionRow: {
+  idCardContent: {
+    position: 'absolute',
+
+    top: '35%',
+    bottom: '9%',
+
+    left: '7%',
+    right: '6%',
+
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  admissionNumber: {
-    ...typography.captionLarge,
-    color: colors.textSecondary,
-  },
-  copyIcon: {
-    marginLeft: spacing.xs,
+
+    gap: spacing.md,
   },
 
-nfcBadge: {
-  width: 60,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
 
-nfcBadgeIcon: {
-  marginBottom: 4,
-  transform: [{ rotate: '90deg' }],
-},
+  // Student photograph
 
-nfcBadgeText: {
-  fontSize: 11,
-  color: colors.primary,
-  textAlign: 'center',
-  lineHeight: 16,
-},
-  idCardDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: spacing.lg,
-  },
-  idCardDetails: {
-    marginBottom: spacing.md,
-  },
-  programmeText: {
-    ...typography.body,
-    fontWeight: '500',
-    marginBottom: 3,
-    fontSize: 13,
-  },
-  yearText: {
-    ...typography.captionLarge,
-    color: colors.textSecondary,
-    paddingLeft: 3,
-  },
-  universityText: {
-    ...typography.sectionTitle,
-    fontSize: 12,
-  },
+  avatar: {
+    width: '32%',
+    height: '100%',
 
-  /* NFC Status Card */
-  nfcStatusCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: radii.md,
+    overflow: 'hidden',
+
+    borderRadius: 4,
+
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.lg,
-    ...shadow.subtle,
-  },
-  nfcStatusIconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.sm,
-    backgroundColor: colors.primaryMuted,
+    borderColor: '#252525',
+
+    backgroundColor: '#EAEAEA',
+
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  nfcStatusTextGroup: {
-    flex: 1,
-  },
-  nfcStatusTitle: {
-    ...typography.bodyMedium,
-    fontSize: 15,
-  },
-  nfcStatusSubtitle: {
-    ...typography.caption,
-    marginTop: 2,
   },
 
-  /* Feature Grid */
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+
+  // Student information
+
+  idCardInfo: {
+    flex: 1,
+    minWidth: 0,
+
+    justifyContent: 'center',
+
+    gap: 4,
+  },
+
+  studentName: {
+    fontSize: 11,
+    fontWeight: '700',
+
+    color: '#151515',
+
+    marginBottom: 3,
+  },
+
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  detailLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+
+    color: '#151515',
+  },
+
+  detailValue: {
+    flex: 1,
+    minWidth: 0,
+
+    fontSize: 10,
+
+    color: '#222222',
+  },
+
+
+  // NFC mark
+
+  nfcMark: {
+    position: 'absolute',
+
+    right: '3%',
+    bottom: '3%',
+
+    width: 27,
+    height: 27,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  nfcIcon: {
+    transform: [{ rotate: '90deg' }],
+  },
+
+
+  // ==========================================
+  // FEATURE GRID
+  // ==========================================
+
   featureGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+
     justifyContent: 'space-between',
+
     marginTop: spacing.xl,
+
     rowGap: spacing.md,
   },
-  welcomeHero: {
-  minHeight: 190,
 
-  marginTop: spacing.xl,
 
-  borderRadius: radii.lg,
+  // ==========================================
+  // EXPANDED ID PREVIEW
+  // ==========================================
 
-  backgroundColor: colors.primaryMuted,
+  previewBackground: {
+    flex: 1,
 
-  overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
 
-  flexDirection: 'row',
-  alignItems: 'center',
-},
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
 
-welcomeHeroContent: {
-  flex: 1,
-
-  paddingLeft: spacing.lg,
-  paddingVertical: spacing.xl,
-
-  zIndex: 2,
-},
-
-welcomeEyebrow: {
-  ...typography.captionLarge,
-
-  color: colors.textSecondary,
-
-  marginBottom: 3,
-},
-
-welcomeName: {
-  ...typography.largeTitle,
-
-  fontSize: 26,
-  fontWeight: '700',
-
-  color: colors.textPrimary,
-
-  marginBottom: spacing.sm,
-},
-
-welcomeDescription: {
-  ...typography.caption,
-
-  color: colors.textSecondary,
-
-  lineHeight: 18,
-
-  maxWidth: 180,
-},
-
-welcomeHeroImage: {
-  width: 170,
-  height: 190,
-
-  marginRight: -5,
-},
-avatarImage: {
-  width: '100%',
-  height: '100%',
-  borderRadius: radii.lg,
-},
-previewBackground:{
- flex:1,
- justifyContent:'center',
- alignItems:'center',
- backgroundColor:'rgba(0,0,0,0.5)',
-},
-
-previewCard:{
- width:'90%',
- borderRadius:20,
- backgroundColor:colors.card,
- padding:20,
- ...shadow.soft,
- transform:[
-   {
-    scale:1.05
-   }
- ]
-},
-previewContainer:{
-  width:"92%",
-  transform:[
-    {
-      scale:1.15
-    }
-  ],
-},
+  previewContainer: {
+    width: '92%',
+    maxWidth: 600,
+  },
 
 });
 

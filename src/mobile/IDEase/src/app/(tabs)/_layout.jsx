@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { Redirect, Tabs } from "expo-router";
 
-import { colors } from "../../styles/theme";
+import { colors, ZETECH } from "../../styles/theme";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -78,7 +78,7 @@ const TabsLayout = () => {
             headerShown:false,
 
 
-            tabBarActiveTintColor: colors.primary,
+            tabBarActiveTintColor: ZETECH.navyLight,
 
 
             tabBarInactiveTintColor: colors.textPrimary,

@@ -1,231 +1,19 @@
-// import React, { useMemo } from "react";
-// import {
-//   View,
-//   Text,
-//   Image,
-//   StyleSheet,
-// } from "react-native";
 
-// import Ionicons from "react-native-vector-icons/Ionicons";
-// import { LinearGradient } from "expo-linear-gradient";
-// import { BlurView } from "expo-blur";
+import React from 'react';
 
-// import {
-//   colors,
-//   typography,
-//   radii,
-//   spacing,
-//   shadow,
-// } from "../styles/theme";
-
-// /**
-//  * Deterministically turns a string (e.g. admission number) into
-//  * a hue offset, so the same student always gets the same gradient,
-//  * but different students get visually distinct cards.
-//  */
-// const seedToHueOffset = (seed = "") => {
-//   let hash = 0;
-//   for (let i = 0; i < seed.length; i++) {
-//     hash = (hash << 5) - hash + seed.charCodeAt(i);
-//     hash |= 0; // keep it a 32-bit int
-//   }
-//   return Math.abs(hash) % 40; // small offset so it stays on-brand
-// };
-
-// const StudentIDCard = ({ user, expanded = false }) => {
-//   const seed = user?.user?.admission_number || user?.user?.name || "default";
-//   const hueOffset = useMemo(() => seedToHueOffset(seed), [seed]);
-
-//   // Gradient stops built from your existing brand colors, nudged by
-//   // the per-user offset. Swap these for actual hue-rotated values
-//   // from your theme if you want true per-user hue shifts.
-//   const gradientColors = [
-//     colors.primaryMuted,
-//     colors.primary,
-//     colors.card,
-//   ];
-
-//   return (
-//     <View
-//       style={[
-//         styles.idCard,
-//         expanded && styles.expandedCard,
-//       ]}
-//     >
-//       <LinearGradient
-//         colors={gradientColors}
-//         start={{ x: 0, y: 0 }}
-//         end={{ x: 1, y: 1 }}
-//         style={[
-//           StyleSheet.absoluteFill,
-//           { borderRadius: expanded ? 30 : radii.lg },
-//         ]}
-//       />
-
-//       {/* Faint repeating watermark could go here as an SVG pattern,
-//           layered above the gradient and below the content below */}
-
-//       <View style={styles.idCardTopRow}>
-//         {/* Avatar */}
-//         <View style={styles.avatar}>
-//           {user?.user?.image_url ? (
-//             <Image
-//               source={{ uri: user.user.image_url }}
-//               style={styles.avatarImage}
-//               resizeMode="cover"
-//             />
-//           ) : (
-//             <Ionicons name="person" size={50} color={colors.textSecondary} />
-//           )}
-//         </View>
-
-//         {/* Glass panel behind the text so it stays legible over the gradient */}
-//         <BlurView intensity={40} tint="light" style={styles.infoGlass}>
-//           <View style={styles.idCardInfo}>
-//             <Text style={styles.studentName}>
-//               {user?.user?.name || "Unknown"}
-//             </Text>
-
-//             <Text style={styles.admission}>
-//               {user?.user?.admission_number || "No admission number"}
-//             </Text>
-
-//             <Text style={styles.course}>
-//               {user?.user?.course || "Course unavailable"}
-//             </Text>
-
-//             <Text style={styles.year}>{user?.user?.year || ""}</Text>
-
-//             <View style={styles.divider} />
-
-//             <Text style={styles.university}>
-//               {user?.user?.university_name || "University"}
-//             </Text>
-//           </View>
-//         </BlurView>
-
-//         {/* NFC badge */}
-//         <View style={styles.nfcBadge}>
-//           <Ionicons
-//             name="wifi"
-//             size={30}
-//             color={colors.primary}
-//             style={{ transform: [{ rotate: "90deg" }] }}
-//           />
-//           <Text style={styles.nfcText}>NFC{"\n"}e-ID</Text>
-//         </View>
-//       </View>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   idCard: {
-//     borderRadius: radii.lg,
-//     borderWidth: 1,
-//     borderColor: colors.border,
-//     padding: spacing.xl,
-//     overflow: "hidden", // clips the gradient to the card's rounded corners
-//     ...shadow.soft,
-//   },
-
-//   expandedCard: {
-//     padding: 25,
-//     borderRadius: 30,
-//   },
-
-//   idCardTopRow: {
-//     flexDirection: "row",
-//     alignItems: "flex-start",
-//   },
-
-//   avatar: {
-//     width: 120,
-//     height: 170,
-//     borderRadius: radii.lg,
-//     backgroundColor: colors.background,
-//     justifyContent: "center",
-//     alignItems: "center",
-//     overflow: "hidden",
-//   },
-
-//   avatarImage: {
-//     width: "100%",
-//     height: "100%",
-//   },
-
-//   infoGlass: {
-//     flex: 1,
-//     marginLeft: spacing.md,
-//     borderRadius: radii.md,
-//     overflow: "hidden", // required for BlurView's own radius on Android
-//   },
-
-//   idCardInfo: {
-//     padding: spacing.md,
-//   },
-
-//   studentName: {
-//     fontSize: 18,
-//     fontWeight: "700",
-//     color: colors.textPrimary,
-//     marginBottom: 6,
-//   },
-
-//   admission: {
-//     fontSize: 13,
-//     color: colors.textSecondary,
-//   },
-
-//   course: {
-//     fontSize: 14,
-//     marginTop: 8,
-//     color: colors.textPrimary,
-//   },
-
-//   year: {
-//     fontSize: 13,
-//     color: colors.textSecondary,
-//     marginTop: 3,
-//   },
-
-//   divider: {
-//     height: 1,
-//     backgroundColor: colors.border,
-//     marginVertical: 15,
-//   },
-
-//   university: {
-//     fontSize: 13,
-//     fontWeight: "600",
-//     color: colors.textPrimary,
-//   },
-
-//   nfcBadge: {
-//     width: 60,
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-
-//   nfcText: {
-//     fontSize: 11,
-//     color: colors.primary,
-//     textAlign: "center",
-//   },
-// });
-
-// export default StudentIDCard;
-
-import React from "react";
 import {
   View,
   Text,
   Image,
   StyleSheet,
+  NativeModules,
   ImageBackground,
-} from "react-native";
+} from 'react-native';
 
-import Ionicons from "react-native-vector-icons/Ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+
+const {UniCampusHCE} = NativeModules;
 
 import {
   colors,
@@ -233,39 +21,45 @@ import {
   radii,
   spacing,
   shadow,
-} from "../styles/theme";
+} from '../styles/theme';
 
 
-const StudentIDCard = ({ user, expanded = false }) => {
+const StudentIDCard = ({
+  user,
+  expanded = false,
+  nfcReady = false,
+}) => {
+
+  const student = user?.user;
+  const isReady = UniCampusHCE.hasStoredCredentials();
 
   return (
-    // <View
-    //   style={[
-    //     styles.idCard,
-    //     expanded && styles.expandedCard
-    //   ]}
-    // >
+    <View style={styles.idCardWrapper}>
+
     <ImageBackground
-        source={require("../../assets/images/files/img7.png")}
-        style={[
-          styles.idCard,
-          expanded && styles.expandedCard
-        ]}
-        imageStyle={styles.idCardBackground}
-        resizeMode="cover"
-      >
+      source={require('../../assets/images/files/zetech_id.png')}
+      style={[
+        styles.idCard,
+        expanded && styles.expandedCard,
+      ]}
+      imageStyle={styles.idCardBackground}
+      resizeMode="stretch"
+    >
 
-      <View style={styles.idCardTopRow}>
+      {/* ======================================
+          STUDENT PHOTO AND INFORMATION
+      ====================================== */}
 
-        {/* Avatar */}
+      <View style={styles.idCardContent}>
+
+        {/* Student photograph */}
+
         <View style={styles.avatar}>
 
-          {user?.user?.image_url ? (
+          {student?.image_url ? (
 
             <Image
-              source={{
-                uri: user.user.image_url
-              }}
+              source={{ uri: student.image_url }}
               style={styles.avatarImage}
               resizeMode="cover"
             />
@@ -274,7 +68,7 @@ const StudentIDCard = ({ user, expanded = false }) => {
 
             <Ionicons
               name="person"
-              size={50}
+              size={expanded ? 65 : 50}
               color={colors.textSecondary}
             />
 
@@ -283,92 +77,152 @@ const StudentIDCard = ({ user, expanded = false }) => {
         </View>
 
 
-        {/* Student details */}
+        {/* Student information */}
+
         <View style={styles.idCardInfo}>
 
-          <Text style={styles.studentName}>
-            {user?.user?.name || "Unknown"}
-          </Text>
+          {/* Name */}
+
+          <View style={styles.detailRow}>
+
+            <Text style={styles.detailLabel}>
+              Name:
+            </Text>
+
+            <Text
+              style={styles.detailValue}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {student?.name || 'Student Name'}
+            </Text>
+
+          </View>
 
 
-          <Text style={styles.admission}>
-            {user?.user?.admission_number || "No admission number"}
-          </Text>
+          {/* Faculty / Department */}
+
+          <View style={styles.detailRow}>
+
+            <Text style={styles.detailLabel}>
+              Faculty/Dept:
+            </Text>
+
+            <Text
+              style={styles.detailValue}
+              numberOfLines={1}
+            >
+              {student?.faculty_department || '—'}
+            </Text>
+
+          </View>
 
 
-          <Text style={styles.course}>
-            {user?.user?.course || "Course unavailable"}
-          </Text>
+          {/* Course */}
+
+          <View style={styles.detailRow}>
+
+            <Text style={styles.detailLabel}>
+              Course:
+            </Text>
+
+            <Text
+              style={styles.detailValue}
+              numberOfLines={1}
+            >
+              {student?.course || '—'}
+            </Text>
+
+          </View>
 
 
-          <Text style={styles.year}> Year
-            {"\u00A0"}
-            {user?.user?.year || ""}
-          </Text>
+          {/* Admission Number */}
+
+          <View style={styles.detailRow}>
+
+            <Text style={styles.detailLabel}>
+              Adm No:
+            </Text>
+
+            <Text
+              style={styles.detailValue}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {student?.admission_number || '—'}
+            </Text>
+
+          </View>
 
 
-          <View style={styles.divider}/>
+          {/* Expiry */}
 
+          <View style={styles.detailRow}>
 
-          <Text style={styles.university}>
-            {user?.user?.university_name || "University"}
-          </Text>
+            <Text style={styles.detailLabel}>
+              Expiry:
+            </Text>
 
+            <Text style={styles.detailValue}>
+              {student?.expiry_date || '—'}
+            </Text>
+
+          </View>
 
         </View>
-
-
-        {/* NFC badge */}
-        <View style={styles.nfcBadge}>
-
-          <Ionicons
-            name="wifi"
-            size={30}
-            color={colors.primary}
-            style={{
-              transform:[
-                {
-                  rotate:"90deg"
-                }
-              ]
-            }}
-          />
-
-
-          <Text style={styles.nfcText}>
-            NFC{"\n"}e-ID
-          </Text>
-
-
-        </View>
-
 
       </View>
 
 
-    {/* </View> */}
+      {/* ======================================
+          NFC DIGITAL SECURITY MARK
+      ====================================== */}
+
+      <View style={styles.nfcMark}>
+
+        <Ionicons
+          name="wifi"
+          size={expanded ? 30 : 23}
+          color={isReady ? '#55B8E8' : '#B9BBC5'}
+          style={styles.nfcIcon}
+        />
+
+      </View>
+
     </ImageBackground>
+    </View>
   );
 };
 
 
+// ==============================================
+// STYLES
+// ==============================================
+
 const styles = StyleSheet.create({
 
-  // idCard:{
-  //   backgroundColor: colors.card,
-  //   borderRadius:radii.lg,
-  //   borderWidth:1,
-  //   borderColor:colors.border,
-  //   padding:spacing.xl,
-  //   ...shadow.soft,
-  // },
+  // ID CARD
+
   idCard: {
+    width: '100%',
+    aspectRatio: 1.586,
+
+    minHeight: 240,
+
     borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.xl,
-    overflow: "hidden",
+
+    overflow: 'hidden',
+    position: 'relative',
+
     ...shadow.soft,
+  },
+
+  idCardWrapper:{
+    width:'100%',
+    alignItems:'center',
+    justifyContent:'center'
   },
 
   idCardBackground: {
@@ -376,98 +230,109 @@ const styles = StyleSheet.create({
   },
 
 
-  expandedCard:{
-    padding:25,
-    borderRadius:30,
+  // EXPANDED CARD
+
+  expandedCard: {
+    aspectRatio: 1.586,
+    borderRadius: 20,
   },
 
 
-  idCardTopRow:{
-    flexDirection:"row",
-    alignItems:"flex-start",
+  // CONTENT POSITIONING
+
+  idCardContent: {
+    position: 'absolute',
+
+    top: '35%',
+    bottom: '9%',
+
+    left: '7%',
+    right: '6%',
+
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    gap: spacing.md,
   },
 
 
-  avatar:{
-    width:120,
-    height:170,
-    borderRadius:radii.lg,
-    backgroundColor:colors.background,
-    justifyContent:"center",
-    alignItems:"center",
-    overflow:"hidden",
+  // STUDENT PHOTO
+
+  avatar: {
+    width: '32%',
+    height: '100%',
+
+    backgroundColor: '#EAEAEA',
+
+    borderRadius: 4,
+
+    borderWidth: 1,
+    borderColor: '#252525',
+
+    overflow: 'hidden',
+
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
 
 
-  avatarImage:{
-    width:"100%",
-    height:"100%",
+  // STUDENT INFORMATION
+
+  idCardInfo: {
+    flex: 1,
+    minWidth: 0,
+
+    justifyContent: 'center',
+
+    gap: 4,
+  },
+
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  detailLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+
+    color: '#151515',
+  },
+
+  detailValue: {
+    flex: 1,
+    minWidth: 0,
+
+    fontSize: 10,
+
+    color: '#222222',
   },
 
 
-  idCardInfo:{
-    flex:1,
-    marginLeft:spacing.md,
+  // NFC MARK
+
+  nfcMark: {
+    position: 'absolute',
+
+    right: '3%',
+    bottom: '3%',
+
+    width: 27,
+    height: 27,
+
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
-
-  studentName:{
-    fontSize:18,
-    fontWeight:"700",
-    color:colors.textPrimary,
-    marginBottom:6,
+  nfcIcon: {
+    transform: [{ rotate: '90deg' }],
   },
-
-
-  admission:{
-    fontSize:13,
-    color:colors.textSecondary,
-  },
-
-
-  course:{
-    fontSize:14,
-    marginTop:8,
-    color:colors.textPrimary,
-  },
-
-
-  year:{
-    fontSize:13,
-    color:colors.textSecondary,
-    marginTop:3,
-  },
-
-
-  divider:{
-    height:1,
-    backgroundColor:colors.border,
-    marginVertical:15,
-  },
-
-
-  university:{
-    fontSize:13,
-    fontWeight:"600",
-    color:colors.textPrimary,
-  },
-
-
-  nfcBadge:{
-    width:60,
-    alignItems:"center",
-    justifyContent:"center",
-  },
-
-
-  nfcText:{
-    fontSize:11,
-    color:colors.primary,
-    textAlign:"center",
-  },
-
 
 });
-
 
 export default StudentIDCard;

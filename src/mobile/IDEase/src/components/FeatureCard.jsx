@@ -1,29 +1,39 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { colors, typography, radii, spacing, shadow } from '../styles/theme';
 
-/**
- * FeatureCard
- * A single tile in the profile feature grid (Personal Info, Contact, etc).
- * Purely presentational — no navigation wired up.
- */
-const FeatureCard = ({ icon, label, onPress }) => {
-  return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.iconWrapper}>
-        <Ionicons name={icon} size={22} color={colors.primary} />
-      </View>
-      <Text style={styles.label} numberOfLines={1}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-};
+import React from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { typography, radii, spacing, shadow, colors , ZETECH} from '../styles/theme';
+
+// const ZETECH = {
+//   navy: '#11172F',
+//   navyLight: '#252D49',
+//   white: '#FFFFFF',
+// };
+
+const FeatureCard = ({ icon, label, onPress }) => (
+  <TouchableOpacity
+    style={styles.card}
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
+    <View style={styles.iconWrapper}>
+      <Ionicons
+        name={icon}
+        size={22}
+        color={ZETECH.white}
+      />
+    </View>
+
+    <Text style={styles.label} numberOfLines={1}>
+      {label}
+    </Text>
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
   card: {
@@ -38,15 +48,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     ...shadow.subtle,
   },
+
   iconWrapper: {
     width: 44,
     height: 44,
     borderRadius: radii.sm,
-    backgroundColor: colors.primaryMuted,
+    backgroundColor: ZETECH.navyLight,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
+
   label: {
     ...typography.caption,
     color: colors.textPrimary,

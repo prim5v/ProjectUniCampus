@@ -19,6 +19,12 @@ export const colors = {
   overlay: 'rgba(28, 28, 30, 0.04)',
 };
 
+export const ZETECH = {
+  navy: '#11172F',
+  navyLight: '#252D49',
+  white: '#FFFFFF',
+};
+
 export const spacing = {
   xs: 4,
   sm: 8,
