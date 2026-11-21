@@ -59,18 +59,27 @@ def access_payload(data):
             }), 400
 
         separator = data_inHexBytes.index(b'|')
-
+        # separator at index 12
         student_id = data_inHexBytes[:separator].decode("utf-8")
+        # extract the 1st 12 bytes /from index 0 to 11 not including index 12
         print(f"Decoded student id:{student_id}")
         remaining = data_inHexBytes[separator + 1:]
+        # remaining starts from index 12+1 = index 13
+        # remaining now has 29 bytes check
         if len(remaining) != 29:
             return jsonify({
                 "success": False,
                 "message": "Malformed Payload"
             }), 400
         nonce = remaining[:16]
+        # extract nonce from index 0 to 15 
+        
+        # extracted_chunk = remaining[16:23]
+        # extracts from index 16 and stops at 22
+
         print(f"nonce: {nonce}")
         timestamp_ms = int(remaining[16:].decode("utf-8"))
+        # extract timestamp-ms from index 16 to end for the case 29
         timestamp = timestamp_ms // 1000
         print(f"Timestamp_ms: {timestamp_ms}")
         print(f"Timestamp: {timestamp}")
